@@ -14,6 +14,10 @@ from .login_history import LoginHistory
 from .password_reset import PasswordReset
 from .email_verification import EmailVerification
 from .audit_log import AuditLog
+from .team import Team
+from .user_org_role import UserOrganizationRole
+from .user_factory_role import UserFactoryRole
+from .user_dept_role import UserDepartmentRole
 
 # Ensure all models are exported
 __all__ = [

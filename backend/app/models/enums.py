@@ -36,3 +36,24 @@ class EntityType(str, Enum):
     PERMISSION = "PERMISSION"
     FACTORY = "FACTORY"
     DEPARTMENT = "DEPARTMENT"
+    TEAM = "TEAM"
+
+class IndustrySector(str, Enum):
+    AUTOMOTIVE = "AUTOMOTIVE"
+    AEROSPACE = "AEROSPACE"
+    MANUFACTURING = "MANUFACTURING"
+    PHARMACEUTICAL = "PHARMACEUTICAL"
+    ELECTRONICS = "ELECTRONICS"
+    OTHER = "OTHER"
+
+class OperationalStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    MAINTENANCE = "MAINTENANCE"
+    INACTIVE = "INACTIVE"
+    CLOSED = "CLOSED"
+
+class CompanySize(str, Enum):
+    SMALL = "SMALL"       # 1-50
+    MEDIUM = "MEDIUM"     # 51-200
+    LARGE = "LARGE"       # 201-1000
+    ENTERPRISE = "ENTERPRISE" # 1000+

@@ -5,13 +5,14 @@ from typing import List, Optional
 import uuid
 
 from app.db.base_class import BaseModel
-from app.models.enums import OperationalStatus
+from app.models.enums import OperationalStatus, DepartmentType
 
 class Department(BaseModel):
     __tablename__ = "departments"
 
     factory_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("factories.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(255), index=True)
+    department_type: Mapped[DepartmentType] = mapped_column(Enum(DepartmentType), default=DepartmentType.CUSTOM)
     description: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     manager_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     status: Mapped[OperationalStatus] = mapped_column(Enum(OperationalStatus), default=OperationalStatus.ACTIVE)

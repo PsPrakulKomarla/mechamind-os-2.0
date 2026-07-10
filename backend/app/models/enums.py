@@ -57,3 +57,62 @@ class CompanySize(str, Enum):
     MEDIUM = "MEDIUM"     # 51-200
     LARGE = "LARGE"       # 201-1000
     ENTERPRISE = "ENTERPRISE" # 1000+
+
+class FactorySize(str, Enum):
+    SMALL = "SMALL"
+    MEDIUM = "MEDIUM"
+    LARGE = "LARGE"
+
+class OperationalCriticality(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+class ProductionType(str, Enum):
+    DISCRETE = "DISCRETE"
+    PROCESS = "PROCESS"
+    BATCH = "BATCH"
+    CONTINUOUS = "CONTINUOUS"
+    MIXED = "MIXED"
+
+class DepartmentType(str, Enum):
+    MECHANICAL = "MECHANICAL"
+    ELECTRICAL = "ELECTRICAL"
+    INSTRUMENTATION = "INSTRUMENTATION"
+    PRODUCTION = "PRODUCTION"
+    OPERATIONS = "OPERATIONS"
+    MAINTENANCE = "MAINTENANCE"
+    SAFETY = "SAFETY"
+    QUALITY = "QUALITY"
+    INSPECTION = "INSPECTION"
+    ENGINEERING = "ENGINEERING"
+    IT_AUTOMATION = "IT_AUTOMATION"
+    CUSTOM = "CUSTOM"
+
+class ScopeType(str, Enum):
+    GLOBAL = "GLOBAL"
+    ORGANIZATION = "ORGANIZATION"
+    FACTORY = "FACTORY"
+    DEPARTMENT = "DEPARTMENT"
+    TEAM = "TEAM"
+
+class MachineStatus(str, Enum):
+    OPERATIONAL = "OPERATIONAL"
+    MAINTENANCE = "MAINTENANCE"
+    STOPPED = "STOPPED"
+    FAILED = "FAILED"
+    RETIRED = "RETIRED"
+
+class AssetCriticality(str, Enum):
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+class ConditionStatus(str, Enum):
+    NEW = "NEW"
+    GOOD = "GOOD"
+    FAIR = "FAIR"
+    POOR = "POOR"
+    CRITICAL = "CRITICAL"

@@ -18,8 +18,12 @@ from .team import Team
 from .user_org_role import UserOrganizationRole
 from .user_factory_role import UserFactoryRole
 from .user_dept_role import UserDepartmentRole
+from .user_team import UserTeam
 
-# Ensure all models are exported
+from .asset_master import Manufacturer, MachineCategory, MachineType, PartDefinition, OrganizationManufacturerProfile, OrganizationMachineType
+from .machine import ProductionLine, Machine, MachineManufacturer, MachineLocation, MachineStatusHistory, MachineDocument, MachineRiskAssessment
+from .component import MachineSubsystem, Component, InstalledPartInstance
+
 __all__ = [
     "UserStatus",
     "OrganizationStatus",
@@ -39,4 +43,25 @@ __all__ = [
     "PasswordReset",
     "EmailVerification",
     "AuditLog",
+    "Team",
+    "UserOrganizationRole",
+    "UserFactoryRole",
+    "UserDepartmentRole",
+    "UserTeam",
+    "Manufacturer",
+    "MachineCategory",
+    "MachineType",
+    "PartDefinition",
+    "OrganizationManufacturerProfile",
+    "OrganizationMachineType",
+    "ProductionLine",
+    "Machine",
+    "MachineManufacturer",
+    "MachineLocation",
+    "MachineStatusHistory",
+    "MachineDocument",
+    "MachineRiskAssessment",
+    "MachineSubsystem",
+    "Component",
+    "InstalledPartInstance"
 ]

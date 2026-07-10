@@ -94,6 +94,45 @@ class MockLlmProvider(LlmProvider):
                 ]
             }
 
+        if "computer vision" in system_prompt_lower or "detect defects" in system_prompt_lower:
+            return {
+                "answer": "Vision Analysis",
+                "risk_level": "HIGH",
+                "confidence": 0.92,
+                "sources": ["YOLOv8 Weights"],
+                "recommendations": [],
+                "vision_payload": {
+                    "asset_tag_detected": "P-101",
+                    "defects": [
+                        {
+                            "defect_type": "LEAKAGE",
+                            "severity": "HIGH",
+                            "confidence": 0.95,
+                            "location": {"x": 120, "y": 450, "w": 200, "h": 50},
+                            "description": "Visible oil pooling beneath the bearing housing."
+                        }
+                    ]
+                }
+            }
+
+        if "when will" in user_prompt.lower() and "fail" in user_prompt.lower():
+            return {
+                "answer": "Based on the latest telemetry showing high vibration and the vision analysis showing leakage, the main bearing is predicted to fail within the next 48 to 72 hours. Remaining Useful Life (RUL) is estimated at 60 hours. I recommend a controlled shutdown and replacement to save an estimated $15,000 in collateral damage.",
+                "risk_level": "CRITICAL",
+                "confidence": 0.89,
+                "sources": ["Sensor: P-101-V1", "Vision Model", "Maintenance History"],
+                "recommendations": ["Initiate controlled shutdown within 24 hours.", "Order replacement bearing part #B-992."]
+            }
+            
+        if "which machines need maintenance" in user_prompt.lower():
+            return {
+                "answer": "Currently, 3 machines require immediate attention: \n1. P-101 (Predicted Bearing Failure - 60h RUL)\n2. M-202 (Overheating Trend Detected)\n3. V-305 (Vision detected Rust - Low Priority)",
+                "risk_level": "HIGH",
+                "confidence": 0.95,
+                "sources": ["Digital Twin States"],
+                "recommendations": ["Dispatch tech to P-101", "Inspect M-202 cooling system"]
+            }
+
         if "leak" in user_prompt.lower() or "fire" in user_prompt.lower():
             risk = "CRITICAL"
         elif "overheating" in user_prompt.lower():

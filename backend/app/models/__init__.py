@@ -33,6 +33,10 @@ from app.models.copilot import CopilotConversation, CopilotMessage, CopilotRespo
 from app.models.learning import AIResponseFeedback, SolutionProposal, KnowledgeVersion
 from app.models.maintenance import MaintenanceRecord, FailureEvent
 from app.models.compliance import Regulation, ComplianceRequirement, ComplianceAssessment, ComplianceFinding, CorrectiveAction
+from app.models.vision import MediaFile, VisionAnalysis, DetectedDefect
+from app.models.iot import IoTDevice, Sensor, SensorReading, MachineAlert
+from app.models.prediction import FailurePrediction
+from app.models.analytics import UserActivityLog, FactoryTimelineEvent, GeneratedReport
 
 __all__ = [
     "UserStatus",
@@ -98,5 +102,16 @@ __all__ = [
     "ComplianceRequirement",
     "ComplianceAssessment",
     "ComplianceFinding",
-    "CorrectiveAction"
+    "CorrectiveAction",
+    "MediaFile",
+    "VisionAnalysis",
+    "DetectedDefect",
+    "IoTDevice",
+    "Sensor",
+    "SensorReading",
+    "MachineAlert",
+    "FailurePrediction",
+    "UserActivityLog",
+    "FactoryTimelineEvent",
+    "GeneratedReport"
 ]

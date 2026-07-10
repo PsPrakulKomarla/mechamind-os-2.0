@@ -241,6 +241,90 @@ class CorrectiveActionStatus(str, Enum):
     COMPLETED = "COMPLETED"
     VERIFIED = "VERIFIED"
 
+class MediaType(str, Enum):
+    IMAGE = "IMAGE"
+    VIDEO = "VIDEO"
+
+class AnalysisStatus(str, Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+class DefectType(str, Enum):
+    RUST = "RUST"
+    CORROSION = "CORROSION"
+    LEAKAGE = "LEAKAGE"
+    CRACK = "CRACK"
+    WEAR = "WEAR"
+    SMOKE = "SMOKE"
+    OVERHEATING = "OVERHEATING"
+    MISSING_COMPONENT = "MISSING_COMPONENT"
+    LOOSE_CONNECTION = "LOOSE_CONNECTION"
+    ABNORMAL_CONDITION = "ABNORMAL_CONDITION"
+
+class SensorType(str, Enum):
+    TEMPERATURE = "TEMPERATURE"
+    PRESSURE = "PRESSURE"
+    VIBRATION = "VIBRATION"
+    HUMIDITY = "HUMIDITY"
+    FLOW = "FLOW"
+    CURRENT = "CURRENT"
+    VOLTAGE = "VOLTAGE"
+    ENERGY = "ENERGY"
+    SPEED = "SPEED"
+
+class DeviceStatus(str, Enum):
+    ONLINE = "ONLINE"
+    OFFLINE = "OFFLINE"
+    MAINTENANCE = "MAINTENANCE"
+    ERROR = "ERROR"
+
+class AlertStatus(str, Enum):
+    OPEN = "OPEN"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    RESOLVED = "RESOLVED"
+
+class FailurePredictionType(str, Enum):
+    BEARING = "BEARING"
+    MOTOR = "MOTOR"
+    PUMP = "PUMP"
+    VALVE = "VALVE"
+    ELECTRICAL = "ELECTRICAL"
+    OVERHEATING = "OVERHEATING"
+    LEAKAGE = "LEAKAGE"
+
+class ActionRecommendation(str, Enum):
+    REPAIR = "REPAIR"
+    MONITOR = "MONITOR"
+    REPLACE = "REPLACE"
+    SHUTDOWN = "SHUTDOWN"
+
+class MaintenanceRecommendationPriority(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+class ActivityType(str, Enum):
+    LOGIN = "LOGIN"
+    QA_ASKED = "QA_ASKED"
+    DOCUMENT_UPLOAD = "DOCUMENT_UPLOAD"
+    MAINTENANCE_ACTION = "MAINTENANCE_ACTION"
+    EXPORT_REPORT = "EXPORT_REPORT"
+
+class ReportType(str, Enum):
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"
+    CUSTOM = "CUSTOM"
+
+class ExportFormat(str, Enum):
+    PDF = "PDF"
+    EXCEL = "EXCEL"
+    CSV = "CSV"
+    JSON = "JSON"
+
 class MachineStatus(str, Enum):
     OPERATIONAL = "OPERATIONAL"
     MAINTENANCE = "MAINTENANCE"

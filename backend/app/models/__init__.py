@@ -23,6 +23,16 @@ from .user_team import UserTeam
 from .asset_master import Manufacturer, MachineCategory, MachineType, PartDefinition, OrganizationManufacturerProfile, OrganizationMachineType
 from .machine import ProductionLine, Machine, MachineManufacturer, MachineLocation, MachineStatusHistory, MachineDocument, MachineRiskAssessment
 from .component import MachineSubsystem, Component, InstalledPartInstance
+from .relationship import AssetRelationship
+from .risk_health import AssetRiskAssessment, AssetHealthScore, CriticalityHistory
+from .document import Document
+from app.models.extraction import DocumentExtraction, ExtractedContent, ProcessingJob
+from app.models.entity import ExtractedEntity, EntityRelationship, KnowledgeMap
+from app.models.knowledge import KnowledgeEmbedding
+from app.models.copilot import CopilotConversation, CopilotMessage, CopilotResponseMetadata
+from app.models.learning import AIResponseFeedback, SolutionProposal, KnowledgeVersion
+from app.models.maintenance import MaintenanceRecord, FailureEvent
+from app.models.compliance import Regulation, ComplianceRequirement, ComplianceAssessment, ComplianceFinding, CorrectiveAction
 
 __all__ = [
     "UserStatus",
@@ -63,5 +73,30 @@ __all__ = [
     "MachineRiskAssessment",
     "MachineSubsystem",
     "Component",
-    "InstalledPartInstance"
+    "InstalledPartInstance",
+    "AssetRelationship",
+    "AssetRiskAssessment",
+    "AssetHealthScore",
+    "CriticalityHistory",
+    "Document",
+    "DocumentExtraction",
+    "ExtractedContent",
+    "ProcessingJob",
+    "ExtractedEntity",
+    "EntityRelationship",
+    "KnowledgeMap",
+    "KnowledgeEmbedding",
+    "CopilotConversation",
+    "CopilotMessage",
+    "CopilotResponseMetadata",
+    "AIResponseFeedback",
+    "SolutionProposal",
+    "KnowledgeVersion",
+    "MaintenanceRecord",
+    "FailureEvent",
+    "Regulation",
+    "ComplianceRequirement",
+    "ComplianceAssessment",
+    "ComplianceFinding",
+    "CorrectiveAction"
 ]

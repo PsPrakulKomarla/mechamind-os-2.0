@@ -30,10 +30,18 @@ class Settings(BaseSettings):
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = ["*"]
     
-    # JWT Settings
-    SECRET_KEY: str = "super_secret_key_change_me_in_production"
+    # Security
+    SECRET_KEY: str = "super_secret_temporary_key_for_dev_change_in_prod"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # Storage Config (Phase 10)
+    STORAGE_BACKEND: str = "local" # options: "local", "s3", "azure"
+    LOCAL_STORAGE_DIR: str = "./storage/documents"
+    
+    # Celery & Redis Config (Phase 10.2)
+    REDIS_URL: str = "redis://localhost:6379/0"
+    
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     # Encryption Settings (must be 32 URL-safe base64-encoded bytes for Fernet)

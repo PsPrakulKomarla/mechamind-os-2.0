@@ -59,7 +59,10 @@ class PartDefinition(Base):
     name = Column(String, nullable=False)
     category = Column(String, nullable=True)
     description = Column(Text, nullable=True)
+    specifications = Column(JSONB, nullable=True)
     expected_life_hours = Column(String, nullable=True) # E.g., "10000" or metadata
+    estimated_cost = Column(String, nullable=True)
+    criticality = Column(String, nullable=True) # E.g. "CRITICAL", "HIGH"
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

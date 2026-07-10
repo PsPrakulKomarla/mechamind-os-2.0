@@ -41,6 +41,10 @@ def create_app() -> FastAPI:
     )
 
     from app.middleware.auth import AuthMiddleware
+    from app.core.telemetry import configure_telemetry
+
+    # Telemetry
+    configure_telemetry(app)
 
     # Middlewares (Order matters)
     app.add_middleware(AuthMiddleware)
@@ -52,6 +56,16 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Secure Headers Middleware
+    @app.middleware("http")
+    async def secure_headers_middleware(request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
 
     # Exception Handlers
     app.add_exception_handler(BaseAppException, app_exception_handler)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1 import (
     health, auth, users, roles, permissions, organizations, factories, departments, teams, machines,
-    subsystems, components, parts, relationships, risk, asset_health, documents, extraction, entities, knowledge, copilot, learning, maintenance, failures, compliance, safety, vision, iot, prediction, analytics, workflow, integration, mlops
+    subsystems, components, parts, relationships, risk, asset_health, documents, extraction, entities, knowledge, copilot, learning, maintenance, failures, compliance, safety, vision, iot, prediction, analytics, workflow, integration, mlops, security, brain
 )
 
 api_router = APIRouter()
@@ -36,6 +36,8 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["analytic
 api_router.include_router(workflow.router, prefix="/workflow", tags=["workflow"])
 api_router.include_router(integration.router, prefix="/integration", tags=["integration"])
 api_router.include_router(mlops.router, prefix="/mlops", tags=["mlops"])
+api_router.include_router(security.router, prefix="/security", tags=["security"])
+api_router.include_router(brain.router, prefix="/brain", tags=["brain"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(roles.router, prefix="/roles", tags=["roles"])
 api_router.include_router(permissions.router, prefix="/permissions", tags=["permissions"])

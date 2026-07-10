@@ -40,6 +40,8 @@ from app.models.analytics import UserActivityLog, FactoryTimelineEvent, Generate
 from app.models.workflow import WorkOrder, MaintenanceTask, WorkflowApproval, TechnicianProfile
 from app.models.integration import IntegrationConnector, SynchronizationJob, SynchronizationLog, WebhookEndpoint
 from app.models.mlops import AiModel, ModelVersion
+from app.models.security import SecurityEventLog
+from app.models.brain import AgentConversation, AgentMessage, OrchestrationAudit
 
 __all__ = [
     "UserStatus",
@@ -126,5 +128,9 @@ __all__ = [
     "SynchronizationLog",
     "WebhookEndpoint",
     "AiModel",
-    "ModelVersion"
+    "ModelVersion",
+    "SecurityEventLog",
+    "AgentConversation",
+    "AgentMessage",
+    "OrchestrationAudit"
 ]

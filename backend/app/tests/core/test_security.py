@@ -71,6 +71,11 @@ async def test_jwt_issuance_and_validation():
     with pytest.raises(UnauthorizedException):
         await jwt_service.validate_token(token, expected_type="refresh")
 
+    # Check Invalid Signature
+    bad_token = token + "bad"
+    with pytest.raises(UnauthorizedException):
+        await jwt_service.validate_token(bad_token)
+
 @pytest.mark.asyncio
 async def test_jwt_revocation():
     user_id = str(uuid.uuid4())
@@ -82,3 +87,4 @@ async def test_jwt_revocation():
     # Validate should fail due to blacklist
     with pytest.raises(UnauthorizedException, match="Token has been revoked"):
         await jwt_service.validate_token(token)
+

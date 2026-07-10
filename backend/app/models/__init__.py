@@ -37,6 +37,9 @@ from app.models.vision import MediaFile, VisionAnalysis, DetectedDefect
 from app.models.iot import IoTDevice, Sensor, SensorReading, MachineAlert
 from app.models.prediction import FailurePrediction
 from app.models.analytics import UserActivityLog, FactoryTimelineEvent, GeneratedReport
+from app.models.workflow import WorkOrder, MaintenanceTask, WorkflowApproval, TechnicianProfile
+from app.models.integration import IntegrationConnector, SynchronizationJob, SynchronizationLog, WebhookEndpoint
+from app.models.mlops import AiModel, ModelVersion
 
 __all__ = [
     "UserStatus",
@@ -113,5 +116,15 @@ __all__ = [
     "FailurePrediction",
     "UserActivityLog",
     "FactoryTimelineEvent",
-    "GeneratedReport"
+    "GeneratedReport",
+    "WorkOrder",
+    "MaintenanceTask",
+    "WorkflowApproval",
+    "TechnicianProfile",
+    "IntegrationConnector",
+    "SynchronizationJob",
+    "SynchronizationLog",
+    "WebhookEndpoint",
+    "AiModel",
+    "ModelVersion"
 ]

@@ -9,8 +9,7 @@ from app.schemas.response import APIResponse
 from app.core.logging import get_logger
 
 logger = get_logger("health")
-router = APIRouter()
-
+router = APIRouter(tags=["System Health"])
 
 @router.get("", response_model=APIResponse[dict])
 async def health_check(
@@ -45,3 +44,21 @@ async def health_check(
             "redis": redis_status
         }
     )
+
+@router.get("/liveness")
+async def liveness_check():
+    """
+    Kubernetes Liveness Probe. Returns 200 if the container process is up.
+    """
+    return {"status": "alive"}
+
+@router.get("/readiness")
+async def readiness_check(db: AsyncSession = Depends(get_db)):
+    """
+    Kubernetes Readiness Probe. Returns 200 only if DB and dependencies are reachable.
+    """
+    try:
+        await db.execute(text("SELECT 1"))
+        return {"status": "ready", "database": "connected"}
+    except Exception as e:
+        return {"status": "not_ready", "database": "disconnected", "error": str(e)}

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mechamind-backend
+  labels:
+    app: mechamind-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mechamind-backend
+  template:
+    metadata:
+      labels:
+        app: mechamind-backend
+    spec:
+      containers:
+      - name: api
+        image: mechamind/backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: mechamind-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health/liveness
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health/readiness
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5

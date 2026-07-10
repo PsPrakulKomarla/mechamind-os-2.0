@@ -325,6 +325,57 @@ class ExportFormat(str, Enum):
     CSV = "CSV"
     JSON = "JSON"
 
+class WorkOrderStatus(str, Enum):
+    DRAFT = "DRAFT"
+    OPEN = "OPEN"
+    ASSIGNED = "ASSIGNED"
+    ACCEPTED = "ACCEPTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    WAITING_FOR_PARTS = "WAITING_FOR_PARTS"
+    WAITING_FOR_APPROVAL = "WAITING_FOR_APPROVAL"
+    COMPLETED = "COMPLETED"
+    VERIFIED = "VERIFIED"
+    CLOSED = "CLOSED"
+    CANCELLED = "CANCELLED"
+
+class WorkOrderPriority(str, Enum):
+    EMERGENCY = "EMERGENCY"
+    CRITICAL = "CRITICAL"
+    HIGH = "HIGH"
+    MEDIUM = "MEDIUM"
+    LOW = "LOW"
+
+class ApprovalStatus(str, Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+class ConnectorType(str, Enum):
+    ERP = "ERP"
+    CMMS = "CMMS"
+    MES = "MES"
+    SCADA = "SCADA"
+    PLC = "PLC"
+    PROTOCOL = "PROTOCOL"
+    WEBHOOK = "WEBHOOK"
+
+class ConnectorStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    ERROR = "ERROR"
+
+class SyncStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
+class ModelStatus(str, Enum):
+    DRAFT = "DRAFT"
+    STAGING = "STAGING"
+    PRODUCTION = "PRODUCTION"
+    ARCHIVED = "ARCHIVED"
+
 class MachineStatus(str, Enum):
     OPERATIONAL = "OPERATIONAL"
     MAINTENANCE = "MAINTENANCE"

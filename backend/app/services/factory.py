@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.enums import AuditAction, EntityType
 from app.repositories.factory import factory_repo
 from app.repositories.organization import organization_repo
-from app.repositories.audit_log import audit_repo
+from app.repositories.audit import audit_repo
 from app.schemas.factory import FactoryCreate, FactoryUpdate, FactorySettingsUpdate
 
 class FactoryService:

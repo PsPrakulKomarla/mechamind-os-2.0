@@ -47,7 +47,6 @@ export const KnowledgeGraphExplorerPage = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           fitView
-          theme="dark"
         >
           <Background color="#334155" gap={16} />
           <Controls className="bg-secondary-bg border-gray-700 fill-white" />

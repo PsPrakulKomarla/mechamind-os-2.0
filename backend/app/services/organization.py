@@ -7,7 +7,7 @@ from app.models.organization import Organization
 from app.models.user import User
 from app.models.enums import AuditAction, EntityType
 from app.repositories.organization import organization_repo
-from app.repositories.audit_log import audit_repo
+from app.repositories.audit import audit_repo
 from app.schemas.organization import OrganizationCreate, OrganizationUpdate, OrganizationSettingsUpdate
 
 class OrganizationService:

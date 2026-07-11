@@ -12,18 +12,20 @@ import { WorkforceDashboardPage } from "@/pages/mobile/WorkforceDashboardPage";
 import { OperationsDashboardPage } from "@/pages/production/OperationsDashboardPage";
 import { FeatureFlagsPage } from "@/pages/platform/FeatureFlagsPage";
 import { DeploymentsPage } from "@/pages/platform/DeploymentsPage";
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { HomePage } from "@/pages/HomePage";
 
 // Simplified routing layout stubs
 export const router = createBrowserRouter([
   {
     path: "/login",
-    element: <div className="p-8">Login Page (Foundation Ready)</div>,
+    element: <LoginPage />,
   },
   {
     path: "/",
     element: (
       <ProtectedRoute>
-        <div className="p-8">Dashboard Layout & Content (Foundation Ready)</div>
+        <HomePage />
       </ProtectedRoute>
     ),
   },
@@ -51,4 +53,4 @@ export const router = createBrowserRouter([
     path: "*",
     element: <div className="p-8">404 - Not Found</div>,
   },
-], { future: { v7_startTransition: true } });
+]);

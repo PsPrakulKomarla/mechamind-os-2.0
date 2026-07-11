@@ -6,7 +6,7 @@ from app.models.enums import DefectType, FindingSeverity, AnalysisStatus
 from app.repositories.vision import vision_repository
 from app.services.vision.cv_provider import cv_provider
 from app.services.maintenance.rca_engine import rca_engine
-from app.repositories.machine import machine_repository
+from app.repositories.machine import machine_repo
 
 class VisionAnalyzer:
     """

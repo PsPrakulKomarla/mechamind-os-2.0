@@ -12,7 +12,6 @@ from app.models.role_permission import RolePermission
 from app.models.permission import Permission
 from app.core.policy import PolicyEngine
 from app.core.exceptions import UnauthorizedException
-from app.services.redis import redis_client
 
 class AuthorizationService:
     @staticmethod

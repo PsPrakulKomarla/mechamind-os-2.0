@@ -9,7 +9,7 @@ from app.models.user import User
 from app.models.enums import AuditAction, EntityType
 from app.repositories.team import team_repo
 from app.repositories.department import department_repo
-from app.repositories.audit_log import audit_repo
+from app.repositories.audit import audit_repo
 from app.schemas.team import TeamCreate, TeamUpdate, UserTeamAssignment
 
 class TeamService:

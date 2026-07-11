@@ -11,7 +11,7 @@ from app.models.user_dept_role import UserDepartmentRole
 from app.models.enums import AuditAction, EntityType
 from app.repositories.department import department_repo
 from app.repositories.factory import factory_repo
-from app.repositories.audit_log import audit_repo
+from app.repositories.audit import audit_repo
 from app.schemas.department import DepartmentCreate, DepartmentUpdate, UserAssignment
 
 class DepartmentService:

@@ -7,16 +7,17 @@ import { Card } from "@/components/ui/Card";
 import { Download, Maximize2, RefreshCw } from "lucide-react";
 
 interface AdvancedChartProps {
-  title: string;
+  title?: string;
   type: "bar" | "line" | "area" | "pie" | "radar";
   data: any[];
   xAxisKey?: string;
-  series: { key: string; color: string; name: string }[];
+  series: { key?: string; dataKey?: string; color: string; name: string }[];
   height?: number;
 }
 
-export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, height = 300 }: AdvancedChartProps) => {
+export const AdvancedChart = ({ title = "", type, data, xAxisKey = "name", series, height = 300 }: AdvancedChartProps) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const normalizedSeries = series.map((item) => ({ ...item, key: item.key ?? item.dataKey ?? "value" }));
 
   // Generic renderers based on type
   const renderChart = () => {
@@ -29,7 +30,7 @@ export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, he
             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "#fff" }} />
             <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
-            {series.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.color} radius={[4, 4, 0, 0]} />)}
+            {normalizedSeries.map((s) => <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.color} radius={[4, 4, 0, 0]} />)}
           </BarChart>
         );
       case "line":
@@ -40,14 +41,14 @@ export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, he
             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "#fff" }} />
             <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
-            {series.map((s) => <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2} dot={{ r: 4, fill: "#0f172a", strokeWidth: 2 }} />)}
+            {normalizedSeries.map((s) => <Line key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2} dot={{ r: 4, fill: "#0f172a", strokeWidth: 2 }} />)}
           </LineChart>
         );
       case "area":
         return (
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              {series.map((s) => (
+              {normalizedSeries.map((s) => (
                 <linearGradient key={`grad-${s.key}`} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={s.color} stopOpacity={0.3}/>
                   <stop offset="95%" stopColor={s.color} stopOpacity={0}/>
@@ -59,7 +60,7 @@ export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, he
             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
             <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "#fff" }} />
             <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
-            {series.map((s) => <Area key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} fillOpacity={1} fill={`url(#grad-${s.key})`} />)}
+            {normalizedSeries.map((s) => <Area key={s.key} type="monotone" dataKey={s.key} name={s.name} stroke={s.color} fillOpacity={1} fill={`url(#grad-${s.key})`} />)}
           </AreaChart>
         );
       case "pie":
@@ -67,9 +68,9 @@ export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, he
           <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
             <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "#fff" }} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
-            <Pie data={data} dataKey={series[0].key} nameKey={xAxisKey} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+            <Pie data={data} dataKey={normalizedSeries[0]?.key} nameKey={xAxisKey} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={series[index % series.length]?.color || "#14F195"} />
+                <Cell key={`cell-${index}`} fill={normalizedSeries[index % normalizedSeries.length]?.color || "#14F195"} />
               ))}
             </Pie>
           </PieChart>
@@ -82,7 +83,7 @@ export const AdvancedChart = ({ title, type, data, xAxisKey = "name", series, he
             <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fill: "#64748b" }} />
             <Tooltip contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "8px", color: "#fff" }} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
-            {series.map((s) => (
+            {normalizedSeries.map((s) => (
                <Radar key={s.key} name={s.name} dataKey={s.key} stroke={s.color} fill={s.color} fillOpacity={0.3} />
             ))}
           </RadarChart>

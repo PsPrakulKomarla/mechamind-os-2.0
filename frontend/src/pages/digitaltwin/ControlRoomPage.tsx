@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 export const ControlRoomPage = () => {
   const { data: alarms } = useAlarms({ status: "active" });
 
-  const mockAlarms = alarms || [
+  const mockAlarms: Array<{ id: string; severity: "critical" | "warning" | "info"; message: string; time: string }> = alarms || [
     { id: "AL-101", severity: "critical", message: "Main Pump M4 - Overheating", time: "10:42 AM" },
     { id: "AL-102", severity: "warning", message: "Conveyor M3 - High Load", time: "10:35 AM" },
     { id: "AL-103", severity: "info", message: "Spindle M1 - Maintenance required soon", time: "09:15 AM" },

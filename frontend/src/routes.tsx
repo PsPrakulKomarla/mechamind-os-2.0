@@ -7,6 +7,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+import { AgentHubPage } from "@/pages/agents/AgentHubPage";
+import { WorkforceDashboardPage } from "@/pages/mobile/WorkforceDashboardPage";
+import { OperationsDashboardPage } from "@/pages/production/OperationsDashboardPage";
+import { FeatureFlagsPage } from "@/pages/platform/FeatureFlagsPage";
+import { DeploymentsPage } from "@/pages/platform/DeploymentsPage";
+
 // Simplified routing layout stubs
 export const router = createBrowserRouter([
   {
@@ -20,6 +26,26 @@ export const router = createBrowserRouter([
         <div className="p-8">Dashboard Layout & Content (Foundation Ready)</div>
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "/agents",
+    element: <ProtectedRoute><AgentHubPage /></ProtectedRoute>,
+  },
+  {
+    path: "/mobile",
+    element: <ProtectedRoute><WorkforceDashboardPage /></ProtectedRoute>,
+  },
+  {
+    path: "/production",
+    element: <ProtectedRoute><OperationsDashboardPage /></ProtectedRoute>,
+  },
+  {
+    path: "/platform/flags",
+    element: <ProtectedRoute><FeatureFlagsPage /></ProtectedRoute>,
+  },
+  {
+    path: "/platform/deployments",
+    element: <ProtectedRoute><DeploymentsPage /></ProtectedRoute>,
   },
   {
     path: "*",

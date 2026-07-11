@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM python:3.11-slim as builder
+FROM python:3.12-slim as builder
 
 WORKDIR /app
 
@@ -13,13 +13,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install poetry==1.7.1
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml poetry.lock* ./
 
-# Export dependencies to requirements.txt for the final stage
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+# Generate lock file and export dependencies to requirements.txt for the final stage
+RUN poetry lock && poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 # ---- Production Stage ----
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 

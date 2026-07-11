@@ -29,7 +29,7 @@ export const JobQueue: React.FC<JobQueueProps> = ({ jobs }) => {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">{job.orderNumber}</span>
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="secondary" className="text-xs">
                   {job.product}
                 </Badge>
               </div>

@@ -27,7 +27,7 @@ export const MachineStatusCard = ({ id, name, status, healthScore, operatingMode
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-lg font-bold text-white tracking-tight">{name}</h3>
-            <Badge variant="default" className="text-[10px] uppercase font-mono">{id}</Badge>
+            <Badge variant="secondary" className="text-[10px] uppercase font-mono">{id}</Badge>
           </div>
           <p className="text-sm text-gray-400 flex items-center gap-1">
             <Power size={12} className={isOffline ? "text-gray-500" : "text-success"} /> {operatingMode}

@@ -35,16 +35,16 @@ export const AiOperationsDashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6 h-[350px]">
-             <h3 className="font-bold text-white mb-4">Token Usage by Provider</h3>
-             <AdvancedChart 
-               type="bar" 
-               data={tokenData} 
-               xAxisKey="day" 
-               series={[
-                 { dataKey: "gemini", name: "Gemini 1.5", color: "#3b82f6" },
-                 { dataKey: "openai", name: "GPT-4o", color: "#14F195" },
-               ]} 
-             />
+              <AdvancedChart 
+                title="Token Usage by Provider"
+                type="bar" 
+                data={tokenData} 
+                xAxisKey="day" 
+                series={[
+                  { key: "gemini", name: "Gemini 1.5", color: "#3b82f6" },
+                  { key: "openai", name: "GPT-4o", color: "#14F195" },
+                ]} 
+              />
           </Card>
         </div>
 

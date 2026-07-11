@@ -109,7 +109,7 @@ export const CiCdPipelinePage = () => {
                 <div className="p-3 border border-gray-700 bg-secondary-bg rounded opacity-50">
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-bold text-gray-300">Dev</span>
-                    <Badge variant="default">Idle</Badge>
+                    <Badge variant="secondary">Idle</Badge>
                   </div>
                   <p className="text-xs text-gray-500 font-mono">Running: v2.4.2-beta.4</p>
                 </div>

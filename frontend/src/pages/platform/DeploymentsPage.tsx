@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/Card";
-import { Server, Activity, CheckCircle, Clock } from "lucide-react";
+import { Server, Activity, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 export const DeploymentsPage: React.FC = () => {
@@ -64,7 +64,7 @@ export const DeploymentsPage: React.FC = () => {
               <tr key={dep.id} className="hover:bg-muted/10">
                 <td className="py-3 px-4 font-mono text-xs">{dep.id}</td>
                 <td className="py-3 px-4">
-                  <Badge variant={dep.env === 'production' ? 'default' : 'secondary'}>
+                  <Badge variant={dep.env === 'production' ? 'info' : 'secondary'}>
                     {dep.env}
                   </Badge>
                 </td>

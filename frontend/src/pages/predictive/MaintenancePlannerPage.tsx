@@ -52,7 +52,7 @@ export const MaintenancePlannerPage = () => {
                 <div key={item.id} className="p-3 bg-primary-bg border border-gray-800 rounded cursor-grab hover:border-gray-600 transition-colors">
                   <div className="flex justify-between items-start mb-1">
                     <span className="text-xs font-mono text-gray-500">{item.id}</span>
-                    <Badge variant={item.priority === "high" ? "danger" : item.priority === "medium" ? "warning" : "default"} className="text-[10px]">{item.priority}</Badge>
+                    <Badge variant={item.priority === "high" ? "danger" : item.priority === "medium" ? "warning" : "secondary"} className="text-[10px]">{item.priority}</Badge>
                   </div>
                   <p className="text-sm font-bold text-gray-300">{item.title}</p>
                 </div>

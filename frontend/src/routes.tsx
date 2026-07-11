@@ -51,4 +51,4 @@ export const router = createBrowserRouter([
     path: "*",
     element: <div className="p-8">404 - Not Found</div>,
   },
-]);
+], { future: { v7_startTransition: true } });

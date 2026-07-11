@@ -42,7 +42,7 @@ export const AgentCard: React.FC<AgentCardProps> = ({ agent, onStartChat }) => {
 
       <div className="mt-auto">
         <Button 
-          variant="outline" 
+          variant="secondary" 
           className="w-full justify-center border-brand-agent text-brand-agent hover:bg-brand-agent hover:text-white"
           onClick={() => onStartChat(agent.id)}
         >

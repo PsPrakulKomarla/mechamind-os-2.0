@@ -135,10 +135,10 @@ export const VectorSearchExplorerPage = () => {
               <div key={idx} className="border border-gray-800 bg-secondary-bg/20 rounded-lg p-4 hover:border-info/50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
-                    <Badge variant="default" className="text-xs bg-gray-800 text-gray-300">{result.id}</Badge>
+                    <Badge variant="secondary" className="text-xs bg-gray-800 text-gray-300">{result.id}</Badge>
                     <span className="text-xs text-gray-500 flex items-center gap-1"><ChevronRight size={12}/> {result.doc}</span>
                   </div>
-                  <Badge variant={result.score > 0.8 ? "success" : result.score > 0.65 ? "warning" : "default"} className="font-mono">
+                  <Badge variant={result.score > 0.8 ? "success" : result.score > 0.65 ? "warning" : "secondary"} className="font-mono">
                     Score: {result.score.toFixed(3)}
                   </Badge>
                 </div>

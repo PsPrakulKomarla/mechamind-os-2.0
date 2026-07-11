@@ -64,13 +64,12 @@ export const LiveMachineMonitoringPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6 h-[300px]">
-             <h3 className="font-bold text-white mb-4">Vibration Analysis (Last 20 Mins)</h3>
-             <AdvancedChart type="line" data={vibrationData} xAxisKey="time" series={[{ dataKey: "vibration", name: "Vibration (mm/s)", color: "#f59e0b" }]} />
+             <AdvancedChart title="Vibration" type="line" data={vibrationData} xAxisKey="time" series={[{ key: "vibration", name: "Vibration (mm/s)", color: "#f59e0b" }]} />
           </Card>
           
           <Card className="p-6 h-[300px]">
              <h3 className="font-bold text-white mb-4">Thermal Profile (Last 20 Mins)</h3>
-             <AdvancedChart type="area" data={temperatureData} xAxisKey="time" series={[{ dataKey: "temp", name: "Temperature (°C)", color: "#3b82f6" }]} />
+             <AdvancedChart title="Temperature" type="area" data={temperatureData} xAxisKey="time" series={[{ key: "temp", name: "Temperature (°C)", color: "#3b82f6" }]} />
           </Card>
         </div>
 

@@ -3,6 +3,7 @@ import { InteractiveFactoryMap3D } from "@/components/digitaltwin/InteractiveFac
 import { FolderTree, Map, Building2, ChevronRight, Search } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/Badge";
 
 export const FactoryExplorerPage = () => {
   const [activeNode, setActiveNode] = useState<string>("Factory Alpha");
@@ -63,8 +64,8 @@ export const FactoryExplorerPage = () => {
         {/* Spatial Map */}
         <Card className="w-3/4 p-0 overflow-hidden relative border border-gray-800 bg-[#050505]">
           <div className="absolute top-4 right-4 z-10 flex gap-2">
-            <Badge variant="default" className="bg-primary-bg/80 backdrop-blur border-gray-700">Level 1 Blueprint</Badge>
-            <Badge variant="default" className="bg-primary-bg/80 backdrop-blur border-gray-700 flex items-center gap-1">
+            <Badge variant="secondary" className="bg-primary-bg/80 backdrop-blur border-gray-700">Level 1 Blueprint</Badge>
+            <Badge variant="secondary" className="bg-primary-bg/80 backdrop-blur border-gray-700 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-success"></span> Live Sync
             </Badge>
           </div>

@@ -44,7 +44,7 @@ export const UserManagementPage = () => {
     )},
     { header: "Organization", accessorKey: "organization" },
     { header: "Status", accessorKey: "status", cell: (row: any) => (
-      <Badge variant={row.status === "Active" ? "success" : "default"}>{row.status}</Badge>
+      <Badge variant={row.status === "Active" ? "success" : "secondary"}>{row.status}</Badge>
     )},
     { header: "Actions", accessorKey: "id", cell: (row: any) => (
       <div className="flex gap-2">

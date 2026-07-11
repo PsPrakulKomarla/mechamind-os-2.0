@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
-import ReactFlow, { Background, Controls, MarkerType } from "react-flow-renderer";
+import ReactFlow, { Background, Controls, MarkerType } from "reactflow";
+import "reactflow/dist/style.css";
 import { Card } from "@/components/ui/Card";
 
 interface HierarchyNode {

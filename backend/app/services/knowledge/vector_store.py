@@ -2,7 +2,11 @@ from uuid import UUID
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pgvector.sqlalchemy import Vector
+
+try:
+    from pgvector.sqlalchemy import Vector
+except ImportError:
+    Vector = None
 
 from app.models.knowledge import KnowledgeEmbedding
 from app.schemas.knowledge import SearchFilter, SearchResultResponse

@@ -32,7 +32,7 @@ class AuditRepository:
 
     async def log_login(
         self, db: AsyncSession, *, 
-        user_id: UUID, 
+        user_id: Optional[UUID] = None, 
         success: bool, 
         ip_address: Optional[str] = None, 
         user_agent: Optional[str] = None,

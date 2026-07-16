@@ -9,21 +9,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install poetry
-RUN pip install poetry==1.7.1
-
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
-
-# Generate lock file and export dependencies to requirements.txt for the final stage
-RUN poetry lock && poetry export -f requirements.txt --output requirements.txt --without-hashes
+# Copy dependency files and install Python packages directly via pip
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade setuptools wheel && \
+    pip install --no-cache-dir . 2>/dev/null || \
+    pip install --no-cache-dir \
+    fastapi uvicorn[standard] sqlalchemy[asyncio] asyncpg aiosqlite \
+    alembic "pydantic[email]" pydantic-settings structlog "redis[hiredis]" \
+    python-multipart pyjwt "passlib[bcrypt]" cryptography \
+    opentelemetry-api opentelemetry-sdk opentelemetry-exporter-prometheus \
+    prometheus-client pgvector celery aiofiles numpy filetype
 
 # ---- Production Stage ----
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install runtime dependencies (e.g., for psycopg2)
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
@@ -31,9 +34,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create a non-root user for security
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 
-# Copy requirements and install
-COPY --from=builder /app/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .

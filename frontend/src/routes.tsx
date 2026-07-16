@@ -1,11 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import React from "react";
-import { useAuthStore } from "@/store/auth";
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
+import { ProtectedRoute } from "@/components/RouteGuards";
 
 import { AgentHubPage } from "@/pages/agents/AgentHubPage";
 import { WorkforceDashboardPage } from "@/pages/mobile/WorkforceDashboardPage";

@@ -8,23 +8,15 @@ export const useConversations = () => {
   });
 };
 
-export const useConversationHistory = (conversationId: string) => {
-  return useQuery({
-    queryKey: ["aiHistory", conversationId],
-    queryFn: () => aiService.getConversationHistory(conversationId),
-    enabled: !!conversationId,
-  });
-};
-
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ conversationId, message, context }: { conversationId: string, message: string, context?: any }) => 
-      aiService.sendMessage(conversationId, message, context),
-    onSuccess: (_, variables) => {
-      // Invalidate the specific conversation history to trigger a refetch
-      queryClient.invalidateQueries({ queryKey: ["aiHistory", variables.conversationId] });
+    mutationFn: (payload: { message: string; factory_id?: string; conversation_id?: string; context?: Record<string, unknown> }) => 
+      aiService.sendMessage(payload),
+    onSuccess: () => {
+      // Refetch conversation list after sending a message
+      queryClient.invalidateQueries({ queryKey: ["aiConversations"] });
     }
   });
 };

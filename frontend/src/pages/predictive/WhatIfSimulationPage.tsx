@@ -109,7 +109,7 @@ export const WhatIfSimulationPage = () => {
           <Card className="p-6 h-[400px]">
              <div className="flex justify-between items-center mb-4">
                <h3 className="font-bold text-white">30-Day Projection (Risk vs Cost)</h3>
-               <Badge variant="default" className="bg-secondary-bg border-gray-700 text-gray-300">Exponential Degradation Model</Badge>
+               <Badge variant="secondary" className="bg-secondary-bg border-gray-700 text-gray-300">Exponential Degradation Model</Badge>
              </div>
              {/* Note: In a real app we might use a ComposedChart to overlay Risk(%) and Cost($) on dual Y axes. Using basic line here for visual. */}
              <AdvancedChart 

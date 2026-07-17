@@ -1,24 +1,54 @@
 import { api } from "@/lib/api";
 
+export interface CopilotChatRequest {
+  message: string;
+  factory_id?: string;
+  conversation_id?: string;
+  context?: Record<string, unknown>;
+}
+
+export interface CopilotCitation {
+  document_name: string;
+  page_number?: string;
+  section?: string;
+}
+
+export interface CopilotChatResponse {
+  conversation_id: string;
+  message_id: string;
+  answer: string;
+  confidence?: string;
+  risk_level?: string;
+  sources: CopilotCitation[];
+  recommendations: string[];
+}
+
+/**
+ * Matches backend schema in backend/app/schemas/copilot.py
+ * - POST /api/v1/copilot/chat  → ChatResponse
+ * - GET  /api/v1/copilot/history → List[ConversationHistoryResponse]
+ *
+ * Individual message history is NOT exposed by the backend yet.
+ * Only conversation summaries (id, title, created_at) are available.
+ */
+
+export interface ConversationItem {
+  id: string;
+  title?: string;
+  created_at: string;
+}
+
 export const aiService = {
-  async getConversations() {
-    const res = await api.get("/brain/conversations");
-    return res.data.data;
+  /** POST /copilot/chat — send a message to the industrial copilot */
+  async sendMessage(payload: CopilotChatRequest): Promise<CopilotChatResponse> {
+    const res = await api.post("/copilot/chat", payload);
+    return res.data;
   },
 
-  async getConversationHistory(conversationId: string) {
-    const res = await api.get(`/brain/conversations/${conversationId}/history`);
-    return res.data.data;
-  },
-
-  // Mocking streaming via a regular POST for foundation,
-  // real implementation would use EventSource or WebSockets.
-  async sendMessage(conversationId: string, message: string, context?: any) {
-    const res = await api.post(`/brain/conversations/${conversationId}/message`, {
-      message,
-      context
-    });
-    return res.data.data; // { response, evidence, confidence, agents }
+  /** GET /copilot/history — list conversation summaries (no message content) */
+  async getConversations(): Promise<ConversationItem[]> {
+    const res = await api.get("/copilot/history");
+    return res.data;
   },
 
   async getPromptLibrary() {

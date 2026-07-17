@@ -64,7 +64,7 @@ export const ControlRoomPage = () => {
         {/* Center Panel - Main 3D Twin */}
         <div className="w-1/2 bg-[#000] border border-gray-800 rounded-lg relative overflow-hidden">
            <div className="absolute top-4 left-4 z-10">
-             <Badge variant="default" className="bg-primary-bg/80 backdrop-blur border-gray-700">Production Line A - Live</Badge>
+             <Badge variant="secondary" className="bg-primary-bg/80 backdrop-blur border-gray-700">Production Line A - Live</Badge>
            </div>
            <InteractiveFactoryMap3D />
         </div>

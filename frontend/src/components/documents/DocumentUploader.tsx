@@ -39,6 +39,14 @@ export const DocumentUploader = ({ onUploadSuccess }: { onUploadSuccess?: () => 
   const handleUpload = async () => {
     if (!selectedFile) return;
     
+    // Dynamic size limit validation (50MB)
+    const MAX_SIZE_MB = 50;
+    if (selectedFile.size > MAX_SIZE_MB * 1024 * 1024) {
+      alert(`File exceeds the maximum upload size of ${MAX_SIZE_MB}MB.`);
+      setSelectedFile(null);
+      return;
+    }
+    
     // Using TanStack query mutation
     uploadMutation.mutate({ file: selectedFile }, {
       onSuccess: () => {

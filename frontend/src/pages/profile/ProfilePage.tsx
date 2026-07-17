@@ -42,6 +42,22 @@ export const ProfilePage = () => {
           </div>
         </div>
       </div>
+      
+      <div className="mt-12 border-t border-gray-800 pt-8">
+        <h2 className="text-xl font-bold text-white mb-4">Security</h2>
+        <div className="bg-primary-bg border border-gray-800 rounded-lg p-6 flex items-center justify-between">
+          <div>
+            <h3 className="text-md font-semibold text-white">Two-Factor Authentication (MFA)</h3>
+            <p className="text-sm text-gray-400 mt-1">Add an extra layer of security to your account.</p>
+          </div>
+          <button 
+            onClick={() => alert("MFA Enrollment flow would open here")}
+            className="bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition-colors"
+          >
+            Enable MFA
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

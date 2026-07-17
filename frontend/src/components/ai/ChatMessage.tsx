@@ -18,6 +18,7 @@ export interface ChatMessageData {
   content: string;
   confidence?: number;
   evidence?: MessageEvidence[];
+  isStreaming?: boolean;
 }
 
 export const ChatMessage = ({ message, onEvidenceClick }: { message: ChatMessageData, onEvidenceClick?: (e: MessageEvidence) => void }) => {
@@ -67,6 +68,9 @@ export const ChatMessage = ({ message, onEvidenceClick }: { message: ChatMessage
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {message.content}
           </ReactMarkdown>
+          {message.isStreaming && (
+            <span className="inline-block w-2 h-4 ml-1 bg-accent animate-pulse align-middle" />
+          )}
         </div>
 
         {/* Evidence Cards Render */}

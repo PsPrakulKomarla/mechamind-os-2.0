@@ -24,7 +24,8 @@ export const authService = {
   async resetPassword(payload: any) {
     const res = await api.post("/auth/reset-password", payload);
     return res.data;
-  
+  },
+
   // Existing methods (login, register, logout, forgotPassword, resetPassword) remain unchanged
   // New endpoint: Refresh token (handled via interceptor, provide helper if needed)
   async refreshToken(payload: { refresh_token: string }) {

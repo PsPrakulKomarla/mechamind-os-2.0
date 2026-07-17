@@ -48,12 +48,13 @@ export const AiWorkspacePage = () => {
 
   const handleSendMessage = async (text: string) => {
     const newMsgId = `m-${Date.now()}`;
-    setMessages(prev => [...prev, { 
-      id: newMsgId, 
-      role: "user", 
-      content: text,
-      created_at: new Date().toISOString()
-    }]);
+    const streamingMsgId = `m-ai-streaming-${Date.now()}`;
+    
+    setMessages(prev => [
+      ...prev, 
+      { id: newMsgId, role: "user", content: text, created_at: new Date().toISOString() },
+      { id: streamingMsgId, role: "assistant", content: "", isStreaming: true, created_at: new Date().toISOString() }
+    ]);
     
     setAgents([
       { id: "a1", name: "IoT Analyst", type: "iot", status: "thinking", message: "Querying sensors..." },
@@ -82,7 +83,7 @@ export const AiWorkspacePage = () => {
         relevance: 0.9,
       }));
 
-      setMessages(prev => [...prev, { 
+      setMessages(prev => prev.map(m => m.id === streamingMsgId ? { 
         id: `m-ai-${Date.now()}`, 
         role: "assistant", 
         content: response.answer,
@@ -91,12 +92,13 @@ export const AiWorkspacePage = () => {
         citations: response.sources,
         created_at: new Date().toISOString(),
         conversation_id: response.conversation_id,
-      }]);
+        isStreaming: false
+      } : m));
       
       setTimeout(() => setAgents([]), 3000);
     } catch {
       setAgents([]);
-      setMessages(prev => prev.filter(m => m.id !== newMsgId));
+      setMessages(prev => prev.filter(m => m.id !== newMsgId && m.id !== streamingMsgId));
     }
   };
 

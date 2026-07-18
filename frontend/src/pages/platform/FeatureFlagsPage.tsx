@@ -4,9 +4,8 @@ import { Card } from "@/components/ui/Card";
 import { Shield, AlertTriangle } from "lucide-react";
 
 export const FeatureFlagsPage: React.FC = () => {
-  const handleToggle = (key: string, enabled: boolean) => {
-    console.log(`Toggled ${key} to ${enabled}`);
-    // In a real app, this would call an API to update the flag
+  const handleToggle = (_key: string, _enabled: boolean) => {
+    // Would call API to update flag
   };
 
   return (

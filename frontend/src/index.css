@@ -3,7 +3,194 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-primary-bg text-gray-100 antialiased font-sans;
+  :root {
+    --background: 222 47% 7%;
+    --foreground: 243 33% 93%;
+    --card: 220 20% 18%;
+    --card-foreground: 243 33% 93%;
+    --popover: 220 20% 18%;
+    --popover-foreground: 243 33% 93%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 18% 20%;
+    --secondary-foreground: 243 33% 93%;
+    --muted: 220 18% 20%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 26%;
+    --input: 220 15% 26%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
   }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 222 47% 7%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 7%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 7%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+  }
+
+  .light body,
+  .light {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  .light .bg-primary-bg {
+    background-color: #f8fafc !important;
+  }
+
+  .light .bg-secondary-bg {
+    background-color: #ffffff !important;
+  }
+
+  .light .bg-card-bg {
+    background-color: #ffffff !important;
+  }
+
+  .light .border-gray-800 {
+    border-color: #e2e8f0 !important;
+  }
+
+  .light .border-gray-700 {
+    border-color: #e2e8f0 !important;
+  }
+
+  .light .text-white {
+    color: #0f172a !important;
+  }
+
+  .light .text-gray-400 {
+    color: #64748b !important;
+  }
+
+  .light .text-gray-500 {
+    color: #94a3b8 !important;
+  }
+
+  .light .text-gray-300 {
+    color: #334155 !important;
+  }
+
+  .light .hover\:bg-gray-800:hover {
+    background-color: #f1f5f9 !important;
+  }
+
+  .light .hover\:bg-gray-800\/60:hover {
+    background-color: rgba(241, 245, 249, 0.6) !important;
+  }
+
+  .light .hover\:bg-gray-700:hover {
+    background-color: #f1f5f9 !important;
+  }
+
+  .light .shadow-2xl {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .light .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .light .bg-accent\/10 {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .light .bg-gray-800 {
+    background-color: #e2e8f0 !important;
+  }
+
+  .light .bg-gray-800\/50 {
+    background-color: rgba(226, 232, 240, 0.5) !important;
+  }
+
+  .light .bg-gray-900 {
+    background-color: #e2e8f0 !important;
+  }
+
+  .light .text-gray-600 {
+    color: #94a3b8 !important;
+  }
+
+  .light .text-\[10px\] {
+    color: #94a3b8 !important;
+  }
+
+  .light .placeholder\:text-gray-600::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+  }
+
+  * {
+    @apply border-border;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.3);
+    border-radius: 20px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(75, 85, 99, 0.5);
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
 }

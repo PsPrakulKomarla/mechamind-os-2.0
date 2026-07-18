@@ -13,7 +13,6 @@ export const AgentHubPage: React.FC = () => {
       {
         onSuccess: (data) => {
           setActiveChat(data.chatId);
-          console.log(`Started chat with agent ${agentId}, chat ID: ${data.chatId}`);
           // In a real app, this would route to a chat view or open a modal
         }
       }

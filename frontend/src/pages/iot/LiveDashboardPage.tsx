@@ -38,7 +38,7 @@ export const LiveDashboardPage = () => {
           <p className="text-sm text-gray-400 mt-2">Monitor camera grids with real-time bounding box defect detection.</p>
         </Link>
 
-        <Link to="/assets/digital-twin" className="bg-secondary-bg border border-gray-800 hover:border-accent transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-center group">
+        <Link to="/digital-twin" className="bg-secondary-bg border border-gray-800 hover:border-accent transition-colors rounded-lg p-6 flex flex-col items-center justify-center text-center group">
           <Activity size={48} className="text-gray-500 group-hover:text-accent transition-colors mb-4" />
           <h3 className="text-lg font-bold text-white">Digital Twin</h3>
           <p className="text-sm text-gray-400 mt-2">Interact with the 2D layout overlaying live telemetry data on machines.</p>

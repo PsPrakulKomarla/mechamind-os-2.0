@@ -22,7 +22,7 @@ export const useMlOpsMetrics = () => {
   });
 };
 
-export const useSystemHealth = () => {
+export const usePlatformSystemHealth = () => {
   return useQuery({
     queryKey: ["systemHealth"],
     queryFn: platformOperationsService.getSystemHealth,

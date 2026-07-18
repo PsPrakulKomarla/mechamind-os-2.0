@@ -12,13 +12,11 @@ export const mobileSyncService = {
     return Promise.resolve([]);
   },
 
-  async addToQueue(type: string, payload: any): Promise<void> {
-    console.log(`Added to offline queue: ${type}`, payload);
+  async addToQueue(_type: string, _payload: any): Promise<void> {
     return Promise.resolve();
   },
 
   async syncNow(): Promise<void> {
-    console.log("Syncing offline queue...");
     return Promise.resolve();
   }
 };

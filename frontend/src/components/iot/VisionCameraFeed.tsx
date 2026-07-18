@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Camera, Radio } from "lucide-react";
@@ -6,8 +6,13 @@ import { useLiveVisionDetections } from "@/hooks/useIotQueries";
 
 export const VisionCameraFeed = ({ cameraId, name }: { cameraId: string, name: string }) => {
   const boxes = useLiveVisionDetections(cameraId);
-
   const defects = boxes.filter(b => b.class === "Defect").length;
+
+  // Stable values that don't change on re-render
+  const stats = useMemo(() => ({
+    fps: (24 + Math.random() * 6).toFixed(1),
+    latency: (40 + Math.random() * 20).toFixed(0),
+  }), []);
 
   return (
     <Card className="p-0 overflow-hidden relative group">
@@ -29,12 +34,11 @@ export const VisionCameraFeed = ({ cameraId, name }: { cameraId: string, name: s
         </div>
       </div>
 
-      {/* Video Feed Placeholder (Using a dark canvas for now) */}
+      {/* Video Feed Placeholder */}
       <div className="w-full aspect-video bg-gray-900 relative overflow-hidden flex items-center justify-center border-b border-gray-800">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
         <span className="text-gray-700 font-mono text-xl opacity-30">CAM_FEED_{cameraId}</span>
         
-        {/* Render Bounding Boxes */}
         {boxes.map(box => (
           <div 
             key={box.id}
@@ -55,9 +59,9 @@ export const VisionCameraFeed = ({ cameraId, name }: { cameraId: string, name: s
 
       {/* Analytics Footer */}
       <div className="p-3 bg-secondary-bg flex justify-between items-center text-xs text-gray-400">
-        <span className="font-mono">FPS: {(24 + Math.random() * 6).toFixed(1)}</span>
+        <span className="font-mono">FPS: {stats.fps}</span>
         <span>Objects: {boxes.length}</span>
-        <span className="font-mono">Latency: {(40 + Math.random() * 20).toFixed(0)}ms</span>
+        <span className="font-mono">Latency: {stats.latency}ms</span>
       </div>
     </Card>
   );

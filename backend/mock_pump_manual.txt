@@ -1,22 +1,14 @@
 
-INDUSTRIAL CENTRIFUGAL PUMP - MAINTENANCE MANUAL
+P-101 CENTRIFUGAL PUMP - MAINTENANCE PROCEDURE
 
-1. INTRODUCTION
-This document outlines the standard operating procedures and maintenance protocols for the X-200 Centrifugal Water Pump.
+1. ALIGNMENT
+Laser align the pump and motor shafts to within 0.002 inches. Misalignment is the leading cause of bearing and mechanical seal failure.
 
-2. SAFETY PROTOCOLS
-CRITICAL RISK: Before performing any maintenance, ensure Lockout/Tagout (LOTO) procedures are strictly followed.
-WARNING: Do not bypass the main isolation valve.
-If chemical leakage is detected near the primary seal, evacuate the immediate area and don Level B PPE before attempting to close the main isolation valve.
+2. MECHANICAL SEAL REPLACEMENT
+Isolate the pump and drain the casing. Remove the coupling and the seal gland. When installing the new seal, use soapy water to lubricate the O-rings. Do NOT touch the carbon seal faces with bare hands.
 
-3. TROUBLESHOOTING
-Issue: Overheating
-If the pump is overheating, bearing degradation is highly likely the cause. Please halt the machine immediately and inspect the front and rear bearings (OEM Manual Page 14).
-If the bearings are damaged, replace them with OEM part #B-4092.
+3. VIBRATION ANALYSIS
+Baseline vibration should not exceed 0.15 in/sec. If vibration spikes at 1x RPM, suspect unbalance. If it spikes at 2x RPM, suspect misalignment.
 
-Issue: High Vibration
-Check the impeller for cavitation or imbalance. Ensure the mounting bolts are tightened to 120 Nm.
-
-4. PREVENTATIVE MAINTENANCE
-- Monthly: Lubricate bearings with lithium-based grease.
-- Bi-annually: Inspect mechanical seals for wear and tear. Replace if clearance exceeds 0.05mm.
+4. LUBRICATION
+Grease the motor bearings every 3 months with Polyurea based grease. Do not over-grease, as this will blow out the bearing seals.

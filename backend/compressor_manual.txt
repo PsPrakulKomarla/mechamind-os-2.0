@@ -1,0 +1,15 @@
+
+C-401 ROTARY SCREW COMPRESSOR - SERVICE MANUAL
+
+1. OPERATING PARAMETERS
+The compressor operates at 3600 RPM delivering 120 CFM at 100 PSI. Optimal oil temperature is 185°F (85°C).
+
+2. OIL CHANGES
+Change the synthetic compressor oil every 8,000 running hours. When changing the oil, also replace the oil filter and the air/oil separator element.
+
+3. TROUBLESHOOTING
+Issue: High Discharge Temperature
+If the discharge temperature exceeds 220°F (105°C), the unit will trip. Check the thermal valve. A stuck thermal valve prevents oil from flowing through the cooler.
+
+Issue: Excessive Oil Carryover
+If oil is found in the downstream air lines, the separator element has ruptured or the scavenge line is blocked. Inspect the clear scavenge line for oil flow.

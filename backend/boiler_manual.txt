@@ -1,0 +1,16 @@
+
+B-601 INDUSTRIAL BOILER - OPERATIONS GUIDE
+
+1. STARTUP PROCEDURE
+Ensure all blowdown valves are closed. Open the main water feed valve and verify the water level sight glass shows at least 50% capacity. Ignite the pilot using the automated ignition sequence.
+
+2. PRESSURE REGULATION
+Nominal operating pressure is 150 PSI. If pressure exceeds 180 PSI, the automated pressure relief valve (PRV) should engage. If it fails, manually open the emergency blowoff valve.
+
+3. TROUBLESHOOTING
+Issue: Water Level Dropping Rapidly
+Check the feedwater pump P-302. If the pump is cavitating, it may have lost prime. Stop the boiler immediately to prevent dry firing, which can cause catastrophic tube failure.
+
+4. ROUTINE MAINTENANCE
+- Daily: Blow down the boiler to remove sludge.
+- Quarterly: Inspect refractory lining for cracks.

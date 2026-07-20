@@ -72,13 +72,13 @@ export const DocumentUploader = ({ onUploadSuccess }: { onUploadSuccess?: () => 
         >
           <UploadCloud size={48} className={dragActive ? "text-accent" : "text-gray-500"} />
           <p className="mt-4 font-semibold text-white">Click to upload or drag and drop</p>
-          <p className="text-xs text-gray-500 mt-2">PDF, DOCX, XLSX, TXT, PNG, JPG (Max 50MB)</p>
+          <p className="text-xs text-gray-500 mt-2">PDF, DOCX, XLSX, TXT, PNG, JPG, MP4, MOV (Max 50MB)</p>
           <input 
             ref={inputRef}
             type="file" 
             className="hidden" 
             onChange={handleChange} 
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.mp4,.mov,.avi"
           />
         </div>
       ) : (

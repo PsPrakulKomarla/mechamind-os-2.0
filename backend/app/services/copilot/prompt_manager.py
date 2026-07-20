@@ -13,12 +13,12 @@ SAFETY RULES:
 4. DO NOT provide instructions that bypass safety valves, interlocks, or LOTO (Lockout/Tagout) procedures.
 
 OUTPUT FORMAT:
-Your output must be JSON matching this structure:
+Your output must be JSON matching this exact structure (do NOT wrap it in markdown code blocks if the API defaults to json_object):
 {
   "answer": "...",
-  "confidence": "95%",
+  "confidence": "0.95",
   "risk_level": "LOW|HIGH|CRITICAL",
-  "sources": [{"document_name": "...", "page_number": "..."}],
+  "sources": [{"document_name": "...", "page_number": "...", "section": "..."}],
   "recommendations": ["..."]
 }
 """

@@ -19,6 +19,7 @@ class OrganizationStatus(str, Enum):
 class AuditAction(str, Enum):
     """Types of actions logged in the audit trail."""
     CREATE = "CREATE"
+    READ = "READ"
     UPDATE = "UPDATE"
     DELETE = "DELETE"
     LOGIN = "LOGIN"

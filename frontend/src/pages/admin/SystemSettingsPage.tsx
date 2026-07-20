@@ -90,10 +90,92 @@ export const SystemSettingsPage = () => {
             </div>
           )}
 
-          {activeTab !== "General" && activeTab !== "Security & Auth" && (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <Settings size={48} className="mb-4 opacity-50" />
-              <p>Configuration panel for {activeTab} is currently under construction.</p>
+          {activeTab === "API Keys" && (
+            <div className="space-y-6 max-w-3xl">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm text-gray-400">Manage API keys for external integrations.</p>
+                <button className="px-3 py-1.5 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors">
+                  + Generate New Key
+                </button>
+              </div>
+              <div className="bg-secondary-bg border border-gray-800 rounded-lg overflow-hidden">
+                <table className="w-full text-left text-sm text-gray-300">
+                  <thead className="bg-gray-800/50 text-gray-400">
+                    <tr>
+                      <th className="px-4 py-3 font-medium">Name</th>
+                      <th className="px-4 py-3 font-medium">Key Prefix</th>
+                      <th className="px-4 py-3 font-medium">Created</th>
+                      <th className="px-4 py-3 font-medium">Last Used</th>
+                      <th className="px-4 py-3 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800">
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-white">ERP Integration</td>
+                      <td className="px-4 py-3 font-mono text-xs">mm_live_8f92...</td>
+                      <td className="px-4 py-3">2024-01-15</td>
+                      <td className="px-4 py-3">10 mins ago</td>
+                      <td className="px-4 py-3"><span className="text-success text-xs px-2 py-0.5 bg-success/10 rounded-full">Active</span></td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 font-medium text-white">BI Dashboard</td>
+                      <td className="px-4 py-3 font-mono text-xs">mm_test_b3c1...</td>
+                      <td className="px-4 py-3">2023-11-20</td>
+                      <td className="px-4 py-3">3 days ago</td>
+                      <td className="px-4 py-3"><span className="text-warning text-xs px-2 py-0.5 bg-warning/10 rounded-full">Test</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "Notifications" && (
+            <div className="space-y-6 max-w-2xl">
+              <div>
+                <h3 className="text-sm font-bold text-white mb-4">System Alerts Delivery</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-700 bg-secondary-bg text-accent focus:ring-accent focus:ring-offset-gray-900" />
+                    <span className="text-sm font-medium text-white">Email Notifications</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-700 bg-secondary-bg text-accent focus:ring-accent focus:ring-offset-gray-900" />
+                    <span className="text-sm font-medium text-white">In-App Alerts</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-700 bg-secondary-bg text-accent focus:ring-accent focus:ring-offset-gray-900" />
+                    <span className="text-sm font-medium text-white">SMS Alerts (Critical only)</span>
+                  </label>
+                </div>
+              </div>
+              <div className="pt-6 border-t border-gray-800">
+                <label className="block text-sm font-bold text-gray-300 mb-2">Slack Webhook URL</label>
+                <input type="url" placeholder="https://hooks.slack.com/services/..." className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
+                <p className="text-xs text-gray-500 mt-1">Leave blank to disable Slack notifications.</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "Branding" && (
+            <div className="space-y-6 max-w-2xl">
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-2">Company Logo URL</label>
+                <input type="url" placeholder="https://example.com/logo.png" className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-2">Primary Theme Color</label>
+                <div className="flex items-center gap-4">
+                  <input type="color" defaultValue="#3B82F6" className="w-12 h-12 rounded cursor-pointer bg-secondary-bg border border-gray-700 p-1" />
+                  <input type="text" defaultValue="#3B82F6" className="flex-1 bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent font-mono" />
+                </div>
+              </div>
+              <div className="pt-4 border-t border-gray-800">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-700 bg-secondary-bg text-accent focus:ring-accent focus:ring-offset-gray-900" />
+                  <span className="text-sm font-medium text-white">Enable Dark Mode by Default</span>
+                </label>
+              </div>
             </div>
           )}
         </Card>

@@ -50,6 +50,12 @@ class Settings(BaseSettings):
     # IoT API Key for edge gateways
     IOT_API_KEY: str = ""
 
+    # LLM Settings
+    LLM_PROVIDER: str = "mock"
+    LLM_API_KEY: str = ""
+    LLM_MODEL: str = "google/gemini-2.0-flash-lite-preview-02-05:free"
+    LLM_BASE_URL: str = "https://openrouter.ai/api/v1"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

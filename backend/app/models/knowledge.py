@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy import Column, String, DateTime, ForeignKey, Float, LargeBinary
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
+from pgvector.sqlalchemy import Vector
 
 from app.db.base_class import Base
 
@@ -23,9 +24,8 @@ class KnowledgeEmbedding(Base):
     
     content = Column(String, nullable=False)
     
-    # Use LargeBinary for embedding storage when pgvector extension is not available on the server.
-    # For production with pgvector installed, this can be changed back to Vector(384).
-    embedding_vector = Column(LargeBinary, nullable=True)
+    # Use Vector type from pgvector for true semantic search distance operations
+    embedding_vector = Column(Vector(384), nullable=True)
     
     # Stores references to machines, parameters, page numbers for filtered search
     metadata_payload = Column(JSONB, nullable=True)

@@ -26,7 +26,8 @@ export const StatCard = ({ title, value, trend, trendLabel, isLoading }: StatCar
   const isNegative = trend !== undefined && trend < 0;
 
   return (
-    <Card className="flex flex-col justify-between hover:border-gray-700 transition-colors">
+    <Card className="flex flex-col justify-between hover:border-gray-600 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/5 cursor-default relative overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{title}</h3>
       <div className="text-3xl font-bold text-white mb-2">{value}</div>
       

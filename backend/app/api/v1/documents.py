@@ -14,34 +14,35 @@ router = APIRouter(tags=["Document Intelligence"])
 
 @router.post("/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def upload_document(
-    title: str = Form(...),
-    document_type: DocumentType = Form(...),
-    organization_id: UUID = Form(...),
+    file: UploadFile = File(...),
+    title: Optional[str] = Form(None),
+    document_type: Optional[DocumentType] = Form(None),
     factory_id: Optional[UUID] = Form(None),
     description: Optional[str] = Form(None),
     version: str = Form("1.0"),
-    file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     Ingests a heterogeneous document, writes to abstract storage, and triggers the AI background pipeline.
     """
+    final_title = title or file.filename or "Untitled Document"
+    final_type = document_type or DocumentType.OTHER
+    
     return await document_service.upload_document(
         db=db,
         file=file,
-        title=title,
-        document_type=document_type,
-        organization_id=organization_id,
+        title=final_title,
+        document_type=final_type,
+        organization_id=current_user.organization_id,
         user_id=current_user.id,
         description=description,
         version=version,
         factory_id=factory_id
     )
 
-@router.get("/", response_model=DocumentPaginatedResponse)
+@router.get("", response_model=DocumentPaginatedResponse)
 async def list_documents(
-    organization_id: UUID,
     factory_id: Optional[UUID] = None,
     doc_type: Optional[DocumentType] = None,
     page: int = 1,
@@ -54,7 +55,7 @@ async def list_documents(
     """
     return await document_service.list_documents(
         db=db,
-        organization_id=organization_id,
+        organization_id=current_user.organization_id,
         user_id=current_user.id,
         factory_id=factory_id,
         doc_type=doc_type,

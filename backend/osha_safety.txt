@@ -1,0 +1,14 @@
+
+MECHAMIND FACTORY SAFETY PROTOCOL - OSHA COMPLIANT
+
+1. HAZMAT HANDLING
+All hazardous materials must be stored in Class-1 certified containers. In case of a spill, immediately contact the safety officer and use the neutralizing agent located at Station B.
+
+2. FIRE SAFETY
+In the event of a fire, do NOT use water on electrical equipment. Use CO2 extinguishers only. The assembly point is at the North Parking Lot.
+
+3. CONFINED SPACE ENTRY
+No personnel may enter a confined space without a signed permit from the floor supervisor. A spotter must be present outside the space at all times. Air quality must be tested every 30 minutes.
+
+4. EMERGENCY SHUTDOWN
+If an uncontrolled mechanical failure occurs, hit the primary Emergency Stop (E-Stop) button located on the main control panel. Do not attempt to physically block moving machinery.

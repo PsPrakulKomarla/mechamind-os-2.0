@@ -32,7 +32,7 @@ services:
 
   # Core Relational DB
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: mechamind-postgres
     environment:
       - POSTGRES_USER=postgres

@@ -53,8 +53,21 @@ export const RoleManagementPage = () => {
     ];
   };
 
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [newRoleName, setNewRoleName] = useState("");
+
+  const handleCreateRole = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newRoleName.trim()) {
+      roles.push(newRoleName);
+      setSelectedRole(newRoleName);
+      setIsFormOpen(false);
+      setNewRoleName("");
+    }
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500 relative">
       <div className="flex items-center justify-between border-b border-gray-800 pb-4">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
@@ -62,10 +75,47 @@ export const RoleManagementPage = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Configure granular RBAC across all modules</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded font-medium transition-colors">
+        <button 
+          onClick={() => setIsFormOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded font-medium transition-colors"
+        >
           <Plus size={16} /> Create Custom Role
         </button>
       </div>
+
+      {isFormOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-primary-bg border border-gray-800 rounded-lg shadow-2xl w-full max-w-sm overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 border-b border-gray-800 bg-secondary-bg/50">
+              <h2 className="font-bold text-white">Create Custom Role</h2>
+              <button onClick={() => setIsFormOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleCreateRole} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-400 mb-1">Role Name</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Audit Manager"
+                  className="w-full bg-secondary-bg border border-gray-700 rounded p-2 text-white outline-none focus:border-accent"
+                  value={newRoleName}
+                  onChange={e => setNewRoleName(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 mt-6 border-t border-gray-800">
+                <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors">
+                  Create Role
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
         <div className="lg:col-span-1 border border-gray-800 bg-secondary-bg/20 rounded-lg overflow-hidden flex flex-col">

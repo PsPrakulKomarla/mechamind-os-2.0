@@ -27,3 +27,10 @@ export const usePromptLibrary = () => {
     queryFn: aiService.getPromptLibrary,
   });
 };
+
+export const useKnowledgeGraph = (focusId?: string) => {
+  return useQuery({
+    queryKey: ["aiKnowledgeGraph", focusId],
+    queryFn: () => aiService.getKnowledgeGraphNodes(focusId),
+  });
+};

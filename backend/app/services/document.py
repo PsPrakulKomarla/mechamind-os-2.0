@@ -21,7 +21,12 @@ class DocumentService:
         "image/png",
         "text/csv",
         "text/plain",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword",
+        "video/mp4",
+        "video/quicktime",
+        "video/x-msvideo"
     ]
     
     async def upload_document(

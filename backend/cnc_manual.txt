@@ -1,0 +1,16 @@
+
+M-500 CNC MILLING MACHINE - OPERATOR MANUAL
+
+1. DAILY CALIBRATION
+Before running any batch, the spindle must be calibrated to a tolerance of +/- 0.005mm. Use the laser alignment tool provided in the toolkit.
+
+2. TROUBLESHOOTING
+Issue: Spindle Stalling
+If the spindle stalls during operation, check the coolant flow. Insufficient coolant causes overheating, triggering the auto-stall safety mechanism. Clean the coolant filter.
+
+Issue: Axis Misalignment
+If the X or Y axis drifts, inspect the servo motor encoders. Dust buildup can interfere with the optical sensors. Clean gently with compressed air.
+
+3. MAINTENANCE SCHEDULE
+- Weekly: Check hydraulic fluid levels.
+- Monthly: Inspect and replace cutting tool inserts if wear exceeds 15%.

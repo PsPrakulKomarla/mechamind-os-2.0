@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/Card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { DigitalTwinViewer } from "@/components/assets/DigitalTwinViewer";
 import { Badge } from "@/components/ui/Badge";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { BaseLineChart } from "@/components/ui/Charts";
 import { Cpu, Thermometer, Gauge, Clock, Wrench } from "lucide-react";
 
 const generateHealthData = () =>
@@ -121,18 +122,13 @@ export const MachineDetailsPage = () => {
         <TabsContent value="health">
           <Card className="h-80 flex flex-col">
             <h3 className="text-sm font-bold text-white mb-4">Vibration Trend (24h)</h3>
-            <div className="flex-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={healthData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                  <XAxis dataKey="time" stroke="#6B7280" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} domain={[0, 'auto']} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: "#1F2937", border: "1px solid #374151", borderRadius: "8px", color: "#F3F4F6" }}
-                  />
-                  <Line type="monotone" dataKey="vibration" stroke="#3B82F6" strokeWidth={2} dot={false} name="Vibration (mm/s)" />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="flex-1 mt-2">
+              <BaseLineChart 
+                data={healthData} 
+                xAxisKey="time" 
+                series={[{ key: "vibration", name: "Vibration (mm/s)", color: "#3B82F6" }]} 
+                height={260}
+              />
             </div>
           </Card>
         </TabsContent>

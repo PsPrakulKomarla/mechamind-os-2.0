@@ -10,8 +10,9 @@ from app.models.user_factory_role import UserFactoryRole
 from app.models.user_dept_role import UserDepartmentRole
 from app.models.role_permission import RolePermission
 from app.models.permission import Permission
+from app.models.role import Role
 from app.core.policy import PolicyEngine
-from app.core.exceptions import UnauthorizedException
+from app.core.exceptions import UnauthorizedException, ForbiddenException
 
 class AuthorizationService:
     @staticmethod
@@ -104,6 +105,17 @@ class AuthorizationService:
         target_scope_id: Optional[str] = None
     ) -> None:
         
+        # 1. Check if user is System Admin (Bypass all)
+        is_admin_query = (
+            select(Role.name)
+            .join(UserRole, Role.id == UserRole.role_id)
+            .where(UserRole.user_id == user_id)
+            .where(Role.name == "System Admin")
+        )
+        is_admin_result = await db.execute(is_admin_query)
+        if is_admin_result.scalars().first():
+            return  # Allow everything for System Admin
+        
         # Load Global Perms (single query, no N+1)
         global_perms = await AuthorizationService.get_all_user_permissions(db, user_id)
         
@@ -120,6 +132,6 @@ class AuthorizationService:
         )
         
         if not allowed:
-            raise UnauthorizedException(
+            raise ForbiddenException(
                 f"Insufficient permissions. Required: {required_permissions} at scope {target_scope_type.value}"
             )

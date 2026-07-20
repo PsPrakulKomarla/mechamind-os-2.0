@@ -1,33 +1,66 @@
-import React, { useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
-  Panel
+  Panel,
+  MarkerType
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { Database, Search } from "lucide-react";
-
-const initialNodes = [
-  { id: "M1", position: { x: 250, y: 50 }, data: { label: "Milling Machine (Asset)" }, style: { background: "#1e293b", color: "#fff", border: "1px solid #3b82f6" } },
-  { id: "Doc1", position: { x: 100, y: 150 }, data: { label: "Service Manual (PDF)" }, style: { background: "#1e293b", color: "#fff", border: "1px solid #14F195" } },
-  { id: "WO1", position: { x: 400, y: 150 }, data: { label: "WO-2042 (Record)" }, style: { background: "#1e293b", color: "#fff", border: "1px solid #f59e0b" } },
-  { id: "Chunk1", position: { x: 50, y: 250 }, data: { label: "Chunk: Spindle Replacement" }, style: { background: "#0f172a", color: "#94a3b8", border: "1px solid #334155" } },
-  { id: "Chunk2", position: { x: 200, y: 250 }, data: { label: "Chunk: Lubrication Schedule" }, style: { background: "#0f172a", color: "#94a3b8", border: "1px solid #334155" } },
-];
-
-const initialEdges = [
-  { id: "e1", source: "M1", target: "Doc1", label: "has_document", style: { stroke: "#64748b" } },
-  { id: "e2", source: "M1", target: "WO1", label: "has_workorder", style: { stroke: "#64748b" } },
-  { id: "e3", source: "Doc1", target: "Chunk1", label: "contains", style: { stroke: "#334155", strokeDasharray: "5 5" } },
-  { id: "e4", source: "Doc1", target: "Chunk2", label: "contains", style: { stroke: "#334155", strokeDasharray: "5 5" } },
-];
+import { Database, Search, Loader2 } from "lucide-react";
+import { useKnowledgeGraph } from "@/hooks/useAiQueries";
 
 export const KnowledgeGraphExplorerPage = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { data: graphData, isLoading } = useKnowledgeGraph();
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (graphData) {
+      const flowNodes = (graphData.nodes || []).map((n: any, i: number) => {
+        // Fallback positioning if backend doesn't provide it
+        const angle = (i / (graphData.nodes?.length || 1)) * Math.PI * 2;
+        const radius = 200;
+        return {
+          id: n.id,
+          data: { label: n.label || n.id },
+          position: n.position || { x: Math.cos(angle) * radius + 300, y: Math.sin(angle) * radius + 250 },
+          style: {
+            background: n.type === 'document' ? '#0f172a' : '#1e293b',
+            color: n.type === 'document' ? '#94a3b8' : '#fff',
+            border: `1px solid ${n.type === 'document' ? '#14F195' : '#3b82f6'}`,
+            padding: "10px",
+            borderRadius: "4px"
+          }
+        };
+      });
+
+      const flowEdges = (graphData.edges || []).map((e: any, i: number) => ({
+        id: e.id || `e-${i}`,
+        source: e.source,
+        target: e.target,
+        label: e.label || e.relation,
+        labelStyle: { fill: "#9CA3AF", fontSize: 10, fontWeight: 700 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#6B7280" },
+        style: { stroke: "#64748b", strokeWidth: 1.5 }
+      }));
+
+      setNodes(flowNodes);
+      setEdges(flowEdges);
+    }
+  }, [graphData, setNodes, setEdges]);
+
+  // Filter nodes based on search term
+  const filteredNodes = React.useMemo(() => {
+    if (!searchTerm) return nodes;
+    return nodes.map(n => ({
+      ...n,
+      hidden: !n.data.label.toLowerCase().includes(searchTerm.toLowerCase())
+    }));
+  }, [nodes, searchTerm]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 h-[calc(100vh-100px)] flex flex-col">
@@ -41,8 +74,13 @@ export const KnowledgeGraphExplorerPage = () => {
       </div>
 
       <div className="flex-1 relative border border-gray-800 rounded-lg overflow-hidden bg-primary-bg">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-primary-bg/50 backdrop-blur-sm z-50">
+            <Loader2 className="animate-spin text-accent" size={32} />
+          </div>
+        ) : null}
         <ReactFlow
-          nodes={nodes}
+          nodes={filteredNodes}
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
@@ -56,7 +94,13 @@ export const KnowledgeGraphExplorerPage = () => {
             <h3 className="text-sm font-bold text-white mb-3">Graph Filters</h3>
             <div className="relative mb-4">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" size={14} />
-              <input type="text" placeholder="Search nodes..." className="w-full bg-primary-bg border border-gray-700 rounded pl-8 pr-2 py-1.5 text-xs text-white outline-none" />
+              <input 
+                type="text" 
+                placeholder="Search nodes..." 
+                className="w-full bg-primary-bg border border-gray-700 rounded pl-8 pr-2 py-1.5 text-xs text-white outline-none"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-xs text-gray-300">

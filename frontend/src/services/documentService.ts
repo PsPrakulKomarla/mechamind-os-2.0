@@ -3,28 +3,28 @@ import { api } from "@/lib/api";
 export const documentService = {
   async getDashboardStats() {
     const res = await api.get("/documents/dashboard/stats");
-    return res.data.data;
+    return res.data; // FastAPI does not wrap this in APIResponse
   },
 
   async getDocuments(filters: any = {}) {
     const params = new URLSearchParams(filters);
     const res = await api.get(`/documents?${params.toString()}`);
-    return res.data.data;
+    return res.data; // FastAPI returns DocumentPaginatedResponse directly
   },
 
   async getDocumentDetails(documentId: string) {
     const res = await api.get(`/documents/${documentId}`);
-    return res.data.data;
+    return res.data;
   },
 
   async getOcrData(documentId: string) {
     const res = await api.get(`/documents/${documentId}/ocr`);
-    return res.data.data;
+    return res.data;
   },
 
   async getAiSummary(documentId: string) {
     const res = await api.get(`/documents/${documentId}/summary`);
-    return res.data.data;
+    return res.data;
   },
 
   async uploadDocument(file: File, metadata?: any) {
@@ -39,6 +39,6 @@ export const documentService = {
         "Content-Type": "multipart/form-data"
       }
     });
-    return res.data.data;
+    return res.data;
   }
 };

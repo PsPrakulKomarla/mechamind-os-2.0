@@ -42,9 +42,10 @@ class TeamService:
             action=AuditAction.CREATE,
             entity_type=EntityType.TEAM,
             entity_id=team.id,
-            details={"name": team.name, "department_id": str(team.department_id)},
+            changes={"name": team.name, "department_id": str(team.department_id)},
             ip_address=None
         )
+        await db.commit()
         return team
 
     @staticmethod
@@ -64,9 +65,10 @@ class TeamService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.TEAM,
             entity_id=team.id,
-            details={"updated_fields": obj_in.model_dump(exclude_unset=True)},
+            changes={"updated_fields": obj_in.model_dump(exclude_unset=True)},
             ip_address=None
         )
+        await db.commit()
         return team
 
     @staticmethod
@@ -81,9 +83,10 @@ class TeamService:
             action=AuditAction.DELETE,
             entity_type=EntityType.TEAM,
             entity_id=team.id,
-            details={"name": team.name},
+            changes={"name": team.name},
             ip_address=None
         )
+        await db.commit()
 
     @staticmethod
     async def assign_user(db: AsyncSession, team_id: UUID, obj_in: UserTeamAssignment, current_user: User) -> None:
@@ -99,9 +102,10 @@ class TeamService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.TEAM,
             entity_id=team.id,
-            details={"assigned_user_id": str(obj_in.user_id)},
+            changes={"assigned_user_id": str(obj_in.user_id)},
             ip_address=None
         )
+        await db.commit()
 
     @staticmethod
     async def remove_user(db: AsyncSession, team_id: UUID, user_id: UUID, current_user: User) -> None:
@@ -114,6 +118,7 @@ class TeamService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.TEAM,
             entity_id=team.id,
-            details={"removed_user_id": str(user_id)},
+            changes={"removed_user_id": str(user_id)},
             ip_address=None
         )
+        await db.commit()

@@ -17,10 +17,14 @@ async def get_current_user(
     
     if not payload:
         raise UnauthorizedException("Authentication required")
+    
+    try:
+        user_id = UUID(payload.sub)
+    except (ValueError, TypeError):
+        raise UnauthorizedException("Invalid token payload")
         
-    user = await user_repo.get(db, id=UUID(payload.sub))
+    user = await user_repo.get(db, id=user_id)
     if not user:
         raise UnauthorizedException("User not found")
         
     return user
-

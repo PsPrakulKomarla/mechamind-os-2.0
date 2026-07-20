@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, status, HTTPException, WebSocket, WebSocketDisconnect, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from typing import List
+from typing import List, Optional
 
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
@@ -16,6 +16,13 @@ from app.services.authorization import AuthorizationService
 
 router = APIRouter(tags=["IoT & Real-Time Monitoring"])
 
+def verify_api_key(x_api_key: Optional[str] = Header(None)):
+    """Validate API key for edge gateway telemetry submissions."""
+    from app.core.config import settings
+    expected_key = getattr(settings, "IOT_API_KEY", None)
+    if expected_key and x_api_key != expected_key:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
 @router.post("/devices", response_model=DeviceResponse)
 async def register_device(
     factory_id: UUID,
@@ -29,9 +36,10 @@ async def register_device(
 @router.post("/telemetry")
 async def send_telemetry(
     request: SensorReadingPayload,
-    db: AsyncSession = Depends(get_db)
-    # Auth is usually via API Key for Edge Gateways, bypassing User JWT
+    db: AsyncSession = Depends(get_db),
+    x_api_key: Optional[str] = Header(None)
 ):
+    verify_api_key(x_api_key)
     reading = await telemetry_service.ingest_telemetry(db, request.model_dump())
     return {"status": "success", "reading_id": reading.id}
 
@@ -45,12 +53,20 @@ async def get_alerts(
     return await iot_repository.get_alerts_for_factory(db, factory_id)
 
 @router.websocket("/ws/factories/{factory_id}/live")
-async def websocket_live_dashboard(websocket: WebSocket, factory_id: str):
-    # In production, we extract JWT from query params or headers to authorize
+async def websocket_live_dashboard(websocket: WebSocket, factory_id: str, token: Optional[str] = None):
+    """WebSocket endpoint with JWT authentication via query parameter."""
+    if not token:
+        await websocket.close(code=4001, reason="Missing authentication token")
+        return
+    try:
+        from app.core.jwt import jwt_service
+        await jwt_service.validate_token(token, expected_type="access")
+    except Exception:
+        await websocket.close(code=4003, reason="Invalid or expired token")
+        return
     await websocket_manager.connect(websocket, factory_id)
     try:
         while True:
-            data = await websocket.receive_text()
-            # Just keep connection alive
+            await websocket.receive_text()
     except WebSocketDisconnect:
         websocket_manager.disconnect(websocket, factory_id)

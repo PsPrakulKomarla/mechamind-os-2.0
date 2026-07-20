@@ -38,9 +38,10 @@ class OrganizationService:
             action=AuditAction.CREATE,
             entity_type=EntityType.ORGANIZATION,
             entity_id=org.id,
-            details={"name": org.name},
+            changes={"name": org.name},
             ip_address=None
         )
+        await db.commit()
         return org
 
     @staticmethod
@@ -60,9 +61,10 @@ class OrganizationService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.ORGANIZATION,
             entity_id=org.id,
-            details={"updated_fields": obj_in.model_dump(exclude_unset=True)},
+            changes={"name": org.name},
             ip_address=None
         )
+        await db.commit()
         return org
 
     @staticmethod
@@ -76,9 +78,10 @@ class OrganizationService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.ORGANIZATION,
             entity_id=org.id,
-            details={"settings_updated": obj_in.model_dump(exclude_unset=True)},
+            changes={"settings_updated": obj_in.model_dump(exclude_unset=True)},
             ip_address=None
         )
+        await db.commit()
         return org
 
     @staticmethod
@@ -93,6 +96,7 @@ class OrganizationService:
             action=AuditAction.DELETE,
             entity_type=EntityType.ORGANIZATION,
             entity_id=org.id,
-            details={"name": org.name},
+            changes={"name": org.name},
             ip_address=None
         )
+        await db.commit()

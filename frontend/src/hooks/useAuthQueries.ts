@@ -10,6 +10,7 @@ export const useLoginMutation = () => {
     mutationFn: authService.login,
     onSuccess: async (data) => {
       const { access_token, refresh_token } = data.data;
+      localStorage.setItem("access_token", access_token);
       if (refresh_token) {
         localStorage.setItem("refresh_token", refresh_token);
       }

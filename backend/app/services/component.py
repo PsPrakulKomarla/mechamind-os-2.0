@@ -35,6 +35,7 @@ class ComponentService:
             db=db, user_id=user_id, action=AuditAction.CREATE, entity_type=EntityType.MACHINE, # Or Subsystem
             entity_id=subsystem.id, details={"event": "SUBSYSTEM_CREATED"}
         )
+        await db.commit()
         return subsystem
 
     async def get_subsystem(self, db: AsyncSession, id: UUID, user_id: UUID) -> MachineSubsystem:
@@ -56,6 +57,7 @@ class ComponentService:
         component = await component_repo.create_component(db, obj_in=obj_in)
         
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.CREATE, entity_type=EntityType.MACHINE, entity_id=component.id)
+        await db.commit()
         return component
 
     async def get_component(self, db: AsyncSession, id: UUID, user_id: UUID) -> Component:
@@ -73,6 +75,7 @@ class ComponentService:
         installed_part = await component_repo.install_part(db, obj_in=obj_in)
         
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.CREATE, entity_type=EntityType.MACHINE, entity_id=installed_part.id, details={"event": "PART_INSTALLED"})
+        await db.commit()
         return installed_part
 
     async def replace_part(self, db: AsyncSession, component_id: UUID, old_part_id: UUID, request: PartReplacementRequest, user_id: UUID) -> InstalledPartInstance:
@@ -116,6 +119,7 @@ class ComponentService:
                 "reason": request.reason
             }
         )
+        await db.commit()
         return new_part
 
 component_service = ComponentService()

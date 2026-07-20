@@ -1,5 +1,6 @@
 from typing import Any, Dict
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from datetime import datetime, timedelta, timezone
 
 from app.core.security import verify_password, get_password_hash, validate_password_strength
@@ -20,7 +21,17 @@ from app.repositories.audit import audit_repo
 from app.repositories.role import role_repo
 from app.schemas.auth import LoginRequest, RegisterRequest, Tokens
 
+
 class AuthService:
+    async def _get_user_roles(self, db: AsyncSession, user_id) -> list[str]:
+        query = (
+            select(Role.name)
+            .join(UserRole, UserRole.role_id == Role.id)
+            .where(UserRole.user_id == user_id)
+        )
+        result = await db.execute(query)
+        return [r for r in result.scalars().all()]
+
     async def register(self, db: AsyncSession, obj_in: RegisterRequest) -> User:
         validate_password_strength(obj_in.password)
 
@@ -28,11 +39,12 @@ class AuthService:
         if user:
             raise ValidationException(message="User with this email already exists")
 
+        # Create organization
         org = Organization(name=obj_in.organization_name or "Default Org")
         db.add(org)
-        await db.commit()
-        await db.refresh(org)
+        await db.flush()  # Get org.id without committing
 
+        # Create user
         new_user = User(
             email=obj_in.email,
             password_hash=get_password_hash(obj_in.password),
@@ -42,20 +54,20 @@ class AuthService:
             auth_id=None
         )
         db.add(new_user)
-        await db.commit()
-        await db.refresh(new_user)
+        await db.flush()  # Get user.id without committing
 
+        # Get or create USER role
         role = await role_repo.get_by_name(db, name="USER")
         if not role:
             role = Role(name="USER", description="Standard User")
             db.add(role)
-            await db.commit()
-            await db.refresh(role)
+            await db.flush()
 
+        # Assign role
         user_role = UserRole(user_id=new_user.id, role_id=role.id)
         db.add(user_role)
-        await db.commit()
 
+        # Audit log
         await audit_repo.log_action(
             db=db,
             organization_id=org.id,
@@ -64,6 +76,10 @@ class AuthService:
             entity_type=EntityType.USER,
             entity_id=new_user.id
         )
+
+        # Single atomic commit for all registration data
+        await db.commit()
+        await db.refresh(new_user)
 
         return new_user
 
@@ -84,11 +100,13 @@ class AuthService:
                 failure_reason="Invalid credentials",
                 ip_address=ip_address, user_agent=user_agent
             )
+            await db.commit()
             raise UnauthorizedException(message="Invalid credentials")
 
         await redis_security.clear_login_attempts(obj_in.email)
 
-        access_token = jwt_service.create_access_token(user_id=str(user.id), org_id=str(user.organization_id))
+        roles = await self._get_user_roles(db, user.id)
+        access_token = jwt_service.create_access_token(user_id=str(user.id), org_id=str(user.organization_id), roles=roles)
         refresh_token = jwt_service.create_refresh_token(user_id=str(user.id))
 
         session = UserSession(
@@ -120,7 +138,6 @@ class AuthService:
             session.is_revoked = True
 
         await refresh_token_repo.revoke_all_for_user(db, user_id=user_id)
-        await db.commit()
 
         await audit_repo.log_action(
             db=db,
@@ -129,5 +146,7 @@ class AuthService:
             entity_type=EntityType.USER,
             entity_id=user_id
         )
+        await db.commit()
+
 
 auth_service = AuthService()

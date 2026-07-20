@@ -32,6 +32,7 @@ class MachineService:
             entity_id=machine.id,
             details={"factory_id": str(machine.factory_id), "status": machine.operational_status}
         )
+        await db.commit()
 
         # Invalidate factory asset count cache
         await redis_client.delete(f"factory:{machine.factory_id}:machine_count")
@@ -92,6 +93,7 @@ class MachineService:
             entity_id=machine.id,
             details={"updated_fields": machine_in.model_dump(exclude_unset=True)}
         )
+        await db.commit()
         return updated_machine
 
     async def update_status(self, db: AsyncSession, machine_id: UUID, status_in: MachineStatusUpdate, user_id: UUID) -> Machine:
@@ -123,6 +125,7 @@ class MachineService:
             entity_id=machine.id,
             details={"event": "STATUS_CHANGE", "old": old_status, "new": status_in.status}
         )
+        await db.commit()
         
         return machine
 
@@ -138,6 +141,7 @@ class MachineService:
             entity_type=EntityType.MACHINE,
             entity_id=machine_id
         )
+        await db.commit()
         
         await redis_client.delete(f"factory:{factory_id}:machine_count")
 

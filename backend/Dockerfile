@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
     fastapi uvicorn[standard] sqlalchemy[asyncio] asyncpg aiosqlite \
     alembic "pydantic[email]" pydantic-settings structlog "redis[hiredis]" \
-    python-multipart pyjwt "passlib[bcrypt]" cryptography \
+    python-multipart pyjwt "passlib[bcrypt]" "bcrypt>=4.0,<5.0" cryptography \
     opentelemetry-api opentelemetry-sdk opentelemetry-exporter-prometheus \
     prometheus-client pgvector celery aiofiles numpy filetype
 

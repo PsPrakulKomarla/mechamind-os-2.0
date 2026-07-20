@@ -25,6 +25,7 @@ class RoleService:
             db=db, user_id=user_id, organization_id=role.organization_id,
             action=AuditAction.CREATE, entity_type=EntityType.ROLE, entity_id=role.id
         )
+        await db.commit()
         return role
 
     async def assign_permissions_to_role(self, db: AsyncSession, role_id: UUID, permission_ids: List[UUID], user_id: UUID) -> None:
@@ -40,8 +41,9 @@ class RoleService:
             
         await db.commit()
         await audit_repo.log_action(
-            db=db, user_id=user_id, action=AuditAction.UPDATE, entity_type=EntityType.ROLE, entity_id=role_id
+            db=db, user_id=user_id,             action=AuditAction.UPDATE, entity_type=EntityType.ROLE, entity_id=role_id
         )
+        await db.commit()
 
     async def assign_role_to_user(self, db: AsyncSession, user_id: UUID, role_id: UUID, admin_id: UUID) -> UserRole:
         role = await role_repo.get(db, id=role_id)
@@ -60,9 +62,10 @@ class RoleService:
         await redis_rbac.invalidate_user_permissions(str(user_id))
         
         await audit_repo.log_action(
-            db=db, user_id=admin_id, action=AuditAction.ROLE_ASSIGNED, entity_type=EntityType.USER, entity_id=user_id
+            db=db, user_id=admin_id,             action=AuditAction.ROLE_ASSIGNED, entity_type=EntityType.USER, entity_id=user_id
         )
-        
+        await db.commit()
+
         return mapping
 
     async def remove_role_from_user(self, db: AsyncSession, user_id: UUID, role_id: UUID, admin_id: UUID) -> None:
@@ -74,5 +77,6 @@ class RoleService:
             await audit_repo.log_action(
                 db=db, user_id=admin_id, action=AuditAction.UPDATE, entity_type=EntityType.USER, entity_id=user_id
             )
+            await db.commit()
 
 role_service = RoleService()

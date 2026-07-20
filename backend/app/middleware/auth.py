@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -35,7 +36,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                         "error_code": "UnauthorizedException",
                         "message": e.message,
                         "details": {},
-                        "timestamp": "now" # In real app, format UTC ISO
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     }
                 )
 

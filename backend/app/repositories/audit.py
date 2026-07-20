@@ -6,6 +6,7 @@ from app.models.audit_log import AuditLog
 from app.models.enums import AuditAction, EntityType
 from app.models.login_history import LoginHistory
 
+
 class AuditRepository:
     async def log_action(
         self, db: AsyncSession, *, 
@@ -17,6 +18,7 @@ class AuditRepository:
         changes: Optional[Dict[str, Any]] = None,
         ip_address: Optional[str] = None
     ) -> AuditLog:
+        """Add an audit log entry. Caller is responsible for committing."""
         audit = AuditLog(
             organization_id=organization_id,
             user_id=user_id,
@@ -27,17 +29,17 @@ class AuditRepository:
             ip_address=ip_address
         )
         db.add(audit)
-        await db.commit()
         return audit
 
     async def log_login(
         self, db: AsyncSession, *, 
-        user_id: UUID, 
+        user_id: Optional[UUID] = None, 
         success: bool, 
         ip_address: Optional[str] = None, 
         user_agent: Optional[str] = None,
         failure_reason: Optional[str] = None
     ) -> LoginHistory:
+        """Add a login history entry. Caller is responsible for committing."""
         history = LoginHistory(
             user_id=user_id,
             success=success,
@@ -46,7 +48,7 @@ class AuditRepository:
             failure_reason=failure_reason
         )
         db.add(history)
-        await db.commit()
         return history
+
 
 audit_repo = AuditRepository()

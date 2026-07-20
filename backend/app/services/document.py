@@ -77,7 +77,8 @@ class DocumentService:
         
         # 6. Audit
         await audit_service.log_action(db, user_id, AuditAction.CREATE, EntityType.DOCUMENT, doc.id, {"file_name": doc.file_name})
-        
+        await db.commit()
+
         return doc
         
     async def get_document(self, db: AsyncSession, id: uuid.UUID, user_id: uuid.UUID) -> Document:
@@ -133,5 +134,6 @@ class DocumentService:
         # we usually keep the binary if it's a soft delete, or run a sweep cron job.
         
         await audit_service.log_action(db, user_id, AuditAction.DELETE, EntityType.DOCUMENT, id, {})
+        await db.commit()
 
 document_service = DocumentService()

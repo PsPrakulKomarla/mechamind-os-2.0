@@ -3,24 +3,23 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { router } from "./routes";
+import { useThemeStore } from "./store/theme";
 import "./index.css";
 
-import { useEffect } from "react";
-import { useAuthStore } from "./store/auth";
-import { useThemeStore } from "./store/theme";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 30000,
+    },
+  },
+});
 
-const queryClient = new QueryClient();
+const Root = () => {
+  const theme = useThemeStore((s) => s.theme);
 
-const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
-  const fetchProfile = useAuthStore(state => state.fetchProfile);
-  const isLoading = useAuthStore(state => state.isLoading);
-  const theme = useThemeStore(state => state.theme);
-
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
@@ -28,19 +27,15 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
     }
   }, [theme]);
 
-  if (isLoading) {
-    return <div className="flex h-screen w-screen items-center justify-center bg-gray-950 text-white">Loading Mechamind OS...</div>;
-  }
-
-  return <>{children}</>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 };
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthInitializer>
-        <RouterProvider router={router} />
-      </AuthInitializer>
-    </QueryClientProvider>
+    <Root />
   </React.StrictMode>
 );

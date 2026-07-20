@@ -1,8 +1,7 @@
 import uuid
-from sqlalchemy import Column, String, DateTime, ForeignKey, Float
+from sqlalchemy import Column, String, DateTime, ForeignKey, Float, LargeBinary
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
-from pgvector.sqlalchemy import Vector
 
 from app.db.base_class import Base
 
@@ -24,8 +23,9 @@ class KnowledgeEmbedding(Base):
     
     content = Column(String, nullable=False)
     
-    # 384 dimensions is standard for huggingface models like 'all-MiniLM-L6-v2'
-    embedding_vector = Column(Vector(384))
+    # Use LargeBinary for embedding storage when pgvector extension is not available on the server.
+    # For production with pgvector installed, this can be changed back to Vector(384).
+    embedding_vector = Column(LargeBinary, nullable=True)
     
     # Stores references to machines, parameters, page numbers for filtered search
     metadata_payload = Column(JSONB, nullable=True)

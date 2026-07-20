@@ -1,6 +1,7 @@
 import React from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Navbar } from "@/components/Navbar";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -15,6 +16,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
         {/* Dynamic Content Viewport */}
         <main className="flex-1 overflow-y-auto p-6 bg-primary-bg">
+          <Breadcrumbs />
           {children}
         </main>
       </div>

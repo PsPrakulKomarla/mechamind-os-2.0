@@ -57,6 +57,7 @@ class RiskHealthService:
         )
         
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.CREATE, entity_type=EntityType.MACHINE, entity_id=asset_id, details={"event": "RISK_CALCULATED", "score": overall})
+        await db.commit()
         return assessment
 
     async def get_latest_risk(self, db: AsyncSession, asset_id: UUID, user_id: UUID) -> AssetRiskAssessment:
@@ -121,6 +122,7 @@ class RiskHealthService:
         )
         
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.UPDATE, entity_type=EntityType.MACHINE, entity_id=asset_id, details={"event": "CRITICALITY_CHANGED", "new": payload.new_criticality})
+        await db.commit()
         return machine
         
     async def get_risk_summary(self, db: AsyncSession, factory_id: UUID, user_id: UUID) -> List[RiskSummaryItem]:

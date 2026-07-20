@@ -37,6 +37,15 @@ class EntityType(str, Enum):
     FACTORY = "FACTORY"
     DEPARTMENT = "DEPARTMENT"
     TEAM = "TEAM"
+    MACHINE = "MACHINE"
+    COMPONENT = "COMPONENT"
+    PART = "PART"
+    DOCUMENT = "DOCUMENT"
+    WORK_ORDER = "WORK_ORDER"
+    SENSOR = "SENSOR"
+    PREDICTION = "PREDICTION"
+    COMPLIANCE = "COMPLIANCE"
+    VISION = "VISION"
 
 class IndustrySector(str, Enum):
     AUTOMOTIVE = "AUTOMOTIVE"

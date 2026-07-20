@@ -46,9 +46,10 @@ class FactoryService:
             action=AuditAction.CREATE,
             entity_type=EntityType.FACTORY,
             entity_id=factory.id,
-            details={"name": factory.name, "organization_id": str(factory.organization_id)},
+            changes={"name": factory.name, "organization_id": str(factory.organization_id)},
             ip_address=None
         )
+        await db.commit()
         return factory
 
     @staticmethod
@@ -68,9 +69,10 @@ class FactoryService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.FACTORY,
             entity_id=factory.id,
-            details={"updated_fields": obj_in.model_dump(exclude_unset=True)},
+            changes={"updated_fields": obj_in.model_dump(exclude_unset=True)},
             ip_address=None
         )
+        await db.commit()
         return factory
 
     @staticmethod
@@ -90,9 +92,10 @@ class FactoryService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.FACTORY,
             entity_id=factory.id,
-            details={"settings_updated": new_settings},
+            changes={"settings_updated": new_settings},
             ip_address=None
         )
+        await db.commit()
         return factory
 
     @staticmethod
@@ -107,6 +110,7 @@ class FactoryService:
             action=AuditAction.DELETE,
             entity_type=EntityType.FACTORY,
             entity_id=factory.id,
-            details={"name": factory.name},
+            changes={"name": factory.name},
             ip_address=None
         )
+        await db.commit()

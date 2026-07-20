@@ -53,6 +53,7 @@ class RelationshipService:
         edge = await relationship_repo.create(db, obj_in=obj_in, user_id=user_id)
         
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.CREATE, entity_type=EntityType.MACHINE, entity_id=edge.id, details={"event": "RELATIONSHIP_CREATED"})
+        await db.commit()
         return edge
 
     async def get_neighbors(self, db: AsyncSession, entity_id: UUID, entity_type: EntityType, user_id: UUID) -> List[AssetRelationship]:
@@ -80,5 +81,6 @@ class RelationshipService:
         
         await relationship_repo.soft_delete(db, id)
         await audit_service.log_action(db=db, user_id=user_id, action=AuditAction.DELETE, entity_type=EntityType.MACHINE, entity_id=id, details={"event": "RELATIONSHIP_DELETED"})
+        await db.commit()
 
 relationship_service = RelationshipService()

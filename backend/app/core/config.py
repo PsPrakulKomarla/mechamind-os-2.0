@@ -1,4 +1,5 @@
 import os
+import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,42 +15,40 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "mechamind"
     POSTGRES_PORT: str = "5432"
+    DATABASE_URL: str = ""
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     # Redis Settings
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: str = "6379"
+    REDIS_URL: str = "redis://localhost:6379/0"
 
-    @property
-    def REDIS_URL(self) -> str:
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
-    
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = ["*"]
-    
-    # Security
-    SECRET_KEY: str = "super_secret_temporary_key_for_dev_change_in_prod"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+
+    # Security — defaults to a random key if not set via env; MUST override in production
+    SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
-    # Storage Config (Phase 10)
-    STORAGE_BACKEND: str = "local" # options: "local", "s3", "azure"
+
+    # Storage Config
+    STORAGE_BACKEND: str = "local"
     LOCAL_STORAGE_DIR: str = "./storage/documents"
-    
-    # Celery & Redis Config (Phase 10.2)
-    REDIS_URL: str = "redis://localhost:6379/0"
-    
+
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
-    # Encryption Settings (must be 32 URL-safe base64-encoded bytes for Fernet)
-    ENCRYPTION_KEY: str = "Jm0bZ2F6h4s0Pj1I8U8X1w0a3tG8r8eP3uY9A3fK7R8="
+    # Encryption Settings — defaults to a random Fernet key if not set via env
+    ENCRYPTION_KEY: str = ""
 
     # Security Settings
     MAX_LOGIN_ATTEMPTS: int = 5
     LOCKOUT_MINUTES: int = 15
+
+    # IoT API Key for edge gateways
+    IOT_API_KEY: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -57,6 +56,16 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+
+    def model_post_init(self, __context) -> None:
+        """Generate secure defaults for secrets if not provided."""
+        if not self.SECRET_KEY:
+            self.SECRET_KEY = secrets.token_urlsafe(64)
+        if not self.ENCRYPTION_KEY:
+            from cryptography.fernet import Fernet
+            self.ENCRYPTION_KEY = Fernet.generate_key().decode()
+        if not self.IOT_API_KEY:
+            self.IOT_API_KEY = secrets.token_urlsafe(32)
 
 
 settings = Settings()

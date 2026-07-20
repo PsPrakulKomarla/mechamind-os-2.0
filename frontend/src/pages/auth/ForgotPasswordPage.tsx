@@ -1,79 +1,151 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
-import { authService } from "@/services/authService";
+import { Link } from "react-router-dom";
+import { Cpu, Loader2, Mail, ArrowLeft } from "lucide-react";
+import { useForgotPasswordMutation } from "@/hooks/useAuthQueries";
 
 const forgotPasswordSchema = zod.object({
-  email: zod.string().email("Please enter a valid email address")
+  email: zod.string().email("Please enter a valid email address"),
 });
 
 type ForgotPasswordFields = zod.infer<typeof forgotPasswordSchema>;
 
 export const ForgotPasswordPage = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFields>({
-    resolver: zodResolver(forgotPasswordSchema)
+  const forgotPasswordMutation = useForgotPasswordMutation();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordFields>({
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
-  const [errorMsg, setErrorMsg] = React.useState("");
-
-  const onSubmit = async (data: ForgotPasswordFields) => {
-    setIsSubmitting(true);
-    setErrorMsg("");
-    try {
-      await authService.forgotPassword(data);
-      setSuccess(true);
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.message || "Failed to process request");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = (data: ForgotPasswordFields) => {
+    forgotPasswordMutation.mutate(data);
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-bg to-secondary-bg px-4">
-      <div className="w-full max-w-md bg-primary-bg/80 backdrop-blur-sm border border-gray-800 rounded-xl p-8 shadow-2xl">
-        <h2 className="text-2xl font-bold text-center text-white mb-6">Forgot Password</h2>
-        
-        {success ? (
-          <div className="text-center space-y-4">
-            <div className="p-4 bg-success/20 border border-success text-success rounded-md text-sm">
-              If an account exists, a password reset link or OTP has been sent.
+  const axiosError = forgotPasswordMutation.error as
+    | { response?: { data?: { message?: string } } }
+    | undefined;
+  const errorMessage =
+    axiosError?.response?.data?.message ||
+    "Failed to send reset link. Please try again.";
+
+  if (forgotPasswordMutation.isSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1220] px-4">
+        <div className="w-full max-w-md">
+          {/* Brand */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 mb-4">
+              <Cpu size={28} className="text-[#3B82F6]" />
             </div>
-            <a href="/login" className="text-accent text-sm hover:underline block">Return to Login</a>
+            <h1 className="text-2xl font-bold text-white">MechaMind OS 2.0</h1>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {errorMsg && (
-              <div className="p-3 bg-danger/20 border border-danger text-danger text-sm rounded">
-                {errorMsg}
-              </div>
-            )}
+
+          {/* Card */}
+          <div className="bg-[#111827] border border-gray-800 rounded-xl p-8 shadow-2xl shadow-black/40 text-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#3B82F6]/10 mb-4">
+              <Mail size={28} className="text-[#3B82F6]" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">Check your email</h2>
+            <p className="text-sm text-gray-400 mb-6">
+              We&apos;ve sent a password reset link to your email address. Please
+              check your inbox and follow the instructions.
+            </p>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center gap-2 text-sm text-[#3B82F6] hover:text-blue-400 font-medium transition-colors"
+            >
+              <ArrowLeft size={14} />
+              Back to sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0B1220] px-4">
+      <div className="w-full max-w-md">
+        {/* Brand */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 mb-4">
+            <Cpu size={28} className="text-[#3B82F6]" />
+          </div>
+          <h1 className="text-2xl font-bold text-white">MechaMind OS 2.0</h1>
+          <p className="text-sm text-gray-400 mt-1">Reset your password</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-[#111827] border border-gray-800 rounded-xl p-8 shadow-2xl shadow-black/40">
+          <p className="text-sm text-gray-400 mb-6">
+            Enter the email address associated with your account and we&apos;ll
+            send you a link to reset your password.
+          </p>
+
+          {/* Error Alert */}
+          {forgotPasswordMutation.isError && (
+            <div className="mb-6 p-3 bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg text-sm text-[#EF4444] text-center animate-in fade-in duration-200">
+              {errorMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email */}
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email Address</label>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300 mb-1.5"
+              >
+                Email address
+              </label>
               <input
-                {...register("email")}
+                id="email"
                 type="email"
-                className="w-full bg-primary-bg/60 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-accent"
+                autoComplete="email"
                 placeholder="operator@mechamind.local"
+                className="w-full bg-[#0B1220] border border-gray-800 text-white rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/50 transition-all placeholder:text-gray-600"
+                {...register("email")}
               />
-              {errors.email && <p className="text-xs text-danger mt-1">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-xs text-[#EF4444] mt-1.5">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-accent hover:bg-blue-600 text-white font-medium py-2 rounded transition-colors disabled:opacity-50"
+              disabled={forgotPasswordMutation.isPending}
+              className="w-full flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "Send Reset Instructions"}
+              {forgotPasswordMutation.isPending ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Sending link...
+                </>
+              ) : (
+                "Send reset link"
+              )}
             </button>
-            <div className="text-center mt-4">
-              <a href="/login" className="text-gray-400 text-sm hover:text-white transition-colors">Back to Login</a>
-            </div>
           </form>
-        )}
+
+          {/* Footer */}
+          <div className="text-center mt-6">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={14} />
+              Back to sign in
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

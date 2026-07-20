@@ -5,7 +5,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { RcaVisualizer } from "@/components/maintenance/RcaVisualizer";
-import { Wrench, Clock, User, FileText, CheckCircle } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from "recharts";
+import { Wrench, Clock, User, FileText, CheckCircle, AlertTriangle } from "lucide-react";
 
 export const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,16 @@ export const WorkOrderDetailsPage = () => {
     ],
     recommendation: "Replace bearing assembly, flush lubrication lines, replace filters, and update PM checklist to make filter inspection mandatory."
   };
+
+  const vibrationData = [
+    { time: "00:00", vibration: 0.8, threshold: 2.0 },
+    { time: "04:00", vibration: 0.9, threshold: 2.0 },
+    { time: "08:00", vibration: 1.2, threshold: 2.0 },
+    { time: "12:00", vibration: 1.8, threshold: 2.0 },
+    { time: "16:00", vibration: 2.4, threshold: 2.0 },
+    { time: "20:00", vibration: 2.1, threshold: 2.0 },
+    { time: "23:59", vibration: 2.4, threshold: 2.0 },
+  ];
 
   if (woLoading) return <div className="p-8 text-gray-500">Loading Work Order Details...</div>;
 
@@ -111,8 +122,44 @@ export const WorkOrderDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="ai">
-            <Card className="h-64 flex flex-col justify-center items-center text-gray-500">
-              [AI Evidence Panel: Displaying anomaly charts from Module 4 Digital Twin]
+            <Card>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white">Vibration Anomaly Detection</h3>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="flex items-center gap-1 text-danger">
+                    <AlertTriangle size={12} /> Anomaly Detected
+                  </span>
+                  <span className="text-gray-500">•</span>
+                  <span className="text-gray-400">Module 4 Digital Twin</span>
+                </div>
+              </div>
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={vibrationData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="vibrationGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                    <XAxis dataKey="time" stroke="#6b7280" fontSize={11} />
+                    <YAxis stroke="#6b7280" fontSize={11} domain={[0, 3]} unit=" mm/s" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: "6px" }}
+                      labelStyle={{ color: "#9ca3af" }}
+                      itemStyle={{ color: "#f87171" }}
+                    />
+                    <Area type="monotone" dataKey="vibration" stroke="#ef4444" fill="url(#vibrationGradient)" strokeWidth={2} />
+                    <ReferenceDot x="16:00" y={2.4} r={6} fill="#ef4444" stroke="#fff" strokeWidth={2} />
+                    <ReferenceDot x="23:59" y={2.4} r={6} fill="#ef4444" stroke="#fff" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-3 p-3 bg-danger/10 border border-danger/30 rounded text-xs text-danger flex items-start gap-2">
+                <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                <span>AI detected anomalous vibration at 16:00 and 23:59, exceeding the 2.0 mm/s threshold. Pattern indicates progressive bearing degradation consistent with imminent failure.</span>
+              </div>
             </Card>
           </TabsContent>
         </Tabs>

@@ -12,46 +12,43 @@ interface AuthState {
   user: UserProfile | null;
   accessToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: UserProfile, token: string) => void;
-  logout: () => void;
-  fetchProfile: () => Promise<void>;
   isLoading: boolean;
+  setAuth: (user: UserProfile, token: string) => void;
+  setUser: (user: UserProfile) => void;
+  logout: () => void;
+  setLoading: (loading: boolean) => void;
 }
 
+const token = localStorage.getItem("access_token");
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  accessToken: localStorage.getItem("access_token"),
-  isAuthenticated: !!localStorage.getItem("access_token"),
-  isLoading: true,
-  setAuth: (user, token) => {
-    localStorage.setItem("access_token", token);
-    set({ user, accessToken: token, isAuthenticated: true, isLoading: false });
+  user: (() => {
+    try {
+      const stored = localStorage.getItem("user_profile");
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  })(),
+  accessToken: token,
+  isAuthenticated: !!token,
+  isLoading: false,
+  setAuth: (user, accessToken) => {
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("user_profile", JSON.stringify(user));
+    set({ user, accessToken, isAuthenticated: true });
+  },
+  setUser: (user) => {
+    localStorage.setItem("user_profile", JSON.stringify(user));
+    set({ user });
   },
   logout: () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
-    set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+    localStorage.removeItem("user_profile");
+    localStorage.removeItem("selected_org_id");
+    localStorage.removeItem("selected_factory_id");
+    set({ user: null, accessToken: null, isAuthenticated: false });
   },
-  fetchProfile: async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      set({ isLoading: false, isAuthenticated: false });
-      return;
-    }
-    
-    // Lazy load authService to prevent circular dependency if api.ts imports store
-    const { authService } = await import('@/services/authService');
-    try {
-      const profileResponse = await authService.getProfile();
-      if (profileResponse && profileResponse.data) {
-        set({ user: profileResponse.data, isAuthenticated: true, isLoading: false });
-      } else {
-        set({ user: null, isAuthenticated: false, isLoading: false, accessToken: null });
-        localStorage.removeItem("access_token");
-      }
-    } catch (error) {
-      set({ user: null, isAuthenticated: false, isLoading: false, accessToken: null });
-      localStorage.removeItem("access_token");
-    }
-  },
+  setLoading: (isLoading) => set({ isLoading }),
 }));

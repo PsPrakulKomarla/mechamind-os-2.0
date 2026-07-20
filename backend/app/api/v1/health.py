@@ -37,7 +37,7 @@ async def health_check(
     status = "healthy" if db_status == "ok" and redis_status == "ok" else "degraded"
 
     return APIResponse(
-        success=True,
+        status="success",
         data={
             "status": status,
             "database": db_status,

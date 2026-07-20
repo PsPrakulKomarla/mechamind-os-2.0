@@ -46,9 +46,10 @@ class DepartmentService:
             action=AuditAction.CREATE,
             entity_type=EntityType.DEPARTMENT,
             entity_id=dept.id,
-            details={"name": dept.name, "factory_id": str(dept.factory_id)},
+            changes={"name": dept.name, "factory_id": str(dept.factory_id)},
             ip_address=None
         )
+        await db.commit()
         return dept
 
     @staticmethod
@@ -68,9 +69,10 @@ class DepartmentService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.DEPARTMENT,
             entity_id=dept.id,
-            details={"updated_fields": obj_in.model_dump(exclude_unset=True)},
+            changes={"updated_fields": obj_in.model_dump(exclude_unset=True)},
             ip_address=None
         )
+        await db.commit()
         return dept
 
     @staticmethod
@@ -85,9 +87,10 @@ class DepartmentService:
             action=AuditAction.DELETE,
             entity_type=EntityType.DEPARTMENT,
             entity_id=dept.id,
-            details={"name": dept.name},
+            changes={"name": dept.name},
             ip_address=None
         )
+        await db.commit()
 
     @staticmethod
     async def assign_user(db: AsyncSession, department_id: UUID, obj_in: UserAssignment, current_user: User) -> None:
@@ -109,9 +112,10 @@ class DepartmentService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.DEPARTMENT,
             entity_id=dept.id,
-            details={"assigned_user_id": str(obj_in.user_id), "role_id": str(obj_in.role_id)},
+            changes={"assigned_user_id": str(obj_in.user_id), "role_id": str(obj_in.role_id)},
             ip_address=None
         )
+        await db.commit()
 
     @staticmethod
     async def remove_user(db: AsyncSession, department_id: UUID, user_id: UUID, role_id: UUID, current_user: User) -> None:
@@ -131,6 +135,7 @@ class DepartmentService:
             action=AuditAction.UPDATE,
             entity_type=EntityType.DEPARTMENT,
             entity_id=dept.id,
-            details={"removed_user_id": str(user_id), "role_id": str(role_id)},
+            changes={"removed_user_id": str(user_id), "role_id": str(role_id)},
             ip_address=None
         )
+        await db.commit()

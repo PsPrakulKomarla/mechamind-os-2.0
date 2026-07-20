@@ -1,33 +1,48 @@
-[tool.poetry]
+[project]
 name = "mechamind-os-backend"
 version = "0.1.0"
 description = "Backend for MechaMind OS 2.0"
-authors = ["MechaMind Team"]
-readme = "README.md"
-packages = [{include = "app"}]
+authors = [{name = "MechaMind Team"}]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "asyncpg>=0.29.0",
+    "aiosqlite>=0.20.0",
+    "alembic>=1.13.1",
+    "pydantic[email]>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    "structlog>=24.1.0",
+    "redis[hiredis]>=5.0.4",
+    "python-multipart>=0.0.9",
+    "pyjwt>=2.8.0",
+    "passlib[bcrypt]>=1.7.4",
+    "bcrypt>=4.0,<5.0",
+    "cryptography>=42.0.5",
+    "opentelemetry-api>=1.24.0",
+    "opentelemetry-sdk>=1.24.0",
+    "opentelemetry-exporter-prometheus>=0.45b0",
+    "prometheus-client>=0.20.0",
+    "pgvector>=0.2.4",
+    "celery>=5.3.6",
+    "aiofiles>=23.2.1",
+    "numpy>=1.26.0",
+    "filetype>=1.2.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-fastapi = "^0.111.0"
-uvicorn = {extras = ["standard"], version = "^0.30.0"}
-sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
-asyncpg = "^0.29.0"
-alembic = "^1.13.1"
-pydantic = {extras = ["email"], version = "^2.7.0"}
-pydantic-settings = "^2.2.1"
-structlog = "^24.1.0"
-redis = {extras = ["hiredis"], version = "^5.0.4"}
-python-multipart = "^0.0.9"
-pyjwt = "^2.8.0"
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-cryptography = "^42.0.5"
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.2.0"
-pytest-asyncio = "^0.23.6"
-httpx = "^0.27.0"
-ruff = "^0.4.4"
-black = "^24.4.2"
-mypy = "^1.10.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.6",
+    "httpx>=0.27.0",
+    "ruff>=0.4.4",
+    "black>=24.4.2",
+    "mypy>=1.10.0",
+]
+
+[tool.poetry]
+packages = [{include = "app"}]
 
 [build-system]
 requires = ["poetry-core"]

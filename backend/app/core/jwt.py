@@ -22,17 +22,17 @@ class JWTService:
         permissions: list[str] = None
     ) -> str:
         now = datetime.now(timezone.utc)
-        payload = TokenPayload(
-            sub=user_id,
-            jti=str(uuid.uuid4()),
-            type=token_type,
-            exp=now + expires_delta,
-            iat=now,
-            org_id=org_id,
-            roles=roles or [],
-            permissions=permissions or []
-        )
-        return jwt.encode(payload.model_dump(mode='json'), settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        payload_data = {
+            "sub": user_id,
+            "jti": str(uuid.uuid4()),
+            "type": token_type,
+            "exp": int((now + expires_delta).timestamp()),
+            "iat": int(now.timestamp()),
+            "org_id": org_id,
+            "roles": roles or [],
+            "permissions": permissions or []
+        }
+        return jwt.encode(payload_data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
     def create_access_token(self, user_id: str, org_id: Optional[str] = None, roles: list[str] = None) -> str:
         return self._create_token(
@@ -54,6 +54,11 @@ class JWTService:
         """Validate token signature, expiration, type, and check Redis blacklist."""
         try:
             decoded_dict = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            # Convert numeric exp/iat to datetime for Pydantic validation
+            if isinstance(decoded_dict.get("exp"), (int, float)):
+                decoded_dict["exp"] = datetime.fromtimestamp(decoded_dict["exp"], tz=timezone.utc)
+            if isinstance(decoded_dict.get("iat"), (int, float)):
+                decoded_dict["iat"] = datetime.fromtimestamp(decoded_dict["iat"], tz=timezone.utc)
             payload = TokenPayload(**decoded_dict)
         except jwt.ExpiredSignatureError:
             raise UnauthorizedException("Token has expired")

@@ -1,11 +1,21 @@
 import React from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { useSystemHealth } from "@/hooks/useAdminQueries";
-import { ShieldCheck, Server, Users, Activity } from "lucide-react";
+import { ShieldCheck, Server, Users, Activity, Database, HardDrive, Cpu, RefreshCw } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+
+const generateTrafficData = () =>
+  Array.from({ length: 24 }, (_, i) => ({
+    time: `${i}:00`,
+    requests: Math.round(200 + Math.random() * 300),
+    latency: Math.round(10 + Math.random() * 40),
+  }));
 
 export const AdminDashboardPage = () => {
   const { data: health, isLoading } = useSystemHealth();
+  const trafficData = React.useMemo(() => generateTrafficData(), []);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -16,6 +26,7 @@ export const AdminDashboardPage = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Global settings, RBAC, and System Health</p>
         </div>
+        <Badge variant="info">Admin</Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -25,13 +36,29 @@ export const AdminDashboardPage = () => {
         <StatCard title="Pending Audits" value={health?.pendingAudits || "0"} trend={0} isLoading={isLoading} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
           <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-            <Activity className="text-accent" size={18} /> API Traffic & Latency
+            <Activity className="text-accent" size={18} /> API Traffic & Latency (24h)
           </h3>
-          <div className="h-64 flex items-center justify-center border border-gray-800 border-dashed rounded bg-secondary-bg/30 text-gray-500">
-            [Timeseries Chart: Requests per minute / Avg Latency]
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trafficData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                <XAxis dataKey="time" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#1F2937", border: "1px solid #374151", borderRadius: "8px", color: "#F3F4F6" }}
+                />
+                <Area type="monotone" dataKey="requests" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorRequests)" name="Requests/min" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </Card>
 
@@ -40,47 +67,48 @@ export const AdminDashboardPage = () => {
             <Server className="text-info" size={18} /> Infrastructure Health
           </h3>
           <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-300 font-medium">PostgreSQL Database</span>
-                <span className="text-success font-mono">OK (12ms)</span>
+            {[
+              { name: "PostgreSQL Database", status: "OK", latency: "12ms", pct: 25, color: "bg-success" },
+              { name: "Redis Cache", status: "OK", latency: "2ms", pct: 15, color: "bg-success" },
+              { name: "AI Inference Engine", status: "HIGH LOAD", latency: "84%", pct: 84, color: "bg-warning" },
+              { name: "S3 Storage Bucket", status: "OK", latency: "4.2 TB", pct: 50, color: "bg-success" },
+              { name: "Celery Workers", status: "OK", latency: "12 active", pct: 60, color: "bg-success" },
+            ].map((item) => (
+              <div key={item.name}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-300 font-medium">{item.name}</span>
+                  <span className={`font-mono text-xs ${item.color === "bg-warning" ? "text-warning" : "text-success"}`}>
+                    {item.status} ({item.latency})
+                  </span>
+                </div>
+                <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className={`${item.color} h-full rounded-full transition-all duration-1000`} style={{ width: `${item.pct}%` }}></div>
+                </div>
               </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-success w-1/3 h-full"></div>
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-300 font-medium">Redis Cache</span>
-                <span className="text-success font-mono">OK (2ms)</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-success w-1/4 h-full"></div>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-300 font-medium">AI Inference Engine</span>
-                <span className="text-warning font-mono">HIGH LOAD (84%)</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-warning w-[84%] h-full"></div>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-300 font-medium">S3 Storage Bucket</span>
-                <span className="text-success font-mono">OK (4.2 TB)</span>
-              </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-success w-1/2 h-full"></div>
-              </div>
-            </div>
+            ))}
           </div>
         </Card>
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { title: "User Management", desc: "Manage roles and permissions", icon: Users, path: "/admin/users" },
+          { title: "Audit Logs", desc: "Review system activity", icon: RefreshCw, path: "/admin/audit-logs" },
+          { title: "System Settings", desc: "Configure platform settings", icon: Cpu, path: "/admin/settings" },
+        ].map((item) => (
+          <a key={item.title} href={item.path} className="bg-secondary-bg border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all group">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <item.icon size={18} className="text-accent" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white group-hover:text-accent transition-colors">{item.title}</p>
+                <p className="text-xs text-gray-500">{item.desc}</p>
+              </div>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );

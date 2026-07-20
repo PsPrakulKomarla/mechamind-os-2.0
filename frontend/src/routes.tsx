@@ -1,216 +1,358 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import React from "react";
-import { useAuthStore } from "@/store/auth";
+import React, { Suspense } from "react";
+import { createBrowserRouter } from "react-router-dom";
+import { ProtectedRoute, PublicRoute } from "@/components/RouteGuards";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
+const LoginPage = React.lazy(() => import("@/pages/auth/LoginPage").then(m => ({ default: m.LoginPage })));
+const RegisterPage = React.lazy(() => import("@/pages/auth/RegisterPage").then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = React.lazy(() => import("@/pages/auth/ForgotPasswordPage").then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = React.lazy(() => import("@/pages/auth/ResetPasswordPage").then(m => ({ default: m.ResetPasswordPage })));
+const VerifyEmailPage = React.lazy(() => import("@/pages/auth/VerifyEmailPage").then(m => ({ default: m.VerifyEmailPage })));
+const MfaPage = React.lazy(() => import("@/pages/auth/MfaPage").then(m => ({ default: m.MfaPage })));
+const SessionExpiredPage = React.lazy(() => import("@/pages/auth/SessionExpiredPage").then(m => ({ default: m.SessionExpiredPage })));
+const AccountLockedPage = React.lazy(() => import("@/pages/auth/AccountLockedPage").then(m => ({ default: m.AccountLockedPage })));
+const UnauthorizedPage = React.lazy(() => import("@/pages/auth/UnauthorizedPage").then(m => ({ default: m.UnauthorizedPage })));
 
+const ExecutiveDashboardPage = React.lazy(() => import("@/pages/dashboard/ExecutiveDashboardPage").then(m => ({ default: m.ExecutiveDashboardPage })));
+const AiWorkspacePage = React.lazy(() => import("@/pages/ai/AiWorkspacePage").then(m => ({ default: m.AiWorkspacePage })));
+const KnowledgeExplorerPage = React.lazy(() => import("@/pages/ai/KnowledgeExplorerPage").then(m => ({ default: m.KnowledgeExplorerPage })));
+const KnowledgeGraphExplorerPage = React.lazy(() => import("@/pages/ai/KnowledgeGraphExplorerPage").then(m => ({ default: m.KnowledgeGraphExplorerPage })));
+const VectorSearchExplorerPage = React.lazy(() => import("@/pages/ai/VectorSearchExplorerPage").then(m => ({ default: m.VectorSearchExplorerPage })));
+const PromptLibraryPage = React.lazy(() => import("@/pages/ai/PromptLibraryPage").then(m => ({ default: m.PromptLibraryPage })));
+const PromptManagementPage = React.lazy(() => import("@/pages/ai/PromptManagementPage").then(m => ({ default: m.PromptManagementPage })));
+const ModelConfigurationPage = React.lazy(() => import("@/pages/ai/ModelConfigurationPage").then(m => ({ default: m.ModelConfigurationPage })));
+const AiKnowledgeDashboardPage = React.lazy(() => import("@/pages/ai/AiKnowledgeDashboardPage").then(m => ({ default: m.AiKnowledgeDashboardPage })));
+const FeedbackQueuePage = React.lazy(() => import("@/pages/ai/FeedbackQueuePage").then(m => ({ default: m.FeedbackQueuePage })));
+
+const AnalyticsExecutive = React.lazy(() => import("@/pages/analytics/ExecutiveDashboardPage").then(m => ({ default: m.ExecutiveDashboardPage })));
+const EnergyAnalyticsPage = React.lazy(() => import("@/pages/analytics/EnergyAnalyticsPage").then(m => ({ default: m.EnergyAnalyticsPage })));
+const FailureAnalyticsPage = React.lazy(() => import("@/pages/analytics/FailureAnalyticsPage").then(m => ({ default: m.FailureAnalyticsPage })));
+const DashboardBuilderPage = React.lazy(() => import("@/pages/analytics/DashboardBuilderPage").then(m => ({ default: m.DashboardBuilderPage })));
+
+const AssetDashboardPage = React.lazy(() => import("@/pages/assets/AssetDashboardPage").then(m => ({ default: m.AssetDashboardPage })));
+const MachineListPage = React.lazy(() => import("@/pages/assets/MachineListPage").then(m => ({ default: m.MachineListPage })));
+const MachineDetailsPage = React.lazy(() => import("@/pages/assets/MachineDetailsPage").then(m => ({ default: m.MachineDetailsPage })));
+const HierarchyPage = React.lazy(() => import("@/pages/assets/HierarchyPage").then(m => ({ default: m.HierarchyPage })));
+
+const DigitalTwinDashboardPage = React.lazy(() => import("@/pages/digitaltwin/DigitalTwinDashboardPage").then(m => ({ default: m.DigitalTwinDashboardPage })));
+const ControlRoomPage = React.lazy(() => import("@/pages/digitaltwin/ControlRoomPage").then(m => ({ default: m.ControlRoomPage })));
+const FactoryExplorerPage = React.lazy(() => import("@/pages/digitaltwin/FactoryExplorerPage").then(m => ({ default: m.FactoryExplorerPage })));
+const LiveMachineMonitoringPage = React.lazy(() => import("@/pages/digitaltwin/LiveMachineMonitoringPage").then(m => ({ default: m.LiveMachineMonitoringPage })));
+
+const DocumentDashboardPage = React.lazy(() => import("@/pages/documents/DocumentDashboardPage").then(m => ({ default: m.DocumentDashboardPage })));
+const DocumentLibraryPage = React.lazy(() => import("@/pages/documents/DocumentLibraryPage").then(m => ({ default: m.DocumentLibraryPage })));
+const DocumentDetailsPage = React.lazy(() => import("@/pages/documents/DocumentDetailsPage").then(m => ({ default: m.DocumentDetailsPage })));
+
+const LiveDashboardPage = React.lazy(() => import("@/pages/iot/LiveDashboardPage").then(m => ({ default: m.LiveDashboardPage })));
+const SensorDashboardPage = React.lazy(() => import("@/pages/iot/SensorDashboardPage").then(m => ({ default: m.SensorDashboardPage })));
+const VisionDashboardPage = React.lazy(() => import("@/pages/iot/VisionDashboardPage").then(m => ({ default: m.VisionDashboardPage })));
+const AlarmCenterPage = React.lazy(() => import("@/pages/iot/AlarmCenterPage").then(m => ({ default: m.AlarmCenterPage })));
+
+const MaintenanceDashboardPage = React.lazy(() => import("@/pages/maintenance/MaintenanceDashboardPage").then(m => ({ default: m.MaintenanceDashboardPage })));
+const WorkOrdersPage = React.lazy(() => import("@/pages/maintenance/WorkOrdersPage").then(m => ({ default: m.WorkOrdersPage })));
+const WorkOrderDetailsPage = React.lazy(() => import("@/pages/maintenance/WorkOrderDetailsPage").then(m => ({ default: m.WorkOrderDetailsPage })));
+const PredictiveMaintenancePage = React.lazy(() => import("@/pages/maintenance/PredictiveMaintenancePage").then(m => ({ default: m.PredictiveMaintenancePage })));
+
+const PredictiveDashboardPage = React.lazy(() => import("@/pages/predictive/PredictiveDashboardPage").then(m => ({ default: m.PredictiveDashboardPage })));
+const FailurePredictionPage = React.lazy(() => import("@/pages/predictive/FailurePredictionPage").then(m => ({ default: m.FailurePredictionPage })));
+const MaintenancePlannerPage = React.lazy(() => import("@/pages/predictive/MaintenancePlannerPage").then(m => ({ default: m.MaintenancePlannerPage })));
+const RiskDashboardPage = React.lazy(() => import("@/pages/predictive/RiskDashboardPage").then(m => ({ default: m.RiskDashboardPage })));
+const WhatIfSimulationPage = React.lazy(() => import("@/pages/predictive/WhatIfSimulationPage").then(m => ({ default: m.WhatIfSimulationPage })));
+
+const OperationsDashboardPage = React.lazy(() => import("@/pages/production/OperationsDashboardPage").then(m => ({ default: m.OperationsDashboardPage })));
+const AgentHubPage = React.lazy(() => import("@/pages/agents/AgentHubPage").then(m => ({ default: m.AgentHubPage })));
+
+const AdminDashboardPage = React.lazy(() => import("@/pages/admin/AdminDashboardPage").then(m => ({ default: m.AdminDashboardPage })));
+const UserManagementPage = React.lazy(() => import("@/pages/admin/UserManagementPage").then(m => ({ default: m.UserManagementPage })));
+const RoleManagementPage = React.lazy(() => import("@/pages/admin/RoleManagementPage").then(m => ({ default: m.RoleManagementPage })));
+const AuditLogsPage = React.lazy(() => import("@/pages/admin/AuditLogsPage").then(m => ({ default: m.AuditLogsPage })));
+const SystemSettingsPage = React.lazy(() => import("@/pages/admin/SystemSettingsPage").then(m => ({ default: m.SystemSettingsPage })));
+
+const ProfilePage = React.lazy(() => import("@/pages/profile/ProfilePage").then(m => ({ default: m.ProfilePage })));
+
+const FeatureFlagsPage = React.lazy(() => import("@/pages/platform/FeatureFlagsPage").then(m => ({ default: m.FeatureFlagsPage })));
+const DeploymentsPage = React.lazy(() => import("@/pages/platform/DeploymentsPage").then(m => ({ default: m.DeploymentsPage })));
+const AiAgentWorkspacePage = React.lazy(() => import("@/pages/platform/AiAgentWorkspacePage").then(m => ({ default: m.AiAgentWorkspacePage })));
+const AiOperationsDashboardPage = React.lazy(() => import("@/pages/platform/AiOperationsDashboardPage").then(m => ({ default: m.AiOperationsDashboardPage })));
+const CiCdPipelinePage = React.lazy(() => import("@/pages/platform/CiCdPipelinePage").then(m => ({ default: m.CiCdPipelinePage })));
+const SystemMonitoringPage = React.lazy(() => import("@/pages/platform/SystemMonitoringPage").then(m => ({ default: m.SystemMonitoringPage })));
+const MobileWorkforceDashboardPage = React.lazy(() => import("@/pages/platform/MobileWorkforceDashboardPage").then(m => ({ default: m.MobileWorkforceDashboardPage })));
+
+const WorkforceDashboardPage = React.lazy(() => import("@/pages/mobile/WorkforceDashboardPage").then(m => ({ default: m.WorkforceDashboardPage })));
+const NotFoundPage = React.lazy(() => import("@/pages/NotFoundPage").then(m => ({ default: m.NotFoundPage })));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[200px]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-gray-500">Loading...</p>
+    </div>
+  </div>
+);
+
+const LazyPage = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+);
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute>
     <DashboardLayout>{children}</DashboardLayout>
   </ProtectedRoute>
 );
-
-// Lazy load pages for better performance
-const LazyLoad = React.lazy;
-
-// Auth pages
-import { LoginPage } from "@/pages/auth/LoginPage";
-import { RegisterPage } from "@/pages/auth/RegisterPage";
-import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
-import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
-import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
-import { VerifyOtpPage } from "@/pages/auth/VerifyOtpPage";
-import { MfaPage } from "@/pages/auth/MfaPage";
-import { UnauthorizedPage } from "@/pages/auth/UnauthorizedPage";
-import { AccountLockedPage } from "@/pages/auth/AccountLockedPage";
-import { SessionExpiredPage } from "@/pages/auth/SessionExpiredPage";
-
-// Dashboard
-import { HomePage } from "@/pages/HomePage";
-import { CommandCenterPage } from "@/pages/dashboard/CommandCenterPage";
-import { ExecutiveDashboardPage } from "@/pages/analytics/ExecutiveDashboardPage";
-
-// Assets
-import { AssetDashboardPage } from "@/pages/assets/AssetDashboardPage";
-import { MachineListPage } from "@/pages/assets/MachineListPage";
-import { MachineDetailsPage } from "@/pages/assets/MachineDetailsPage";
-import { HierarchyPage } from "@/pages/assets/HierarchyPage";
-
-// Maintenance
-import { MaintenanceDashboardPage } from "@/pages/maintenance/MaintenanceDashboardPage";
-import { WorkOrdersPage } from "@/pages/maintenance/WorkOrdersPage";
-import { WorkOrderDetailsPage } from "@/pages/maintenance/WorkOrderDetailsPage";
-import { PredictiveMaintenancePage } from "@/pages/maintenance/PredictiveMaintenancePage";
-
-// Documents
-import { DocumentDashboardPage } from "@/pages/documents/DocumentDashboardPage";
-import { DocumentLibraryPage } from "@/pages/documents/DocumentLibraryPage";
-import { DocumentDetailsPage } from "@/pages/documents/DocumentDetailsPage";
-
-// IoT
-import { SensorDashboardPage } from "@/pages/iot/SensorDashboardPage";
-import { LiveDashboardPage } from "@/pages/iot/LiveDashboardPage";
-import { AlarmCenterPage } from "@/pages/iot/AlarmCenterPage";
-import { VisionDashboardPage } from "@/pages/iot/VisionDashboardPage";
-
-// AI
-import { AiWorkspacePage } from "@/pages/ai/AiWorkspacePage";
-import { AiKnowledgeDashboardPage } from "@/pages/ai/AiKnowledgeDashboardPage";
-import { KnowledgeExplorerPage } from "@/pages/ai/KnowledgeExplorerPage";
-import { KnowledgeGraphExplorerPage } from "@/pages/ai/KnowledgeGraphExplorerPage";
-import { VectorSearchExplorerPage } from "@/pages/ai/VectorSearchExplorerPage";
-import { PromptLibraryPage } from "@/pages/ai/PromptLibraryPage";
-import { PromptManagementPage } from "@/pages/ai/PromptManagementPage";
-import { ModelConfigurationPage } from "@/pages/ai/ModelConfigurationPage";
-import { FeedbackQueuePage } from "@/pages/ai/FeedbackQueuePage";
-
-// Analytics
-import { DashboardBuilderPage } from "@/pages/analytics/DashboardBuilderPage";
-import { EnergyAnalyticsPage } from "@/pages/analytics/EnergyAnalyticsPage";
-import { FailureAnalyticsPage } from "@/pages/analytics/FailureAnalyticsPage";
-
-// Digital Twin
-import { DigitalTwinDashboardPage } from "@/pages/digitaltwin/DigitalTwinDashboardPage";
-import { ControlRoomPage } from "@/pages/digitaltwin/ControlRoomPage";
-import { FactoryExplorerPage } from "@/pages/digitaltwin/FactoryExplorerPage";
-import { LiveMachineMonitoringPage } from "@/pages/digitaltwin/LiveMachineMonitoringPage";
-
-// Predictive
-import { PredictiveDashboardPage } from "@/pages/predictive/PredictiveDashboardPage";
-import { FailurePredictionPage } from "@/pages/predictive/FailurePredictionPage";
-import { RiskDashboardPage } from "@/pages/predictive/RiskDashboardPage";
-import { MaintenancePlannerPage } from "@/pages/predictive/MaintenancePlannerPage";
-import { WhatIfSimulationPage } from "@/pages/predictive/WhatIfSimulationPage";
-
-// Production
-import { OperationsDashboardPage } from "@/pages/production/OperationsDashboardPage";
-
-// Agents
-import { AgentHubPage } from "@/pages/agents/AgentHubPage";
-
-// Mobile
-import { WorkforceDashboardPage } from "@/pages/mobile/WorkforceDashboardPage";
-
-// Platform
-import { FeatureFlagsPage } from "@/pages/platform/FeatureFlagsPage";
-import { DeploymentsPage } from "@/pages/platform/DeploymentsPage";
-import { SystemMonitoringPage } from "@/pages/platform/SystemMonitoringPage";
-import { CiCdPipelinePage } from "@/pages/platform/CiCdPipelinePage";
-import { AiAgentWorkspacePage } from "@/pages/platform/AiAgentWorkspacePage";
-import { AiOperationsDashboardPage } from "@/pages/platform/AiOperationsDashboardPage";
-import { MobileWorkforceDashboardPage } from "@/pages/platform/MobileWorkforceDashboardPage";
-
-// Admin
-import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
-import { UserManagementPage } from "@/pages/admin/UserManagementPage";
-import { RoleManagementPage } from "@/pages/admin/RoleManagementPage";
-import { AuditLogsPage } from "@/pages/admin/AuditLogsPage";
-import { SystemSettingsPage } from "@/pages/admin/SystemSettingsPage";
-
-// Profile
-import { ProfilePage } from "@/pages/profile/ProfilePage";
-
 export const router = createBrowserRouter([
-  // Auth routes (no layout)
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/forgot-password", element: <ForgotPasswordPage /> },
-  { path: "/reset-password", element: <ResetPasswordPage /> },
-  { path: "/verify-email", element: <VerifyEmailPage /> },
-  { path: "/verify-otp", element: <VerifyOtpPage /> },
-  { path: "/mfa", element: <MfaPage /> },
-  { path: "/unauthorized", element: <UnauthorizedPage /> },
-  { path: "/account-locked", element: <AccountLockedPage /> },
-  { path: "/session-expired", element: <SessionExpiredPage /> },
-
-  // Dashboard
-  { path: "/", element: <ProtectedRoute><HomePage /></ProtectedRoute> },
-  { path: "/dashboard/executive", element: <ProtectedLayout><ExecutiveDashboardPage /></ProtectedLayout> },
-
-  // Assets
-  { path: "/assets", element: <ProtectedLayout><AssetDashboardPage /></ProtectedLayout> },
-  { path: "/assets/machines", element: <ProtectedLayout><MachineListPage /></ProtectedLayout> },
-  { path: "/assets/machines/:id", element: <ProtectedLayout><MachineDetailsPage /></ProtectedLayout> },
-  { path: "/assets/hierarchy", element: <ProtectedLayout><HierarchyPage /></ProtectedLayout> },
-
-  // Maintenance
-  { path: "/maintenance", element: <ProtectedLayout><MaintenanceDashboardPage /></ProtectedLayout> },
-  { path: "/maintenance/work-orders", element: <ProtectedLayout><WorkOrdersPage /></ProtectedLayout> },
-  { path: "/maintenance/work-orders/:id", element: <ProtectedLayout><WorkOrderDetailsPage /></ProtectedLayout> },
-  { path: "/maintenance/predictive", element: <ProtectedLayout><PredictiveMaintenancePage /></ProtectedLayout> },
-
-  // Documents
-  { path: "/documents", element: <ProtectedLayout><DocumentDashboardPage /></ProtectedLayout> },
-  { path: "/documents/library", element: <ProtectedLayout><DocumentLibraryPage /></ProtectedLayout> },
-  { path: "/documents/:id", element: <ProtectedLayout><DocumentDetailsPage /></ProtectedLayout> },
-
-  // IoT
-  { path: "/iot/sensors", element: <ProtectedLayout><SensorDashboardPage /></ProtectedLayout> },
-  { path: "/iot/live", element: <ProtectedLayout><LiveDashboardPage /></ProtectedLayout> },
-  { path: "/iot/alarms", element: <ProtectedLayout><AlarmCenterPage /></ProtectedLayout> },
-  { path: "/iot/vision", element: <ProtectedLayout><VisionDashboardPage /></ProtectedLayout> },
-
-  // AI
-  { path: "/ai/workspace", element: <ProtectedLayout><AiWorkspacePage /></ProtectedLayout> },
-  { path: "/ai/knowledge", element: <ProtectedLayout><AiKnowledgeDashboardPage /></ProtectedLayout> },
-  { path: "/ai/knowledge-explorer", element: <ProtectedLayout><KnowledgeExplorerPage /></ProtectedLayout> },
-  { path: "/ai/knowledge-graph", element: <ProtectedLayout><KnowledgeGraphExplorerPage /></ProtectedLayout> },
-  { path: "/ai/vector-search", element: <ProtectedLayout><VectorSearchExplorerPage /></ProtectedLayout> },
-  { path: "/ai/prompts", element: <ProtectedLayout><PromptLibraryPage /></ProtectedLayout> },
-  { path: "/ai/prompt-management", element: <ProtectedLayout><PromptManagementPage /></ProtectedLayout> },
-  { path: "/ai/models", element: <ProtectedLayout><ModelConfigurationPage /></ProtectedLayout> },
-  { path: "/ai/feedback", element: <ProtectedLayout><FeedbackQueuePage /></ProtectedLayout> },
-
-  // Analytics
-  { path: "/analytics/dashboard-builder", element: <ProtectedLayout><DashboardBuilderPage /></ProtectedLayout> },
-  { path: "/analytics/energy", element: <ProtectedLayout><EnergyAnalyticsPage /></ProtectedLayout> },
-  { path: "/analytics/failures", element: <ProtectedLayout><FailureAnalyticsPage /></ProtectedLayout> },
-
-  // Digital Twin
-  { path: "/digital-twin", element: <ProtectedLayout><DigitalTwinDashboardPage /></ProtectedLayout> },
-  { path: "/digital-twin/control-room", element: <ProtectedLayout><ControlRoomPage /></ProtectedLayout> },
-  { path: "/digital-twin/factory-explorer", element: <ProtectedLayout><FactoryExplorerPage /></ProtectedLayout> },
-  { path: "/digital-twin/monitoring", element: <ProtectedLayout><LiveMachineMonitoringPage /></ProtectedLayout> },
-
-  // Predictive
-  { path: "/predictive", element: <ProtectedLayout><PredictiveDashboardPage /></ProtectedLayout> },
-  { path: "/predictive/failures", element: <ProtectedLayout><FailurePredictionPage /></ProtectedLayout> },
-  { path: "/predictive/risk", element: <ProtectedLayout><RiskDashboardPage /></ProtectedLayout> },
-  { path: "/predictive/planner", element: <ProtectedLayout><MaintenancePlannerPage /></ProtectedLayout> },
-  { path: "/predictive/simulation", element: <ProtectedLayout><WhatIfSimulationPage /></ProtectedLayout> },
-
-  // Production
-  { path: "/production", element: <ProtectedLayout><OperationsDashboardPage /></ProtectedLayout> },
-
-  // Agents
-  { path: "/agents", element: <ProtectedLayout><AgentHubPage /></ProtectedLayout> },
-
-  // Mobile
-  { path: "/mobile", element: <ProtectedLayout><WorkforceDashboardPage /></ProtectedLayout> },
-
-  // Platform
-  { path: "/platform/flags", element: <ProtectedLayout><FeatureFlagsPage /></ProtectedLayout> },
-  { path: "/platform/deployments", element: <ProtectedLayout><DeploymentsPage /></ProtectedLayout> },
-  { path: "/platform/monitoring", element: <ProtectedLayout><SystemMonitoringPage /></ProtectedLayout> },
-  { path: "/platform/ci-cd", element: <ProtectedLayout><CiCdPipelinePage /></ProtectedLayout> },
-  { path: "/platform/ai-agents", element: <ProtectedLayout><AiAgentWorkspacePage /></ProtectedLayout> },
-  { path: "/platform/ai-ops", element: <ProtectedLayout><AiOperationsDashboardPage /></ProtectedLayout> },
-  { path: "/platform/mobile-workforce", element: <ProtectedLayout><MobileWorkforceDashboardPage /></ProtectedLayout> },
-
-  // Admin
-  { path: "/admin", element: <ProtectedLayout><AdminDashboardPage /></ProtectedLayout> },
-  { path: "/admin/users", element: <ProtectedLayout><UserManagementPage /></ProtectedLayout> },
-  { path: "/admin/roles", element: <ProtectedLayout><RoleManagementPage /></ProtectedLayout> },
-  { path: "/admin/audit-logs", element: <ProtectedLayout><AuditLogsPage /></ProtectedLayout> },
-  { path: "/admin/settings", element: <ProtectedLayout><SystemSettingsPage /></ProtectedLayout> },
-
-  // Profile
-  { path: "/profile", element: <ProtectedLayout><ProfilePage /></ProtectedLayout> },
-
-  // 404
-  { path: "*", element: <ProtectedLayout><div className="p-12 text-center"><h1 className="text-4xl font-bold text-white mb-4">404</h1><p className="text-gray-400">Page not found</p></div></ProtectedLayout> },
+  {
+    path: "/login",
+    element: <PublicRoute><LazyPage><LoginPage /></LazyPage></PublicRoute>,
+  },
+  {
+    path: "/register",
+    element: <PublicRoute><LazyPage><RegisterPage /></LazyPage></PublicRoute>,
+  },
+  {
+    path: "/forgot-password",
+    element: <PublicRoute><LazyPage><ForgotPasswordPage /></LazyPage></PublicRoute>,
+  },
+  {
+    path: "/reset-password",
+    element: <PublicRoute><LazyPage><ResetPasswordPage /></LazyPage></PublicRoute>,
+  },
+  {
+    path: "/verify-email",
+    element: <LazyPage><VerifyEmailPage /></LazyPage>,
+  },
+  {
+    path: "/mfa",
+    element: <LazyPage><MfaPage /></LazyPage>,
+  },
+  {
+    path: "/session-expired",
+    element: <LazyPage><SessionExpiredPage /></LazyPage>,
+  },
+  {
+    path: "/account-locked",
+    element: <LazyPage><AccountLockedPage /></LazyPage>,
+  },
+  {
+    path: "/unauthorized",
+    element: <LazyPage><UnauthorizedPage /></LazyPage>,
+  },
+  {
+    path: "/",
+    element: <ProtectedLayout><LazyPage><ExecutiveDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/workspace",
+    element: <ProtectedLayout><LazyPage><AiWorkspacePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/knowledge",
+    element: <ProtectedLayout><LazyPage><AiKnowledgeDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/knowledge-graph",
+    element: <ProtectedLayout><LazyPage><KnowledgeGraphExplorerPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/knowledge-explorer",
+    element: <ProtectedLayout><LazyPage><KnowledgeExplorerPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/vector-search",
+    element: <ProtectedLayout><LazyPage><VectorSearchExplorerPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/prompts",
+    element: <ProtectedLayout><LazyPage><PromptLibraryPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/prompts/manage",
+    element: <ProtectedLayout><LazyPage><PromptManagementPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/models",
+    element: <ProtectedLayout><LazyPage><ModelConfigurationPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/ai/feedback",
+    element: <ProtectedLayout><LazyPage><FeedbackQueuePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/analytics",
+    element: <ProtectedLayout><LazyPage><AnalyticsExecutive /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/analytics/energy",
+    element: <ProtectedLayout><LazyPage><EnergyAnalyticsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/analytics/failures",
+    element: <ProtectedLayout><LazyPage><FailureAnalyticsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/analytics/builder",
+    element: <ProtectedLayout><LazyPage><DashboardBuilderPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/assets",
+    element: <ProtectedLayout><LazyPage><AssetDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/assets/machines",
+    element: <ProtectedLayout><LazyPage><MachineListPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/assets/machines/:id",
+    element: <ProtectedLayout><LazyPage><MachineDetailsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/assets/hierarchy",
+    element: <ProtectedLayout><LazyPage><HierarchyPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/digital-twin",
+    element: <ProtectedLayout><LazyPage><DigitalTwinDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/digital-twin/control-room",
+    element: <ProtectedLayout><LazyPage><ControlRoomPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/digital-twin/explorer",
+    element: <ProtectedLayout><LazyPage><FactoryExplorerPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/digital-twin/monitoring",
+    element: <ProtectedLayout><LazyPage><LiveMachineMonitoringPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/documents",
+    element: <ProtectedLayout><LazyPage><DocumentDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/documents/library",
+    element: <ProtectedLayout><LazyPage><DocumentLibraryPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/documents/:id",
+    element: <ProtectedLayout><LazyPage><DocumentDetailsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/iot",
+    element: <ProtectedLayout><LazyPage><LiveDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/iot/sensors",
+    element: <ProtectedLayout><LazyPage><SensorDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/iot/vision",
+    element: <ProtectedLayout><LazyPage><VisionDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/iot/alarms",
+    element: <ProtectedLayout><LazyPage><AlarmCenterPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/maintenance",
+    element: <ProtectedLayout><LazyPage><MaintenanceDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/maintenance/work-orders",
+    element: <ProtectedLayout><LazyPage><WorkOrdersPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/maintenance/work-orders/:id",
+    element: <ProtectedLayout><LazyPage><WorkOrderDetailsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/maintenance/predictive",
+    element: <ProtectedLayout><LazyPage><PredictiveMaintenancePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/predictive",
+    element: <ProtectedLayout><LazyPage><PredictiveDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/predictive/failures",
+    element: <ProtectedLayout><LazyPage><FailurePredictionPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/predictive/planner",
+    element: <ProtectedLayout><LazyPage><MaintenancePlannerPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/predictive/risk",
+    element: <ProtectedLayout><LazyPage><RiskDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/predictive/simulation",
+    element: <ProtectedLayout><LazyPage><WhatIfSimulationPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/production",
+    element: <ProtectedLayout><LazyPage><OperationsDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/agents",
+    element: <ProtectedLayout><LazyPage><AgentHubPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/admin",
+    element: <ProtectedLayout><LazyPage><AdminDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/admin/users",
+    element: <ProtectedLayout><LazyPage><UserManagementPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/admin/roles",
+    element: <ProtectedLayout><LazyPage><RoleManagementPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/admin/audit-logs",
+    element: <ProtectedLayout><LazyPage><AuditLogsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/admin/settings",
+    element: <ProtectedLayout><LazyPage><SystemSettingsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/profile",
+    element: <ProtectedLayout><LazyPage><ProfilePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/flags",
+    element: <ProtectedLayout><LazyPage><FeatureFlagsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/deployments",
+    element: <ProtectedLayout><LazyPage><DeploymentsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/ai-agents",
+    element: <ProtectedLayout><LazyPage><AiAgentWorkspacePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/ai-operations",
+    element: <ProtectedLayout><LazyPage><AiOperationsDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/ci-cd",
+    element: <ProtectedLayout><LazyPage><CiCdPipelinePage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/monitoring",
+    element: <ProtectedLayout><LazyPage><SystemMonitoringPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/platform/mobile",
+    element: <ProtectedLayout><LazyPage><MobileWorkforceDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/mobile",
+    element: <ProtectedLayout><LazyPage><WorkforceDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "*",
+    element: <LazyPage><NotFoundPage /></LazyPage>,
+  },
 ]);

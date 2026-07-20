@@ -1,12 +1,25 @@
 import { api } from "@/lib/api";
 
+interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+interface RegisterPayload {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  organization_name?: string;
+}
+
 export const authService = {
-  async login(payload: any) {
+  async login(payload: LoginPayload) {
     const res = await api.post("/auth/login", payload);
     return res.data;
   },
 
-  async register(payload: any) {
+  async register(payload: RegisterPayload) {
     const res = await api.post("/auth/register", payload);
     return res.data;
   },
@@ -16,70 +29,23 @@ export const authService = {
     return res.data;
   },
 
+  async getProfile() {
+    const res = await api.get("/auth/me");
+    return res.data.data;
+  },
+
   async forgotPassword(payload: { email: string }) {
     const res = await api.post("/auth/forgot-password", payload);
     return res.data;
   },
 
-  async resetPassword(payload: any) {
+  async resetPassword(payload: { token: string; new_password: string }) {
     const res = await api.post("/auth/reset-password", payload);
     return res.data;
   },
 
-  // Existing methods (login, register, logout, forgotPassword, resetPassword) remain unchanged
-  // New endpoint: Refresh token (handled via interceptor, provide helper if needed)
-  async refreshToken(payload: { refresh_token: string }) {
-    try {
-      const res = await api.post("/auth/refresh", payload);
-      return res.data;
-    } catch (err) {
-      // Graceful fallback if endpoint not implemented
-      console.warn("Refresh token endpoint not available", err);
-      return null;
-    }
+  async verifyEmail(token: string) {
+    const res = await api.post("/auth/verify-email", { token });
+    return res.data;
   },
-
-  // Email verification (e.g., after registration)
-  async verifyEmail(payload: { token: string }) {
-    try {
-      const res = await api.post("/auth/verify-email", payload);
-      return res.data;
-    } catch (err) {
-      console.warn("Email verification endpoint not available", err);
-      return null;
-    }
-  },
-
-  // Change password (authenticated user)
-  async changePassword(payload: { current_password: string; new_password: string }) {
-    try {
-      const res = await api.post("/auth/change-password", payload);
-      return res.data;
-    } catch (err) {
-      console.warn("Change password endpoint not available", err);
-      return null;
-    }
-  },
-
-  // Get user profile
-  async getProfile() {
-    try {
-      const res = await api.get("/auth/profile");
-      return res.data;
-    } catch (err) {
-      console.warn("Get profile endpoint not available", err);
-      return null;
-    }
-  },
-
-  // MFA status check – returns true if MFA is enabled for the user
-  async getMfaStatus() {
-    try {
-      const res = await api.get("/auth/mfa/status");
-      return res.data.enabled as boolean;
-    } catch (err) {
-      console.warn("MFA status endpoint not available", err);
-      return false;
-    }
-  }
 };

@@ -19,26 +19,38 @@ export const ResetPasswordPage = () => {
     resolver: zodResolver(resetPasswordSchema)
   });
 
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
+
   const onSubmit = async (data: ResetFields) => {
+    setIsSubmitting(true);
+    setErrorMsg("");
     try {
       await authService.resetPassword(data);
       navigate("/login");
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message || "Failed to reset password");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary-bg px-4">
-      <div className="w-full max-w-md bg-secondary-bg border border-gray-800 rounded-lg p-8 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-bg to-secondary-bg px-4">
+      <div className="w-full max-w-md bg-primary-bg/80 backdrop-blur-sm border border-gray-800 rounded-xl p-8 shadow-2xl">
         <h2 className="text-2xl font-bold text-center text-white mb-6">Reset Password</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {errorMsg && (
+            <div className="p-3 bg-danger/20 border border-danger text-danger text-sm rounded">
+              {errorMsg}
+            </div>
+          )}
           <div>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Email</label>
             <input
               {...register("email")}
               type="email"
-              className="w-full bg-primary-bg border border-gray-700 rounded px-3 py-2 text-white"
+              className="w-full bg-primary-bg/60 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-accent"
             />
             {errors.email && <p className="text-xs text-danger mt-1">{errors.email.message}</p>}
           </div>
@@ -47,7 +59,8 @@ export const ResetPasswordPage = () => {
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">OTP</label>
             <input
               {...register("otp")}
-              className="w-full bg-primary-bg border border-gray-700 rounded px-3 py-2 text-white"
+              className="w-full bg-primary-bg/60 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-accent"
+              placeholder="e.g. 123456"
             />
             {errors.otp && <p className="text-xs text-danger mt-1">{errors.otp.message}</p>}
           </div>
@@ -57,16 +70,17 @@ export const ResetPasswordPage = () => {
             <input
               {...register("new_password")}
               type="password"
-              className="w-full bg-primary-bg border border-gray-700 rounded px-3 py-2 text-white"
+              className="w-full bg-primary-bg/60 border border-gray-700 rounded px-3 py-2 text-white focus:outline-none focus:border-accent"
             />
             {errors.new_password && <p className="text-xs text-danger mt-1">{errors.new_password.message}</p>}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-accent hover:bg-blue-600 text-white font-medium py-2 rounded transition-colors"
+            disabled={isSubmitting}
+            className="w-full bg-accent hover:bg-blue-600 text-white font-medium py-2 rounded transition-colors disabled:opacity-50"
           >
-            Reset Password
+            {isSubmitting ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       </div>

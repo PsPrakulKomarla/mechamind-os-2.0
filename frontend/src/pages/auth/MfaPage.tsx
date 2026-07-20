@@ -7,8 +7,11 @@ export const MfaPage = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<{ code: string }>();
   const [error, setError] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const onSubmit = async (data: { code: string }) => {
+    setIsSubmitting(true);
+    setError(null);
     try {
       await api.post("/auth/mfa/verify", data);
       navigate("/");

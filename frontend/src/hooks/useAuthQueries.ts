@@ -15,13 +15,20 @@ export const useLoginMutation = () => {
   });
 };
 
-export const useRegisterMutation = () => {
-  const queryClient = useQueryClient();
+export const useForgotPasswordMutation = () => {
   return useMutation({
-    mutationFn: authService.register,
+    mutationFn: authService.forgotPassword,
     onSuccess: () => {
-      // Invalidate any queries if needed
-      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      // Optionally show a toast or notification
+    }
+  });
+};
+
+export const useResetPasswordMutation = () => {
+  return useMutation({
+    mutationFn: authService.resetPassword,
+    onSuccess: () => {
+      // Optionally show a toast or redirect handled by component
     }
   });
 };

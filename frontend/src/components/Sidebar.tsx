@@ -33,7 +33,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard, group: "Overview" },
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, group: "Overview" },
   { name: "AI Assistant", path: "/ai/workspace", icon: Brain, group: "Intelligence" },
   { name: "Knowledge Graph", path: "/ai/knowledge-graph", icon: ScanSearch, group: "Intelligence" },
   { name: "Vector Search", path: "/ai/vector-search", icon: Zap, group: "Intelligence" },
@@ -98,7 +98,7 @@ export const Sidebar = () => {
       {/* Brand Header */}
       <div className="h-14 flex items-center justify-between px-4 border-b border-gray-800 shrink-0">
         {!isCollapsed && (
-          <Link to="/" className="flex items-center gap-2.5">
+          <Link to="/dashboard" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-accent/20 border border-accent/30 flex items-center justify-center">
               <Cpu size={16} className="text-accent" />
             </div>

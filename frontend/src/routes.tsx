@@ -78,6 +78,7 @@ const CiCdPipelinePage = React.lazy(() => import("@/pages/platform/CiCdPipelineP
 const SystemMonitoringPage = React.lazy(() => import("@/pages/platform/SystemMonitoringPage").then(m => ({ default: m.SystemMonitoringPage })));
 const MobileWorkforceDashboardPage = React.lazy(() => import("@/pages/platform/MobileWorkforceDashboardPage").then(m => ({ default: m.MobileWorkforceDashboardPage })));
 
+const LandingPage = React.lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const WorkforceDashboardPage = React.lazy(() => import("@/pages/mobile/WorkforceDashboardPage").then(m => ({ default: m.WorkforceDashboardPage })));
 const NotFoundPage = React.lazy(() => import("@/pages/NotFoundPage").then(m => ({ default: m.NotFoundPage })));
 
@@ -137,6 +138,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
+    element: <LazyPage><LandingPage /></LazyPage>,
+  },
+  {
+    path: "/dashboard",
     element: <ProtectedLayout><LazyPage><ExecutiveDashboardPage /></LazyPage></ProtectedLayout>,
   },
   {

@@ -20,7 +20,7 @@ export const LoginPage = () => {
   const loginMutation = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
 
-  const from = (location.state as { from?: string })?.from || "/";
+  const from = (location.state as { from?: string })?.from || "/dashboard";
 
   const {
     register,
@@ -29,8 +29,6 @@ export const LoginPage = () => {
   } = useForm<LoginFields>({
     resolver: zodResolver(loginSchema),
   });
-
-
 
   const onSubmit = (data: LoginFields) => {
     loginMutation.mutate(data, {
@@ -50,11 +48,14 @@ export const LoginPage = () => {
       <div className="w-full max-w-md">
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 mb-4">
+          <Link to="/" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 mb-4 hover:bg-[#3B82F6]/20 transition-colors">
             <Cpu size={28} className="text-[#3B82F6]" />
-          </div>
+          </Link>
           <h1 className="text-2xl font-bold text-white">MechaMind OS 2.0</h1>
           <p className="text-sm text-gray-400 mt-1">Sign in to your account</p>
+          <Link to="/" className="text-xs text-gray-500 hover:text-gray-300 transition-colors mt-2 inline-block">
+            &larr; Back to home
+          </Link>
         </div>
 
         {/* Card */}

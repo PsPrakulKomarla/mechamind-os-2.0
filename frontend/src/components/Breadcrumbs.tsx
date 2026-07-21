@@ -79,7 +79,7 @@ export const Breadcrumbs = () => {
   return (
     <nav className="flex items-center gap-1 text-xs text-gray-500 mb-4">
       <Link
-        to="/"
+        to="/dashboard"
         className="flex items-center gap-1 hover:text-gray-300 transition-colors"
       >
         <Home size={12} />

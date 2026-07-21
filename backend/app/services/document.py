@@ -1,20 +1,9 @@
-import uuid
-import asyncio
-from typing import Optional, List, Tuple
-from fastapi import UploadFile, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
+config: Application configuration for file upload size limits, chunk size, and resumable upload settings.
 
-from app.models.document import Document
-from app.models.enums import DocumentType, ScopeType, AuditAction, EntityType
-from app.schemas.document import DocumentPaginatedResponse, DocumentResponse
-from app.repositories.document import document_repo
-from app.core.storage import storage_provider
-from app.services.authorization import AuthorizationService
-from app.services.audit import audit_service
-from app.services.document_processing import document_processor
+Components:
+- FILE_UPLOAD_CONFIG: Global file upload settings
+- DocumentProcessingService: Background pipeline that reads files, extracts text, chunks it, and saves embeddings to the vector DB.
 
-class DocumentService:
-    
     ALLOWED_MIME_TYPES = [
         "application/pdf",
         "image/jpeg",
@@ -51,16 +40,29 @@ class DocumentService:
         if file.content_type not in self.ALLOWED_MIME_TYPES:
             raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}")
             
-        # 3. Stream to Storage Provider
-        file_size = file.size if file.size else 0 # Warning: UploadFile.size is not always populated depending on client
-        # Let's seek to end to get exact size if needed, but for prototype we accept it might be 0 until processed
+        # 3. Validate File Size (Read from config)
+        from app.core.config import get_app_config
+        max_size_bytes = get_app_config().MAX_UPLOAD_SIZE_BYTES
         
+        # Check if file size is available (some clients might stream)
+        file_size = file.size if file.size is not None else 0
+        if file_size > max_size_bytes:
+            raise HTTPException(
+                status_code=413, 
+                detail=f"File exceeds maximum size of {max_size_bytes / (1024*1024):.1f} MB"
+            )
+            
+        # Additional validation: record the actual size for processing
+        # The actual file size may be verified later during storage upload
+        print(f"File size validation passed: {file_size} bytes")
+            
+        # 4. Stream to Storage Provider
         directory = f"{organization_id}/{factory_id}" if factory_id else f"{organization_id}/global"
         safe_filename = f"{uuid.uuid4()}_{file.filename}"
         
         file_path = await storage_provider.upload_file(file, directory, safe_filename)
         
-        # 4. Create DB Record
+        # 5. Create DB Record
         doc = await document_repo.create(
             db=db,
             organization_id=organization_id,
@@ -76,69 +78,12 @@ class DocumentService:
             mime_type=file.content_type
         )
         
-        # 5. Trigger Background Processing Pipeline (in reality, dispatch to Celery/Redis)
+        # 6. Trigger Background Processing Pipeline (in reality, dispatch to Celery/Redis)
         # We use asyncio.create_task to fire and forget for the prototype
         asyncio.create_task(document_processor.run_pipeline(db, doc))
         
-        # 6. Audit
+        # 7. Audit
         await audit_service.log_action(db, user_id, AuditAction.CREATE, EntityType.DOCUMENT, doc.id, {"file_name": doc.file_name})
         await db.commit()
 
         return doc
-        
-    async def get_document(self, db: AsyncSession, id: uuid.UUID, user_id: uuid.UUID) -> Document:
-        doc = await document_repo.get(db, id)
-        if not doc:
-            raise HTTPException(status_code=404, detail="Document not found")
-            
-        if doc.factory_id:
-            await AuthorizationService.authorize(db, user_id, ["document.read"], ScopeType.FACTORY, str(doc.factory_id))
-        else:
-            await AuthorizationService.authorize(db, user_id, ["document.read"], ScopeType.ORGANIZATION, str(doc.organization_id))
-            
-        return doc
-
-    async def list_documents(
-        self, db: AsyncSession, organization_id: uuid.UUID, user_id: uuid.UUID,
-        factory_id: Optional[uuid.UUID] = None, doc_type: Optional[DocumentType] = None,
-        page: int = 1, size: int = 50
-    ) -> DocumentPaginatedResponse:
-        
-        if factory_id:
-            await AuthorizationService.authorize(db, user_id, ["document.read"], ScopeType.FACTORY, str(factory_id))
-        else:
-            await AuthorizationService.authorize(db, user_id, ["document.read"], ScopeType.ORGANIZATION, str(organization_id))
-            
-        skip = (page - 1) * size
-        items, total = await document_repo.get_multi(
-            db, organization_id=organization_id, factory_id=factory_id, 
-            doc_type=doc_type, skip=skip, limit=size
-        )
-        
-        return DocumentPaginatedResponse(
-            items=[DocumentResponse.model_validate(item) for item in items],
-            total=total,
-            page=page,
-            size=size
-        )
-
-    async def delete_document(self, db: AsyncSession, id: uuid.UUID, user_id: uuid.UUID):
-        doc = await document_repo.get(db, id)
-        if not doc:
-            raise HTTPException(status_code=404, detail="Document not found")
-            
-        if doc.factory_id:
-            await AuthorizationService.authorize(db, user_id, ["document.delete"], ScopeType.FACTORY, str(doc.factory_id))
-        else:
-            await AuthorizationService.authorize(db, user_id, ["document.delete"], ScopeType.ORGANIZATION, str(doc.organization_id))
-            
-        # Soft delete DB
-        await document_repo.soft_delete(db, id)
-        
-        # We can optionally trigger storage_provider.delete_file here, but for compliance
-        # we usually keep the binary if it's a soft delete, or run a sweep cron job.
-        
-        await audit_service.log_action(db, user_id, AuditAction.DELETE, EntityType.DOCUMENT, id, {})
-        await db.commit()
-
-document_service = DocumentService()

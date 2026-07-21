@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1 import (
     health, auth, roles, permissions, organizations, factories, departments, teams, machines,
-    subsystems, components, parts, relationships, risk, asset_health, documents, extraction, entities, knowledge, copilot, learning, maintenance, failures, compliance, safety, vision, iot, prediction, analytics, workflow, integration, mlops, security, brain
+    subsystems, components, parts, relationships, risk, asset_health, documents, extraction, entities, knowledge, copilot, learning, maintenance, failures, compliance, safety, vision, iot, prediction, analytics, workflow, integration, mlops, security, brain, admin
 )
 
 api_router = APIRouter()

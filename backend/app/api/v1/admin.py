@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any, List, Optional, Dict
 from uuid import UUID
-from datetime import datetime as dt
+from datetime import datetime
 
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
@@ -10,14 +10,13 @@ from app.dependencies.rbac import RequirePermissions
 from app.schemas.response import APIResponse
 from app.schemas.user import UserResponse
 from app.schemas.rbac import RoleCreate, AssignPermissionRequest, AssignRoleRequest
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import AdminUserCreate, UserUpdate
 from app.schemas.admin import AdminDashboardStatsResponse
 from app.models.user import User
 from app.services.admin import admin_service
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter(tags=["Admin"])
 
-# Dashboards
 
 @router.get("/dashboard/stats", response_model=APIResponse[AdminDashboardStatsResponse], dependencies=[Depends(RequirePermissions(["admin.dashboard.read"]))])
 async def get_dashboard_stats(
@@ -27,11 +26,12 @@ async def get_dashboard_stats(
     stats = await admin_service.get_dashboard_stats(db=db, user_id=current_user.id)
     return APIResponse(data=stats)
 
+
 @router.get("/system/health", response_model=APIResponse[dict])
 async def get_system_health() -> Any:
     return APIResponse(data={
         "status": "healthy",
-        "timestamp": dt.now(),
+        "timestamp": datetime.now().isoformat(),
         "version": "2.0.0",
         "uptime": "active",
         "checks": {
@@ -40,6 +40,7 @@ async def get_system_health() -> Any:
             "auth": "working"
         }
     })
+
 
 @router.get("/audit-logs", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.audit.read"]))])
 async def get_audit_logs(
@@ -65,6 +66,7 @@ async def get_audit_logs(
     logs = await admin_service.get_audit_logs(db=db, filters=audit_filters, requesting_user_id=current_user.id)
     return APIResponse(data=logs)
 
+
 @router.get("/settings", response_model=APIResponse[dict], dependencies=[Depends(RequirePermissions(["admin.settings.read"]))])
 async def get_system_settings(
     current_user: User = Depends(get_current_user),
@@ -73,16 +75,16 @@ async def get_system_settings(
     settings = await admin_service.get_system_settings(db=db, user_id=current_user.id)
     return APIResponse(data=settings)
 
+
 @router.put("/settings", response_model=APIResponse[dict], dependencies=[Depends(RequirePermissions(["admin.settings.update"]))])
 async def update_system_settings(
-    request_data: Dict[str, Any],
+    request_data: Dict[str, Any] = Body(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     settings = await admin_service.update_system_settings(db=db, obj_in=request_data, user_id=current_user.id)
     return APIResponse(data=settings)
 
-# Users
 
 @router.get("/users", response_model=APIResponse[List[UserResponse]], dependencies=[Depends(RequirePermissions(["admin.users.read"]))])
 async def get_users(
@@ -104,14 +106,16 @@ async def get_users(
     users = await admin_service.get_users(db=db, filters=user_filters, requesting_user_id=current_user.id)
     return APIResponse(data=users)
 
+
 @router.post("/users", response_model=APIResponse[UserResponse], dependencies=[Depends(RequirePermissions(["admin.users.create"]))])
 async def create_user(
-    request_data: UserCreate,
+    request_data: AdminUserCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     user = await admin_service.create_user(db=db, obj_in=request_data, requesting_user_id=current_user.id)
     return APIResponse(data=UserResponse.model_validate(user))
+
 
 @router.put("/users/{user_id}", response_model=APIResponse[UserResponse], dependencies=[Depends(RequirePermissions(["admin.users.update"]))])
 async def update_user(
@@ -123,6 +127,7 @@ async def update_user(
     user = await admin_service.update_user(db=db, user_id=user_id, obj_in=request_data, requesting_user_id=current_user.id)
     return APIResponse(data=UserResponse.model_validate(user))
 
+
 @router.delete("/users/{user_id}", response_model=APIResponse[None], dependencies=[Depends(RequirePermissions(["admin.users.delete"]))])
 async def delete_user(
     user_id: UUID,
@@ -132,7 +137,6 @@ async def delete_user(
     await admin_service.delete_user(db=db, user_id=user_id, requesting_user_id=current_user.id)
     return APIResponse(message="User deleted successfully")
 
-# Roles
 
 @router.get("/roles", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.roles.read"]))])
 async def get_roles(
@@ -150,6 +154,7 @@ async def get_roles(
     roles = await admin_service.get_roles(db=db, filters=role_filters, requesting_user_id=current_user.id)
     return APIResponse(data=roles)
 
+
 @router.post("/roles", response_model=APIResponse[Any], dependencies=[Depends(RequirePermissions(["admin.roles.create"]))])
 async def create_role(
     request_data: RoleCreate,
@@ -158,6 +163,7 @@ async def create_role(
 ) -> Any:
     role = await admin_service.create_role(db=db, obj_in=request_data, requesting_user_id=current_user.id)
     return APIResponse(data=role)
+
 
 @router.post("/roles/{role_id}/permissions", response_model=APIResponse[None], dependencies=[Depends(RequirePermissions(["admin.roles.permissions.assign"]))])
 async def assign_permissions_to_role(
@@ -172,6 +178,7 @@ async def assign_permissions_to_role(
     )
     return APIResponse(message="Permissions assigned successfully")
 
+
 @router.get("/permissions", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.permissions.read"]))])
 async def get_permissions(
     skip: int = Query(0, ge=0),
@@ -182,14 +189,16 @@ async def get_permissions(
     permissions = await admin_service.get_permissions(db=db, skip=skip, limit=limit, requesting_user_id=current_user.id)
     return APIResponse(data=permissions)
 
+
 @router.post("/permissions", response_model=APIResponse[Any], dependencies=[Depends(RequirePermissions(["admin.permissions.create"]))])
 async def create_permission(
-    request_data: Dict[str, Any],
+    request_data: Dict[str, Any] = Body(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
     permission = await admin_service.create_permission(db=db, obj_in=request_data, requesting_user_id=current_user.id)
     return APIResponse(data=permission)
+
 
 @router.post("/users/{user_id}/assign-role", response_model=APIResponse[None], dependencies=[Depends(RequirePermissions(["admin.users.assign"]))])
 async def assign_role_to_user(
@@ -204,7 +213,6 @@ async def assign_role_to_user(
     )
     return APIResponse(message="Role assigned successfully")
 
-# System Administration
 
 @router.get("/permissions-summary", response_model=APIResponse[dict], dependencies=[Depends(RequirePermissions(["admin.permissions.read"]))])
 async def get_permissions_summary(
@@ -213,6 +221,7 @@ async def get_permissions_summary(
 ) -> Any:
     summary = await admin_service.get_permissions_summary(db=db, requesting_user_id=current_user.id)
     return APIResponse(data=summary)
+
 
 @router.get("/system-stats", response_model=APIResponse[dict], dependencies=[Depends(RequirePermissions(["admin.dashboard.read"]))])
 async def get_system_stats(
@@ -223,15 +232,17 @@ async def get_system_stats(
     stats = await admin_service.get_system_stats(db=db, days=days, requesting_user_id=current_user.id)
     return APIResponse(data=stats)
 
+
 @router.post("/users/{user_id}/reset-password", response_model=APIResponse[None], dependencies=[Depends(RequirePermissions(["admin.users.password.reset"]))])
 async def reset_user_password(
     user_id: UUID,
-    new_password: str,
+    new_password: str = Body(..., embed=True),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ) -> Any:
-    await admin_service.reset_user_password(db=db, user_id=user_id, new_password_hash=new_password, requesting_user_id=current_user.id)
+    await admin_service.reset_user_password(db=db, user_id=user_id, new_password=new_password, requesting_user_id=current_user.id)
     return APIResponse(message="User password reset successfully")
+
 
 @router.post("/users/{user_id}/unlock", response_model=APIResponse[None], dependencies=[Depends(RequirePermissions(["admin.users.unlock"]))])
 async def unlock_user_account(
@@ -242,7 +253,6 @@ async def unlock_user_account(
     await admin_service.unlock_user_account(db=db, user_id=user_id, requesting_user_id=current_user.id)
     return APIResponse(message="User account unlocked successfully")
 
-# Dashboard and Reports
 
 @router.get("/dashboard/activities", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.audit.read"]))])
 async def get_dashboard_activities(
@@ -253,6 +263,7 @@ async def get_dashboard_activities(
     activities = await admin_service.get_dashboard_activities(db=db, hours=hours, requesting_user_id=current_user.id)
     return APIResponse(data=activities)
 
+
 @router.get("/roles-summary", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.roles.read"]))])
 async def get_roles_summary(
     current_user: User = Depends(get_current_user),
@@ -260,6 +271,7 @@ async def get_roles_summary(
 ) -> Any:
     summary = await admin_service.get_roles_summary(db=db, requesting_user_id=current_user.id)
     return APIResponse(data=summary)
+
 
 @router.get("/organizations-summary", response_model=APIResponse[List[Any]], dependencies=[Depends(RequirePermissions(["admin.organizations.read"]))])
 async def get_organizations_summary(

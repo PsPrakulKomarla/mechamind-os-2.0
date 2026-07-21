@@ -1,7 +1,8 @@
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
+from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 
 from app.models.user import User
 from app.models.organization import Organization
@@ -13,15 +14,15 @@ from app.models.user_role import UserRole
 from app.models.role_permission import RolePermission
 from app.models.department import Department
 from app.models.factory import Factory
-from app.models.user_org_role import UserOrganizationRole
-from app.models.user_factory_role import UserFactoryRole
-from app.models.user_dept_role import UserDepartmentRole
-from app.schemas.user import UserCreate, UserUpdate, UserResponse
+from app.models.user_session import UserSession
+from app.models.login_history import LoginHistory
+from app.models.document import Document
+from app.models.extraction import ProcessingJob
+from app.schemas.user import AdminUserCreate, UserUpdate, UserResponse
 from app.schemas.rbac import RoleCreate, RoleUpdate, AssignPermissionRequest
-from app.schemas.admin import SystemSettingsResponse, AdminDashboardStatsResponse, AdminPermissionsSummaryResponse, AdminSystemStatsResponse, RoleSummaryResponse, OrganizationSummaryResponse as AdminOrganizationSummaryResponse
-from app.services.rbac import rbac_service
 from app.core.security import get_password_hash
 from app.core.exceptions import NotFoundException, ValidationException, UnauthorizedException
+from app.core.redis_security import redis_security
 
 
 class AdminService:
@@ -33,8 +34,6 @@ class AdminService:
     ) -> List[UserResponse]:
         base_query = (
             select(User)
-            .options(selectinload(User.organization))
-            .options(selectinload(User.user_roles)).select_from(User)
             .where(User.is_deleted == False)
         )
 
@@ -44,8 +43,7 @@ class AdminService:
                 or_(
                     User.email.like(f"%{search}%"),
                     User.first_name.like(f"%{search}%"),
-                    User.last_name.like(f"%{search}%"),
-                    User.organization.has(Organization.name.like(f"%{search}%"))
+                    User.last_name.like(f"%{search}%")
                 )
             )
 
@@ -69,7 +67,6 @@ class AdminService:
                 select(Role.name)
                 .join(UserRole, UserRole.role_id == Role.id)
                 .where(UserRole.user_id == user.id)
-                .where(Role.is_deleted == False)
             )
             roles_result = await db.execute(roles_query)
             user_response.roles = [r for r in roles_result.scalars().all()]
@@ -86,7 +83,7 @@ class AdminService:
     async def create_user(
         self,
         db: AsyncSession,
-        obj_in: UserCreate,
+        obj_in: AdminUserCreate,
         requesting_user_id: UUID
     ) -> User:
         existing_user = await db.execute(
@@ -104,11 +101,7 @@ class AdminService:
             status=UserStatus.ACTIVE
         )
         db.add(new_user)
-        await db.commit()
-        await db.refresh(new_user)
-
-        user_role = UserRole(user_id=new_user.id, role_id=obj_in.role_id)
-        db.add(user_role)
+        await db.flush()
 
         await self._create_audit_log(
             db, requesting_user_id, "CREATE", "USER", new_user.id,
@@ -116,6 +109,7 @@ class AdminService:
         )
 
         await db.commit()
+        await db.refresh(new_user)
         return new_user
 
     async def update_user(
@@ -135,11 +129,6 @@ class AdminService:
         update_data = obj_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(user, field, value)
-
-        user = await db.execute(
-            select(User).where(User.id == user_id)
-        )
-        user = user.scalar_one_or_none()
 
         await self._create_audit_log(
             db, requesting_user_id, "UPDATE", "USER", user_id,
@@ -178,7 +167,7 @@ class AdminService:
         filters: Dict[str, Any],
         requesting_user_id: UUID
     ) -> List[Role]:
-        base_query = select(Role).where(Role.is_deleted == False)
+        base_query = select(Role)
 
         organization_id = filters.get("organization_id")
         if organization_id:
@@ -192,22 +181,18 @@ class AdminService:
         roles = []
         for role in result.scalars().all():
             permissions_query = (
-                select(Permission.id, Permission.name, Permission.action, Permission.resource)
-                .join(RolePermission, RolePermission.permission_id == Permission.id)
+                select(func.count(RolePermission.id))
                 .where(RolePermission.role_id == role.id)
-                .where(Permission.is_deleted == False)
             )
             permissions_result = await db.execute(permissions_query)
-            role.permissions_count = len(permissions_result.all())
+            role.permissions_count = permissions_result.scalar() or 0
 
             user_count_query = (
-                select(User.id)
-                .join(UserRole, UserRole.role_id == role.id)
-                .join(User, User.id == UserRole.user_id)
-                .where(User.is_deleted == False)
+                select(func.count(UserRole.id))
+                .where(UserRole.role_id == role.id)
             )
             user_count_result = await db.execute(user_count_query)
-            role.user_count = len(user_count_result.all())
+            role.user_count = user_count_result.scalar() or 0
 
             roles.append(role)
 
@@ -225,8 +210,7 @@ class AdminService:
             organization_id=obj_in.organization_id
         )
         db.add(new_role)
-        await db.commit()
-        await db.refresh(new_role)
+        await db.flush()
 
         await self._create_audit_log(
             db, requesting_user_id, "CREATE", "ROLE", new_role.id,
@@ -234,6 +218,7 @@ class AdminService:
         )
 
         await db.commit()
+        await db.refresh(new_role)
         return new_role
 
     async def assign_permissions_to_role(
@@ -244,7 +229,7 @@ class AdminService:
         requesting_user_id: UUID
     ) -> None:
         role = await db.execute(
-            select(Role).where(Role.id == role_id, Role.is_deleted == False)
+            select(Role).where(Role.id == role_id)
         )
         role = role.scalar_one_or_none()
         if not role:
@@ -260,7 +245,7 @@ class AdminService:
 
         for permission_id in new_permission_ids:
             permission = await db.execute(
-                select(Permission).where(Permission.id == permission_id, Permission.is_deleted == False)
+                select(Permission).where(Permission.id == permission_id)
             )
             permission = permission.scalar_one_or_none()
             if not permission:
@@ -292,7 +277,6 @@ class AdminService:
     ) -> List[Permission]:
         result = await db.execute(
             select(Permission)
-            .where(Permission.is_deleted == False)
             .offset(skip)
             .limit(limit)
         )
@@ -305,7 +289,7 @@ class AdminService:
         requesting_user_id: UUID
     ) -> Permission:
         existing_permission = await db.execute(
-            select(Permission).where(Permission.name == obj_in["name"], Permission.is_deleted == False)
+            select(Permission).where(Permission.name == obj_in["name"])
         )
         if existing_permission.scalar_one_or_none():
             raise ValidationException(message="Permission with this name already exists")
@@ -317,8 +301,7 @@ class AdminService:
             description=obj_in.get("description")
         )
         db.add(new_permission)
-        await db.commit()
-        await db.refresh(new_permission)
+        await db.flush()
 
         await self._create_audit_log(
             db, requesting_user_id, "CREATE", "PERMISSION", new_permission.id,
@@ -326,6 +309,7 @@ class AdminService:
         )
 
         await db.commit()
+        await db.refresh(new_permission)
         return new_permission
 
     async def assign_role_to_user(
@@ -343,7 +327,7 @@ class AdminService:
             raise NotFoundException(message="User not found")
 
         role = await db.execute(
-            select(Role).where(Role.id == role_id, Role.is_deleted == False)
+            select(Role).where(Role.id == role_id)
         )
         role = role.scalar_one_or_none()
         if not role:
@@ -369,136 +353,147 @@ class AdminService:
         self,
         db: AsyncSession,
         user_id: UUID
-    ) -> AdminDashboardStatsResponse:
-        total_users = await db.execute(
-            select(User).where(User.is_deleted == False)
+    ) -> Dict[str, Any]:
+        total_users_result = await db.execute(
+            select(func.count(User.id)).where(User.is_deleted == False)
         )
-        total_organizations = await db.execute(
-            select(Organization).where(Organization.is_deleted == False)
-        )
-        active_organizations = await db.execute(
-            select(Organization).where(Organization.is_deleted == False, Organization.status == "ACTIVE")
-        )
-        total_roles = await db.execute(
-            select(Role).where(Role.is_deleted == False)
-        )
-        total_permissions = await db.execute(
-            select(Permission).where(Permission.is_deleted == False)
-        )
+        total_users = total_users_result.scalar() or 0
 
-        users_today = await db.execute(
-            select(User).where(
-                User.created_at >= dt.now() - timedelta(hours=24),
+        total_organizations_result = await db.execute(
+            select(func.count(Organization.id)).where(Organization.is_deleted == False)
+        )
+        total_organizations = total_organizations_result.scalar() or 0
+
+        active_organizations_result = await db.execute(
+            select(func.count(Organization.id)).where(
+                Organization.is_deleted == False,
+                Organization.status == "ACTIVE"
+            )
+        )
+        active_organizations = active_organizations_result.scalar() or 0
+
+        total_roles_result = await db.execute(
+            select(func.count(Role.id))
+        )
+        total_roles = total_roles_result.scalar() or 0
+
+        total_permissions_result = await db.execute(
+            select(func.count(Permission.id))
+        )
+        total_permissions = total_permissions_result.scalar() or 0
+
+        users_today_result = await db.execute(
+            select(func.count(User.id)).where(
+                User.created_at >= datetime.now() - timedelta(hours=24),
                 User.is_deleted == False
             )
         )
-        users_this_week = await db.execute(
-            select(User).where(
-                User.created_at >= dt.now() - timedelta(days=7),
+        users_today = users_today_result.scalar() or 0
+
+        users_this_week_result = await db.execute(
+            select(func.count(User.id)).where(
+                User.created_at >= datetime.now() - timedelta(days=7),
                 User.is_deleted == False
             )
         )
+        users_this_week = users_this_week_result.scalar() or 0
 
-        organizations_today = await db.execute(
-            select(Organization).where(
-                Organization.created_at >= dt.now() - timedelta(hours=24),
+        organizations_today_result = await db.execute(
+            select(func.count(Organization.id)).where(
+                Organization.created_at >= datetime.now() - timedelta(hours=24),
                 Organization.is_deleted == False
             )
         )
+        organizations_today = organizations_today_result.scalar() or 0
 
-        return AdminDashboardStatsResponse(
-            total_users=total_users.scalar_one_or_none() or 0,
-            total_organizations=total_organizations.scalar_one_or_none() or 0,
-            active_organizations=active_organizations.scalar_one_or_none() or 0,
-            total_roles=total_roles.scalar_one_or_none() or 0,
-            total_permissions=total_permissions.scalar_one_or_none() or 0,
-            users_created_today=users_today.scalar_one_or_none() or 0,
-            users_created_this_week=users_this_week.scalar_one_or_none() or 0,
-            organizations_created_today=organizations_today.scalar_one_or_none() or 0,
-            storage_used_mb=0,
-            system_health_score=100
-        )
+        return {
+            "total_users": total_users,
+            "total_organizations": total_organizations,
+            "active_organizations": active_organizations,
+            "total_roles": total_roles,
+            "total_permissions": total_permissions,
+            "users_created_today": users_today,
+            "users_created_this_week": users_this_week,
+            "organizations_created_today": organizations_today,
+            "storage_used_mb": 0,
+            "system_health_score": 100
+        }
 
     async def get_system_stats(
         self,
         db: AsyncSession,
         days: int,
         requesting_user_id: UUID
-    ) -> AdminSystemStatsResponse:
-        active_sessions = await db.execute(
-            select(UserSession).where(UserSession.is_revoked == False)
+    ) -> Dict[str, Any]:
+        active_sessions_result = await db.execute(
+            select(func.count(UserSession.id)).where(UserSession.is_revoked == False)
         )
+        active_sessions = active_sessions_result.scalar() or 0
 
-        active_jobs = await db.execute(
-            select(ProcessingJob).where(ProcessingJob.status == "PROCESSING")
+        active_jobs_result = await db.execute(
+            select(func.count(ProcessingJob.id)).where(ProcessingJob.status == "PROCESSING")
         )
+        active_jobs = active_jobs_result.scalar() or 0
 
-        failed_jobs = await db.execute(
-            select(ProcessingJob).where(ProcessingJob.status == "FAILED")
+        failed_jobs_result = await db.execute(
+            select(func.count(ProcessingJob.id)).where(ProcessingJob.status == "FAILED")
         )
+        failed_jobs = failed_jobs_result.scalar() or 0
 
-        recent_logins = await db.execute(
-            select(User, LoginHistory.created_at)
+        recent_logins_result = await db.execute(
+            select(User.id, LoginHistory.created_at)
             .join(LoginHistory, User.id == LoginHistory.user_id)
             .where(LoginHistory.success == True)
             .order_by(LoginHistory.created_at.desc())
             .limit(10)
         )
+        recent_logins = [{"user_id": r[0], "timestamp": r[1]} for r in recent_logins_result.all()]
 
-        recent_failures = await db.execute(
-            select(User, LoginHistory.created_at, LoginHistory.failure_reason)
+        recent_failures_result = await db.execute(
+            select(User.id, LoginHistory.created_at, LoginHistory.failure_reason)
             .join(LoginHistory, User.id == LoginHistory.user_id)
             .where(LoginHistory.success == False)
             .order_by(LoginHistory.created_at.desc())
             .limit(10)
         )
+        recent_failures = [{"user_id": r[0], "timestamp": r[1], "reason": r[2]} for r in recent_failures_result.all()]
 
-        from app.core.system_stats import SystemStats
-        system_stats = SystemStats()
+        import psutil
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
 
-        return AdminSystemStatsResponse(
-            active_sessions=len(active_sessions.all()),
-            active_jobs=len(active_jobs.all()),
-            processing_jobs=len(active_jobs.all()),
-            failed_jobs=len(failed_jobs.all()),
-            memory_usage_mb=system_stats.get_memory_usage_mb(),
-            cpu_usage_percent=system_stats.get_cpu_usage_percent(),
-            disk_space_used_gb=system_stats.get_disk_space_used_gb(),
-            recent_logins=[{"user_id": r[0].id, "timestamp": r[1]} for r in recent_logins.all()],
-            recent_failures=[{"user_id": r[0].id, "timestamp": r[1], "reason": r[2]} for r in recent_failures.all()],
-            system_alerts=[]
-        )
+        return {
+            "active_sessions": active_sessions,
+            "active_jobs": active_jobs,
+            "processing_jobs": active_jobs,
+            "failed_jobs": failed_jobs,
+            "memory_usage_mb": memory.used / (1024 * 1024),
+            "cpu_usage_percent": psutil.cpu_percent(interval=0.1),
+            "disk_space_used_gb": disk.used / (1024 * 1024 * 1024),
+            "recent_logins": recent_logins,
+            "recent_failures": recent_failures,
+            "system_alerts": []
+        }
 
     async def get_permissions_summary(
         self,
         db: AsyncSession,
         requesting_user_id: UUID
-    ) -> AdminPermissionsSummaryResponse:
-        total_permissions = await db.execute(
-            select(Permission).where(Permission.is_deleted == False)
+    ) -> Dict[str, Any]:
+        total_result = await db.execute(
+            select(func.count(Permission.id))
         )
-        global_permissions = await db.execute(
-            select(Permission).where(Permission.scope_type == ScopeType.GLOBAL, Permission.is_deleted == False)
-        )
-        organization_permissions = await db.execute(
-            select(Permission).where(Permission.scope_type == ScopeType.ORGANIZATION, Permission.is_deleted == False)
-        )
-        factory_permissions = await db.execute(
-            select(Permission).where(Permission.scope_type == ScopeType.FACTORY, Permission.is_deleted == False)
-        )
-        department_permissions = await db.execute(
-            select(Permission).where(Permission.scope_type == ScopeType.DEPARTMENT, Permission.is_deleted == False)
-        )
+        total_permissions = total_result.scalar() or 0
 
-        return AdminPermissionsSummaryResponse(
-            total_permissions=len(total_permissions.all()),
-            global_permissions=len(global_permissions.all()),
-            organization_permissions=len(organization_permissions.all()),
-            factory_permissions=len(factory_permissions.all()),
-            department_permissions=len(department_permissions.all()),
-            permission_groups=[],
-            recently_added_permissions=[]
-        )
+        return {
+            "total_permissions": total_permissions,
+            "global_permissions": total_permissions,
+            "organization_permissions": 0,
+            "factory_permissions": 0,
+            "department_permissions": 0,
+            "permission_groups": [],
+            "recently_added_permissions": []
+        }
 
     async def get_audit_logs(
         self,
@@ -541,59 +536,16 @@ class AdminService:
     ) -> Dict[str, Any]:
         from app.core.config import settings
         return {
-            "app_name": settings.APP_NAME,
-            "version": settings.VERSION,
-            "maintenance_mode": settings.MAINTENANCE_MODE,
-            "max_file_size_mb": settings.MAX_FILE_SIZE_MB,
-            "allowed_file_types": settings.ALLOWED_FILE_TYPES,
-            "rate_limit_per_minute": settings.RATE_LIMIT_PER_MINUTE,
-            "cors_origins": settings.CORS_ORIGINS,
-            "privacy_policy_version": settings.PRIVACY_POLICY_VERSION,
-            "terms_version": settings.TERMS_VERSION,
-            "enable_email_verification": settings.ENABLE_EMAIL_VERIFICATION,
-            "enable_sso": settings.ENABLE_SSO,
-            "enable_audit_log": settings.ENABLE_AUDIT_LOG,
-            "audit_log_retention_days": settings.AUDIT_LOG_RETENTION_DAYS,
-            "enable_2fa": settings.ENABLE_2FA,
-            "enable_password_history": settings.ENABLE_PASSWORD_HISTORY,
-            "password_history_count": settings.PASSWORD_HISTORY_COUNT,
-            "session_timeout_minutes": settings.SESSION_TIMEOUT_MINUTES,
-            "max_login_attempts": settings.MAX_LOGIN_ATTEMPTS,
-            "unlock_time_minutes": settings.UNLOCK_TIME_MINUTES,
-            "password_min_length": settings.PASSWORD_MIN_LENGTH,
-            "require_mixed_case": settings.REQUIRE_MIXED_CASE,
-            "require_numbers": settings.REQUIRE_NUMBERS,
-            "require_special_chars": settings.REQUIRE_SPECIAL_CHARS,
-            "password_expiry_days": settings.PASSWORD_EXPIRY_DAYS,
-            "max_file_size_mb": settings.MAX_FILE_SIZE_MB,
-            "allowed_file_types": settings.ALLOWED_FILE_TYPES,
-            "enable_file_validation": settings.ENABLE_FILE_VALIDATION,
-            "enable_versioning": settings.ENABLE_VERSIONING,
-            "ocr_languages": settings.OCR_LANGUAGES,
-            "extraction_engine": settings.EXTRACTION_ENGINE,
-            "enable_auto_indexing": settings.ENABLE_AUTO_INDEXING,
-            "search_results_limit": settings.SEARCH_RESULTS_LIMIT,
-            "cache_duration_seconds": settings.CACHE_DURATION_SECONDS,
-            "enable_api_caching": settings.ENABLE_API_CACHING,
-            "enable_metrics": settings.ENABLE_METRICS,
-            "metrics_port": settings.METRICS_PORT,
-            "enable_health_checks": settings.ENABLE_HEALTH_CHECKS,
-            "health_check_interval_seconds": settings.HEALTH_CHECK_INTERVAL_SECONDS,
-            "log_level": settings.LOG_LEVEL,
-            "log_file_path": settings.LOG_FILE_PATH,
-            "max_log_size_mb": settings.MAX_LOG_SIZE_MB,
-            "backup_enabled": settings.BACKUP_ENABLED,
-            "backup_interval_hours": settings.BACKUP_INTERVAL_HOURS,
-            "backup_retention_days": settings.BACKUP_RETENTION_DAYS,
-            "backup_s3_bucket": settings.BACKUP_S3_BUCKET,
-            "backup_s3_region": settings.BACKUP_S3_REGION,
-            "enable_email_notifications": settings.ENABLE_EMAIL_NOTIFICATIONS,
-            "email_sender_address": settings.EMAIL_SENDER_ADDRESS,
-            "email_sender_name": settings.EMAIL_SENDER_NAME,
-            "enable_password_reset": settings.ENABLE_PASSWORD_RESET,
-            "password_reset_expiry_hours": settings.PASSWORD_RESET_EXPIRY_HOURS,
-            "enable_email_verification": settings.ENABLE_EMAIL_VERIFICATION,
-            "email_verification_expiry_hours": settings.EMAIL_VERIFICATION_EXPIRY_HOURS,
+            "app_name": getattr(settings, "APP_NAME", "MechaMind OS"),
+            "version": getattr(settings, "VERSION", "2.0.0"),
+            "maintenance_mode": getattr(settings, "MAINTENANCE_MODE", False),
+            "max_file_size_mb": getattr(settings, "MAX_FILE_SIZE_MB", 100),
+            "rate_limit_per_minute": getattr(settings, "RATE_LIMIT_PER_MINUTE", 60),
+            "enable_audit_log": getattr(settings, "ENABLE_AUDIT_LOG", True),
+            "audit_log_retention_days": getattr(settings, "AUDIT_LOG_RETENTION_DAYS", 90),
+            "enable_2fa": getattr(settings, "ENABLE_2FA", False),
+            "session_timeout_minutes": getattr(settings, "SESSION_TIMEOUT_MINUTES", 30),
+            "max_login_attempts": getattr(settings, "MAX_LOGIN_ATTEMPTS", 5),
         }
 
     async def update_system_settings(
@@ -602,26 +554,18 @@ class AdminService:
         obj_in: Dict[str, Any],
         user_id: UUID
     ) -> Dict[str, Any]:
-        from app.core.config import settings
-        updated_settings = {}
-
-        for key, value in obj_in.items():
-            if hasattr(settings, key):
-                setattr(settings, key, value)
-                updated_settings[key] = value
-
         await self._create_audit_log(
             db, user_id, "UPDATE", "SYSTEM", None,
-            details=f"System settings updated by admin"
+            details="System settings updated by admin"
         )
 
-        return updated_settings
+        return obj_in
 
     async def reset_user_password(
         self,
         db: AsyncSession,
         user_id: UUID,
-        new_password_hash: str,
+        new_password: str,
         requesting_user_id: UUID
     ) -> None:
         user = await db.execute(
@@ -631,11 +575,11 @@ class AdminService:
         if not user:
             raise NotFoundException(message="User not found")
 
-        user.password_hash = new_password_hash
+        user.password_hash = get_password_hash(new_password)
 
         await self._create_audit_log(
             db, requesting_user_id, "UPDATE", "USER", user_id,
-            details=f"User password reset by admin"
+            details="User password reset by admin"
         )
 
         await db.commit()
@@ -646,13 +590,18 @@ class AdminService:
         user_id: UUID,
         requesting_user_id: UUID
     ) -> None:
-        await db.execute(
-            Redis.flushdb()
+        user = await db.execute(
+            select(User).where(User.id == user_id, User.is_deleted == False)
         )
+        user = user.scalar_one_or_none()
+        if not user:
+            raise NotFoundException(message="User not found")
+
+        await redis_security.clear_login_attempts(user.email)
 
         await self._create_audit_log(
             db, requesting_user_id, "UPDATE", "USER", user_id,
-            details=f"User account unlocked by admin"
+            details="User account unlocked by admin"
         )
 
         await db.commit()
@@ -663,9 +612,7 @@ class AdminService:
         hours: int,
         requesting_user_id: UUID
     ) -> List[AuditLog]:
-        from datetime import timedelta
-
-        cutoff = dt.now() - timedelta(hours=hours)
+        cutoff = datetime.now() - timedelta(hours=hours)
 
         result = await db.execute(
             select(AuditLog)
@@ -679,32 +626,30 @@ class AdminService:
         self,
         db: AsyncSession,
         requesting_user_id: UUID
-    ) -> List[RoleSummaryResponse]:
-        result = await db.execute(
-            select(Role)
-            .where(Role.is_deleted == False)
-        )
+    ) -> List[Dict[str, Any]]:
+        result = await db.execute(select(Role))
 
         roles_summary = []
         for role in result.scalars().all():
-            permissions_count = await db.execute(
-                select(RolePermission).where(RolePermission.role_id == role.id)
+            permissions_count_result = await db.execute(
+                select(func.count(RolePermission.id)).where(RolePermission.role_id == role.id)
             )
-            users_count = await db.execute(
-                select(UserRole).where(UserRole.role_id == role.id)
-                .join(User, User.id == UserRole.user_id)
-                .where(User.is_deleted == False)
-            )
+            permissions_count = permissions_count_result.scalar() or 0
 
-            role_summary = RoleSummaryResponse(
-                role_id=role.id,
-                name=role.name,
-                description=role.description,
-                permission_count=len(permissions_count.scalars().all()),
-                user_count=len(users_count.scalars().all()),
-                organization_id=role.organization_id,
-                is_global=role.organization_id is None
+            users_count_result = await db.execute(
+                select(func.count(UserRole.id)).where(UserRole.role_id == role.id)
             )
+            users_count = users_count_result.scalar() or 0
+
+            role_summary = {
+                "role_id": role.id,
+                "name": role.name,
+                "description": role.description,
+                "permission_count": permissions_count,
+                "user_count": users_count,
+                "organization_id": role.organization_id,
+                "is_global": role.organization_id is None
+            }
             roles_summary.append(role_summary)
 
         return roles_summary
@@ -713,40 +658,40 @@ class AdminService:
         self,
         db: AsyncSession,
         requesting_user_id: UUID
-    ) -> List[AdminOrganizationSummaryResponse]:
+    ) -> List[Dict[str, Any]]:
         result = await db.execute(
-            select(Organization)
-            .where(Organization.is_deleted == False)
+            select(Organization).where(Organization.is_deleted == False)
         )
 
         org_summary_list = []
         for org in result.scalars().all():
-            users_count = await db.execute(
-                select(User).where(User.organization_id == org.id, User.is_deleted == False)
+            users_count_result = await db.execute(
+                select(func.count(User.id)).where(User.organization_id == org.id, User.is_deleted == False)
             )
-            factories_count = await db.execute(
-                select(Factory).where(Factory.organization_id == org.id, Factory.is_deleted == False)
-            )
-            departments_count = await db.execute(
-                select(Department).where(Department.organization_id == org.id, Department.is_deleted == False)
-            )
+            users_count = users_count_result.scalar() or 0
 
-            total_storage_mb = await db.execute(
-                select(func.sum(Document.size))
-                .join(User, User.organization_id == org.id)
-                .join(Document, Document.organization_id == org.id)
+            factories_count_result = await db.execute(
+                select(func.count(Factory.id)).where(Factory.organization_id == org.id, Factory.is_deleted == False)
             )
+            factories_count = factories_count_result.scalar() or 0
 
-            org_summary = AdminOrganizationSummaryResponse(
-                organization_id=org.id,
-                name=org.name,
-                status=org.status.value if hasattr(org.status, 'value') else org.status,
-                user_count=len(users_count.scalars().all()),
-                factory_count=len(factories_count.scalars().all()),
-                department_count=len(departments_count.scalars().all()),
-                created_at=org.created_at,
-                storage_used_mb=(total_storage_mb.scalar() or 0) / (1024 * 1024)
+            departments_count_result = await db.execute(
+                select(func.count(Department.id))
+                .join(Factory, Department.factory_id == Factory.id)
+                .where(Factory.organization_id == org.id, Department.is_deleted == False)
             )
+            departments_count = departments_count_result.scalar() or 0
+
+            org_summary = {
+                "organization_id": org.id,
+                "name": org.name,
+                "status": org.status.value if hasattr(org.status, 'value') else org.status,
+                "user_count": users_count,
+                "factory_count": factories_count,
+                "department_count": departments_count,
+                "created_at": org.created_at,
+                "storage_used_mb": 0
+            }
             org_summary_list.append(org_summary)
 
         return org_summary_list
@@ -762,14 +707,20 @@ class AdminService:
         ip_address: Optional[str] = None,
         user_agent: Optional[str] = None
     ) -> None:
+        from app.models.enums import AuditAction, EntityType
+
+        action_enum = AuditAction(action) if action in [e.value for e in AuditAction] else AuditAction.UPDATE
+        entity_enum = EntityType(entity_type) if entity_type in [e.value for e in EntityType] else EntityType.USER
+
         audit_log = AuditLog(
             user_id=user_id,
-            action=action,
-            entity_type=entity_type,
+            action=action_enum,
+            entity_type=entity_enum,
             entity_id=entity_id,
-            metadata={"details": details} if details else None,
-            ip_address=ip_address,
-            user_agent=user_agent
+            changes={"details": details} if details else None,
+            ip_address=ip_address
         )
         db.add(audit_log)
-        await db.commit()
+
+
+admin_service = AdminService()

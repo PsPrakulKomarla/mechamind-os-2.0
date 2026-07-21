@@ -102,7 +102,7 @@ export const DocumentUploader = ({ onUploadSuccess }: { onUploadSuccess?: () => 
           
           {uploadMutation.isSuccess ? (
             <div className="flex items-center justify-center gap-2 text-success text-sm py-2 bg-success/10 rounded">
-              <CheckCircle size={16} /> Upload Complete & Indexed!
+              <CheckCircle size={16} /> Upload Complete — Processing Queued
             </div>
           ) : (
             <button 
@@ -110,7 +110,7 @@ export const DocumentUploader = ({ onUploadSuccess }: { onUploadSuccess?: () => 
               disabled={uploadMutation.isPending}
               className="w-full py-2 bg-accent hover:bg-accent/90 text-white rounded font-medium text-sm transition-colors disabled:opacity-50"
             >
-              {uploadMutation.isPending ? "Uploading & Analyzing..." : "Start Upload"}
+              {uploadMutation.isPending ? "Uploading..." : "Start Upload"}
             </button>
           )}
         </div>

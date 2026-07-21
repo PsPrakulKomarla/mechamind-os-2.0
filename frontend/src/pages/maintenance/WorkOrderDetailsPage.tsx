@@ -13,42 +13,29 @@ export const WorkOrderDetailsPage = () => {
   const { data: woData, isLoading: woLoading } = useWorkOrderDetails(id || "");
   const { data: rcaData, isLoading: rcaLoading } = useRcaDetails(id || "");
 
-  // Mocks
-  const mockWo = woData || {
-    id: "WO-2024-001",
-    title: "Replace primary spindle bearing",
-    machine: "Stamping Press M-201",
-    priority: "critical",
-    status: "open",
-    assignee: "John Smith",
-    dueDate: "2024-03-01",
-    estimatedDuration: "4 hours",
-    description: "AI Copilot detected anomalous vibration indicating bearing wear. Replace immediately to prevent catastrophic failure."
-  };
-
-  const mockRca = rcaData || {
-    problem: "Excessive vibration detected on primary spindle (2.4 mm/s).",
-    whys: [
-      "Bearing housing clearance exceeded tolerance.",
-      "Inadequate lubrication during previous PM cycle.",
-      "Lubrication pump line was partially blocked.",
-      "Contaminants found in the fluid reservoir.",
-      "Filter change was skipped during last shutdown."
-    ],
-    recommendation: "Replace bearing assembly, flush lubrication lines, replace filters, and update PM checklist to make filter inspection mandatory."
-  };
-
-  const vibrationData = [
-    { time: "00:00", vibration: 0.8, threshold: 2.0 },
-    { time: "04:00", vibration: 0.9, threshold: 2.0 },
-    { time: "08:00", vibration: 1.2, threshold: 2.0 },
-    { time: "12:00", vibration: 1.8, threshold: 2.0 },
-    { time: "16:00", vibration: 2.4, threshold: 2.0 },
-    { time: "20:00", vibration: 2.1, threshold: 2.0 },
-    { time: "23:59", vibration: 2.4, threshold: 2.0 },
-  ];
+  // Use real data when available
+  const wo = woData;
+  const rca = rcaData;
 
   if (woLoading) return <div className="p-8 text-gray-500">Loading Work Order Details...</div>;
+
+  if (!wo) {
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="flex items-center justify-between border-b border-gray-800 pb-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Work Order Details</h1>
+            <p className="text-sm text-gray-500 mt-1">No work order data available</p>
+          </div>
+        </div>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Wrench size={48} className="text-gray-600 mb-4" />
+          <h3 className="text-white font-semibold text-sm mb-1">No Work Order Found</h3>
+          <p className="text-gray-500 text-xs max-w-xs">Upload maintenance records to enable work order tracking.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 h-full flex flex-col">
@@ -59,17 +46,25 @@ export const WorkOrderDetailsPage = () => {
           </div>
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-2xl font-bold text-white tracking-tight">{mockWo.title}</h1>
-              <Badge variant="danger" className="uppercase text-[10px] py-0">{mockWo.priority}</Badge>
+              <h1 className="text-2xl font-bold text-white tracking-tight">{wo.title}</h1>
+              <Badge variant="danger" className="uppercase text-[10px] py-0">{wo.priority}</Badge>
             </div>
             <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-              <span className="font-mono text-gray-300">{mockWo.id}</span>
+              <span className="font-mono text-gray-300">{wo.id}</span>
               <span>•</span>
-              <span className="flex items-center gap-1 text-accent"><Wrench size={14}/> {mockWo.machine}</span>
-              <span>•</span>
-              <span className="flex items-center gap-1"><User size={14}/> {mockWo.assignee}</span>
-              <span>•</span>
-              <span className="flex items-center gap-1"><Clock size={14}/> Due: {mockWo.dueDate}</span>
+              <span className="flex items-center gap-1 text-accent"><Wrench size={14}/> {wo.machine}</span>
+              {wo.assignee && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center gap-1"><User size={14}/> {wo.assignee}</span>
+                </>
+              )}
+              {wo.dueDate && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center gap-1"><Clock size={14}/> Due: {wo.dueDate}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -95,7 +90,7 @@ export const WorkOrderDetailsPage = () => {
           <TabsContent value="details" className="space-y-6">
             <Card>
               <h3 className="text-sm font-bold text-white mb-2">Description</h3>
-              <p className="text-sm text-gray-300 leading-relaxed">{mockWo.description}</p>
+              <p className="text-sm text-gray-300 leading-relaxed">{wo.description || "No description available."}</p>
             </Card>
             
             <Card>
@@ -112,55 +107,81 @@ export const WorkOrderDetailsPage = () => {
           </TabsContent>
 
           <TabsContent value="rca">
-            <RcaVisualizer data={mockRca} isLoading={rcaLoading} />
+            <RcaVisualizer data={rca || { problem: "", whys: [], recommendation: "" }} isLoading={rcaLoading} />
           </TabsContent>
 
           <TabsContent value="parts">
             <Card className="h-64 flex flex-col justify-center items-center text-gray-500">
-              [Inventory Integration: Bill of Materials & Stock Check]
+              {wo.spareParts ? (
+                <div className="w-full p-4">
+                  <h3 className="text-sm font-bold text-white mb-4">Required Spare Parts</h3>
+                  <div className="space-y-2">
+                    {wo.spareParts.map((part: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between p-3 bg-secondary-bg/50 rounded border border-gray-800">
+                        <span className="text-sm text-gray-300">{part.name}</span>
+                        <span className={`text-xs font-bold ${part.inStock ? 'text-success' : 'text-danger'}`}>
+                          {part.inStock ? `In Stock (${part.quantity})` : 'Backordered'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm">No spare parts data available</p>
+              )}
             </Card>
           </TabsContent>
 
           <TabsContent value="ai">
-            <Card>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-white">Vibration Anomaly Detection</h3>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="flex items-center gap-1 text-danger">
-                    <AlertTriangle size={12} /> Anomaly Detected
-                  </span>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-400">Module 4 Digital Twin</span>
+            {wo.vibrationData ? (
+              <Card>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white">Vibration Anomaly Detection</h3>
+                  <div className="flex items-center gap-2 text-xs">
+                    {wo.hasAnomaly ? (
+                      <span className="flex items-center gap-1 text-danger">
+                        <AlertTriangle size={12} /> Anomaly Detected
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-success">
+                        <CheckCircle size={12} /> Normal
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={vibrationData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="vibrationGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                    <XAxis dataKey="time" stroke="#6b7280" fontSize={11} />
-                    <YAxis stroke="#6b7280" fontSize={11} domain={[0, 3]} unit=" mm/s" />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: "6px" }}
-                      labelStyle={{ color: "#9ca3af" }}
-                      itemStyle={{ color: "#f87171" }}
-                    />
-                    <Area type="monotone" dataKey="vibration" stroke="#ef4444" fill="url(#vibrationGradient)" strokeWidth={2} />
-                    <ReferenceDot x="16:00" y={2.4} r={6} fill="#ef4444" stroke="#fff" strokeWidth={2} />
-                    <ReferenceDot x="23:59" y={2.4} r={6} fill="#ef4444" stroke="#fff" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="mt-3 p-3 bg-danger/10 border border-danger/30 rounded text-xs text-danger flex items-start gap-2">
-                <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-                <span>AI detected anomalous vibration at 16:00 and 23:59, exceeding the 2.0 mm/s threshold. Pattern indicates progressive bearing degradation consistent with imminent failure.</span>
-              </div>
-            </Card>
+                <div className="h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={wo.vibrationData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                      <defs>
+                        <linearGradient id="vibrationGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                      <XAxis dataKey="time" stroke="#6b7280" fontSize={11} />
+                      <YAxis stroke="#6b7280" fontSize={11} domain={[0, 3]} unit=" mm/s" />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: "6px" }}
+                        labelStyle={{ color: "#9ca3af" }}
+                        itemStyle={{ color: "#f87171" }}
+                      />
+                      <Area type="monotone" dataKey="vibration" stroke="#ef4444" fill="url(#vibrationGradient)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+                {wo.anomalyNote && (
+                  <div className="mt-3 p-3 bg-danger/10 border border-danger/30 rounded text-xs text-danger flex items-start gap-2">
+                    <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+                    <span>{wo.anomalyNote}</span>
+                  </div>
+                )}
+              </Card>
+            ) : (
+              <Card className="h-64 flex flex-col justify-center items-center text-gray-500">
+                <p className="text-sm">No vibration data available for this work order</p>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

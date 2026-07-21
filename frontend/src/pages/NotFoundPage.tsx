@@ -12,7 +12,7 @@ export const NotFoundPage = () => {
           className="inline-flex items-center gap-2 bg-accent hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg transition-colors"
         >
           <ArrowLeft size={18} />
-          Back to Dashboard
+          Back to Home
         </Link>
       </div>
     </div>

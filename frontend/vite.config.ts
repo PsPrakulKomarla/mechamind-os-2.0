@@ -28,6 +28,7 @@ export default defineConfig({
           ui: ["@radix-ui/react-tabs", "@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu"],
           charts: ["recharts"],
           state: ["zustand", "@tanstack/react-query"],
+          graph: ["reactflow"],
           three: ["three", "@react-three/fiber", "@react-three/drei"],
         },
       },

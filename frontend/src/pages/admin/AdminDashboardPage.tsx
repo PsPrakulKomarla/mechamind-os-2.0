@@ -30,10 +30,10 @@ export const AdminDashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="Total Users" value={health?.totalUsers || "1,248"} trend={5} isLoading={isLoading} />
-        <StatCard title="Active Sessions" value={health?.activeSessions || "342"} trend={12} isLoading={isLoading} />
-        <StatCard title="System Uptime" value={health?.uptime || "99.99%"} trend={0} isLoading={isLoading} />
-        <StatCard title="Pending Audits" value={health?.pendingAudits || "0"} trend={0} isLoading={isLoading} />
+        <StatCard title="Total Users" value={health?.totalUsers ?? "—"} trend={health?.totalUsers_trend} isLoading={isLoading} />
+        <StatCard title="Active Sessions" value={health?.activeSessions ?? "—"} trend={health?.activeSessions_trend} isLoading={isLoading} />
+        <StatCard title="System Uptime" value={health?.uptime ?? "—"} trend={health?.uptime_trend} isLoading={isLoading} />
+        <StatCard title="Pending Audits" value={health?.pendingAudits ?? "—"} trend={health?.pendingAudits_trend} isLoading={isLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

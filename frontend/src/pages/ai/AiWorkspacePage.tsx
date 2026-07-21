@@ -6,15 +6,17 @@ import { AgentVisualization, AgentStatus } from "@/components/ai/AgentVisualizat
 import { useSendMessage, useConversations } from "@/hooks/useAiQueries";
 import type { CopilotCitation } from "@/services/aiService";
 import { Button } from "@/components/ui/Button";
-import { Sparkles, ThumbsUp, ThumbsDown, Copy, Check, Bell, User, Menu, Plus } from "lucide-react";
+import { Sparkles, ThumbsUp, ThumbsDown, Copy, Check, Bell, User, Menu, Plus, FileText } from "lucide-react";
 
 const SUGGESTED_PROMPTS = [
-  "What's the maintenance procedure for Pump P-101?",
-  "Show me common issues for Boiler B-601",
-  "What are the operating parameters for Compressor C-401?",
-  "Find documents about vibration analysis",
-  "What's the last maintenance date for Turbine TG-301?",
-  "Explain the safety procedure for confined space entry",
+  "Show all maintenance procedures for Pump P-201",
+  "What are the common failure modes for Compressor C-401?",
+  "List all safety protocols for confined space entry",
+  "What's the recommended lubrication schedule for Turbine TG-301?",
+  "Find all documents related to vibration analysis procedures",
+  "What spare parts are needed for Bearing Replacement on Stamping Press M-201?",
+  "Show me the root cause analysis for Conveyor C-12 motor failure",
+  "What are the OSHA requirements for machine guarding?",
 ];
 
 interface UiChatMessage extends ChatMessageData {
@@ -57,8 +59,8 @@ export const AiWorkspacePage = () => {
     ]);
     
     setAgents([
-      { id: "a1", name: "IoT Analyst", type: "iot", status: "thinking", message: "Querying sensors..." },
-      { id: "a2", name: "Knowledge Retrieval", type: "knowledge", status: "thinking", message: "Searching manuals..." }
+      { id: "a1", name: "IoT Analyst", type: "iot", status: sendMessageMutation.isPending ? "thinking" : "idle", message: sendMessageMutation.isPending ? "Querying sensors..." : undefined },
+      { id: "a2", name: "Knowledge Retrieval", type: "knowledge", status: sendMessageMutation.isPending ? "thinking" : "idle", message: sendMessageMutation.isPending ? "Searching manuals..." : undefined }
     ]);
 
     try {
@@ -76,11 +78,12 @@ export const AiWorkspacePage = () => {
         { id: "a2", name: "Knowledge Retrieval", type: "knowledge", status: "complete" }
       ]);
 
+      const responseConfidence = response.confidence ? parseFloat(response.confidence) : undefined;
       const evidenceList: MessageEvidence[] = response.sources.map((s, i) => ({
         id: `ev-${i}`,
         type: "document" as const,
         title: s.document_name,
-        relevance: 0.9,
+        relevance: responseConfidence ?? 0.5,
       }));
 
       setMessages(prev => prev.map(m => m.id === streamingMsgId ? { 
@@ -96,9 +99,16 @@ export const AiWorkspacePage = () => {
       } : m));
       
       setTimeout(() => setAgents([]), 3000);
-    } catch {
+    } catch (error) {
       setAgents([]);
-      setMessages(prev => prev.filter(m => m.id !== newMsgId && m.id !== streamingMsgId));
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred. Please try again.";
+      setMessages(prev => prev.map(m => m.id === streamingMsgId ? {
+        id: streamingMsgId,
+        role: "assistant",
+        content: `Sorry, I encountered an error: ${errorMessage}`,
+        isStreaming: false,
+        created_at: new Date().toISOString(),
+      } : m));
     }
   };
 
@@ -131,6 +141,13 @@ export const AiWorkspacePage = () => {
 
   const handleSelectConversation = (id: string) => {
     setActiveConversationId(id);
+    // TODO: Backend does not yet support loading conversation history.
+    // Messages for this conversation will not be displayed.
+    setMessages([{
+      id: "m-0",
+      role: "assistant",
+      content: "Hello. I am the MechaMind Industrial Copilot. How can I assist you with your operations today?"
+    }]);
   };
 
   return (
@@ -208,22 +225,20 @@ export const AiWorkspacePage = () => {
           {messages.length <= 1 ? (
             <div className="max-w-2xl mx-auto text-center py-12">
               <Sparkles className="h-16 w-16 mx-auto text-accent mb-4" />
-              <h2 className="text-2xl font-semibold text-white mb-2">Welcome to Knowledge Copilot</h2>
+              <h2 className="text-2xl font-semibold text-white mb-2">Industrial Knowledge Copilot</h2>
               <p className="text-gray-400 mb-6 max-w-md mx-auto text-sm">
                 Ask me anything about your equipment, procedures, maintenance records, or compliance documents.
                 I'll search through your knowledge base and provide answers with source citations.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-xl mx-auto">
                 {SUGGESTED_PROMPTS.map((prompt) => (
-                  <Button
+                  <button
                     key={prompt}
-                    variant="secondary"
-                    size="sm"
-                    className="text-left"
                     onClick={() => handlePromptClick(prompt)}
+                    className="text-left px-3 py-2.5 rounded-lg bg-[#111827]/60 border border-gray-800 text-xs text-gray-300 hover:border-[#3B82F6]/40 hover:text-white transition-all"
                   >
                     {prompt}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </div>
@@ -237,22 +252,30 @@ export const AiWorkspacePage = () => {
                   />
                   {/* Citations */}
                   {msg.citations && msg.citations.length > 0 && (
-                    <div className="ml-16 pl-4 border-l-2 border-gray-800 mb-4">
-                      <p className="text-xs font-medium text-gray-500 mb-2">Sources</p>
-                      <div className="space-y-1">
-                        {msg.citations.slice(0, 3).map((citation, idx) => (
-                          <div key={idx} className="flex items-start gap-2 p-2 bg-gray-800/50 rounded-lg hover:bg-gray-800 cursor-pointer transition-colors">
+                    <div className="ml-16 pl-4 border-l-2 border-[#3B82F6]/30 mb-4">
+                      <p className="text-xs font-medium text-gray-400 mb-2 flex items-center gap-1.5">
+                        <FileText size={11} className="text-[#3B82F6]" />
+                        Sources ({msg.citations.length})
+                      </p>
+                      <div className="space-y-1.5">
+                        {msg.citations.slice(0, 4).map((citation, idx) => (
+                          <div key={idx} className="flex items-start gap-2 p-2.5 bg-[#111827]/60 border border-gray-800 rounded-lg hover:border-gray-700 cursor-pointer transition-colors">
+                            <div className="w-6 h-6 rounded bg-[#3B82F6]/10 flex items-center justify-center shrink-0 mt-0.5">
+                              <FileText size={11} className="text-[#3B82F6]" />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium text-gray-300 truncate">{citation.document_name}</p>
                               {citation.section && (
-                                <p className="text-xs text-gray-500">Section: {citation.section}</p>
+                                <p className="text-[10px] text-gray-500 mt-0.5">Section: {citation.section}</p>
                               )}
-                              {citation.page_number && <span className="text-xs text-accent">Page {citation.page_number}</span>}
+                              {citation.page_number && (
+                                <span className="text-[10px] text-[#3B82F6]">Page {citation.page_number}</span>
+                              )}
                             </div>
                           </div>
                         ))}
-                        {msg.citations.length > 3 && (
-                          <p className="text-xs text-gray-500">+{msg.citations.length - 3} more sources</p>
+                        {msg.citations.length > 4 && (
+                          <p className="text-[10px] text-gray-500 pl-2">+{msg.citations.length - 4} more sources</p>
                         )}
                       </div>
                     </div>

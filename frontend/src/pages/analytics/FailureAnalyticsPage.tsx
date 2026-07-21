@@ -1,25 +1,19 @@
 import React, { useState } from "react";
 import { AdvancedChart } from "@/components/analytics/AdvancedChart";
 import { useFailureAnalytics } from "@/hooks/useAnalyticsQueries";
-import { AlertTriangle, Filter } from "lucide-react";
+import { useOnboardingStore } from "@/store/onboarding";
+import { AlertTriangle, Filter, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const FailureAnalyticsPage = () => {
   const [dateRange, setDateRange] = useState("30d");
   const { data: analytics, isLoading } = useFailureAnalytics(dateRange);
+  const { hasDocuments } = useOnboardingStore();
+  const navigate = useNavigate();
 
-  const topFailures = analytics?.topFailures || [
-    { name: "Spindle Bearing Wear", count: 42 },
-    { name: "Motor Overheat", count: 35 },
-    { name: "Sensor Calibration", count: 28 },
-    { name: "Belt Slippage", count: 18 },
-  ];
-
-  const failureTrend = analytics?.trend || [
-    { name: "Week 1", critical: 2, high: 5, medium: 12 },
-    { name: "Week 2", critical: 1, high: 4, medium: 15 },
-    { name: "Week 3", critical: 3, high: 2, medium: 10 },
-    { name: "Week 4", critical: 0, high: 3, medium: 8 },
-  ];
+  const isEmpty = !hasDocuments && !analytics;
+  const topFailures = analytics?.topFailures || [];
+  const failureTrend = analytics?.trend || [];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -35,27 +29,46 @@ export const FailureAnalyticsPage = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AdvancedChart 
-          title="Top Failures by Count" 
-          type="bar" 
-          data={topFailures} 
-          series={[
-            { key: "count", name: "Incident Count", color: "#ef4444" }
-          ]} 
-        />
-        
-        <AdvancedChart 
-          title="Failure Trend by Severity" 
-          type="area" 
-          data={failureTrend} 
-          series={[
-            { key: "critical", name: "Critical", color: "#ef4444" },
-            { key: "high", name: "High", color: "#f59e0b" },
-            { key: "medium", name: "Medium", color: "#3b82f6" }
-          ]} 
-        />
-      </div>
+      {isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#111827] border border-gray-800 flex items-center justify-center mb-4">
+            <AlertTriangle size={28} className="text-gray-600" />
+          </div>
+          <h3 className="text-white font-semibold text-sm mb-1">No Failure Data</h3>
+          <p className="text-gray-500 text-xs max-w-xs mb-4">
+            Upload maintenance records and failure reports to analyze failure patterns.
+          </p>
+          <button
+            onClick={() => navigate("/onboarding")}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] text-xs font-medium hover:bg-[#3B82F6]/15 transition-colors"
+          >
+            <Upload size={12} />
+            Upload Documents
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AdvancedChart 
+            title="Top Failures by Count" 
+            type="bar" 
+            data={topFailures} 
+            series={[
+              { key: "count", name: "Incident Count", color: "#ef4444" }
+            ]} 
+          />
+          
+          <AdvancedChart 
+            title="Failure Trend by Severity" 
+            type="area" 
+            data={failureTrend} 
+            series={[
+              { key: "critical", name: "Critical", color: "#ef4444" },
+              { key: "high", name: "High", color: "#f59e0b" },
+              { key: "medium", name: "Medium", color: "#3b82f6" }
+            ]} 
+          />
+        </div>
+      )}
     </div>
   );
 };

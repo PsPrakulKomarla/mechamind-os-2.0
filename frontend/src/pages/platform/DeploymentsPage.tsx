@@ -1,15 +1,14 @@
 import React from "react";
 import { Card } from "@/components/ui/Card";
-import { Server, Activity, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import { Server, Activity, CheckCircle, Clock, AlertTriangle, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { useOnboardingStore } from "@/store/onboarding";
+import { useNavigate } from "react-router-dom";
 
 export const DeploymentsPage: React.FC = () => {
-  const deployments = [
-    { id: "d-1849", env: "production", status: "success", version: "v2.1.4", time: "2 hours ago", author: "CI/CD Pipeline" },
-    { id: "d-1848", env: "staging", status: "success", version: "v2.1.5-rc1", time: "5 hours ago", author: "Jane Doe" },
-    { id: "d-1847", env: "production", status: "success", version: "v2.1.3", time: "2 days ago", author: "CI/CD Pipeline" },
-    { id: "d-1846", env: "production", status: "failed", version: "v2.1.3", time: "2 days ago", author: "CI/CD Pipeline" },
-  ];
+  const { hasDocuments } = useOnboardingStore();
+  const navigate = useNavigate();
+  const isEmpty = !hasDocuments;
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -18,73 +17,62 @@ export const DeploymentsPage: React.FC = () => {
         <p className="text-muted-foreground mt-1">Platform health and release history.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="p-4 flex items-center space-x-4">
-          <div className="p-3 bg-green-500/10 text-green-500 rounded-lg">
-            <Server size={24} />
+      {isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#111827] border border-gray-800 flex items-center justify-center mb-4">
+            <Server size={28} className="text-gray-600" />
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Production Status</p>
-            <p className="text-lg font-bold text-green-500">Healthy</p>
+          <h3 className="text-white font-semibold text-sm mb-1">No Deployment Data</h3>
+          <p className="text-gray-500 text-xs max-w-xs mb-4">
+            Deploy the platform and configure CI/CD pipelines to track deployments.
+          </p>
+          <button
+            onClick={() => navigate("/onboarding")}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] text-xs font-medium hover:bg-[#3B82F6]/15 transition-colors"
+          >
+            <Upload size={12} />
+            Setup Data
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Card className="p-4 flex items-center space-x-4">
+              <div className="p-3 bg-green-500/10 text-green-500 rounded-lg">
+                <Server size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Production Status</p>
+                <p className="text-lg font-bold text-green-500">—</p>
+              </div>
+            </Card>
+            <Card className="p-4 flex items-center space-x-4">
+              <div className="p-3 bg-blue-500/10 text-blue-500 rounded-lg">
+                <Activity size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Current Version</p>
+                <p className="text-lg font-bold">—</p>
+              </div>
+            </Card>
+            <Card className="p-4 flex items-center space-x-4">
+              <div className="p-3 bg-brand-production/10 text-brand-production rounded-lg">
+                <Clock size={24} />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Uptime</p>
+                <p className="text-lg font-bold">—</p>
+              </div>
+            </Card>
           </div>
-        </Card>
-        <Card className="p-4 flex items-center space-x-4">
-          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-lg">
-            <Activity size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Current Version</p>
-            <p className="text-lg font-bold">v2.1.4</p>
-          </div>
-        </Card>
-        <Card className="p-4 flex items-center space-x-4">
-          <div className="p-3 bg-brand-production/10 text-brand-production rounded-lg">
-            <Clock size={24} />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Uptime</p>
-            <p className="text-lg font-bold">99.98%</p>
-          </div>
-        </Card>
-      </div>
 
-      <Card className="overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-border bg-muted/30 text-sm">
-              <th className="py-3 px-4 font-medium">Deployment ID</th>
-              <th className="py-3 px-4 font-medium">Environment</th>
-              <th className="py-3 px-4 font-medium">Version</th>
-              <th className="py-3 px-4 font-medium">Status</th>
-              <th className="py-3 px-4 font-medium">Time</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {deployments.map((dep) => (
-              <tr key={dep.id} className="hover:bg-muted/10">
-                <td className="py-3 px-4 font-mono text-xs">{dep.id}</td>
-                <td className="py-3 px-4">
-                  <Badge variant={dep.env === 'production' ? 'info' : 'secondary'}>
-                    {dep.env}
-                  </Badge>
-                </td>
-                <td className="py-3 px-4 font-medium">{dep.version}</td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center space-x-2">
-                    {dep.status === 'success' ? (
-                      <CheckCircle className="text-green-500" size={16} />
-                    ) : (
-                      <AlertTriangle className="text-red-500" size={16} />
-                    )}
-                    <span className="capitalize text-sm">{dep.status}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-4 text-sm text-muted-foreground">{dep.time}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
+          <Card className="overflow-hidden">
+            <div className="p-8 text-center text-gray-500 text-sm">
+              Deployment history will appear once CI/CD pipelines are configured.
+            </div>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

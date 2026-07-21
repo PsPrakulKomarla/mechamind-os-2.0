@@ -57,6 +57,14 @@ export default {
         "fade-in": "fadeIn 0.3s ease-out",
         "slide-up": "slideUp 0.3s ease-out",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "breathe": "breathe 4s ease-in-out infinite",
+        "glow": "glow 3s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
+        "shimmer": "shimmer 2s linear infinite",
+        "rotate-slow": "rotate-slow 20s linear infinite",
+        "rotate-reverse": "rotate-reverse 25s linear infinite",
+        "neural-pulse": "neural-pulse 3s ease-in-out infinite",
+        "pulse-ring": "pulse-ring 3s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -66,6 +74,40 @@ export default {
         slideUp: {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        breathe: {
+          "0%, 100%": { transform: "scale(1)", opacity: "0.8" },
+          "50%": { transform: "scale(1.05)", opacity: "1" },
+        },
+        glow: {
+          "0%, 100%": { opacity: "0.5" },
+          "50%": { opacity: "1" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "rotate-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "rotate-reverse": {
+          "0%": { transform: "rotate(360deg)" },
+          "100%": { transform: "rotate(0deg)" },
+        },
+        "neural-pulse": {
+          "0%": { opacity: "0.3", transform: "scale(1)" },
+          "50%": { opacity: "0.8", transform: "scale(1.02)" },
+          "100%": { opacity: "0.3", transform: "scale(1)" },
+        },
+        "pulse-ring": {
+          "0%": { transform: "scale(0.9)", opacity: "0.8" },
+          "50%": { transform: "scale(1.1)", opacity: "0.4" },
+          "100%": { transform: "scale(0.9)", opacity: "0.8" },
         },
       },
     },

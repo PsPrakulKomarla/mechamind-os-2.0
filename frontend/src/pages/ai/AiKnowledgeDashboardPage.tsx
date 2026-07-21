@@ -20,10 +20,10 @@ export const AiKnowledgeDashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="Total Embeddings" value={stats?.totalEmbeddings || "1.2M"} trend={4.5} isLoading={isLoading} />
-        <StatCard title="Indexed Documents" value={stats?.indexedDocs || "4,821"} trend={2.1} isLoading={isLoading} />
-        <StatCard title="Avg Retrieval Confidence" value={stats?.avgConfidence || "92.4%"} trend={0.8} isLoading={isLoading} />
-        <StatCard title="Pending Feedback" value={stats?.pendingFeedback || "14"} trend={-12} isLoading={isLoading} />
+        <StatCard title="Total Embeddings" value={stats?.totalEmbeddings ?? "—"} trend={stats?.totalEmbeddings_trend} isLoading={isLoading} />
+        <StatCard title="Indexed Documents" value={stats?.indexedDocs ?? "—"} trend={stats?.indexedDocs_trend} isLoading={isLoading} />
+        <StatCard title="Avg Retrieval Confidence" value={stats?.avgConfidence ?? "—"} trend={stats?.avgConfidence_trend} isLoading={isLoading} />
+        <StatCard title="Pending Feedback" value={stats?.pendingFeedback ?? "—"} trend={stats?.pendingFeedback_trend} isLoading={isLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -51,15 +51,23 @@ export const AiKnowledgeDashboardPage = () => {
           <h3 className="font-bold text-white">Recent Learning Events</h3>
         </div>
         <div className="divide-y divide-gray-800">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="p-4 flex justify-between items-center hover:bg-gray-800/30 transition-colors">
-              <div>
-                <p className="text-sm font-medium text-white">Indexed new manual: "Spindle M1 Service Guide"</p>
-                <p className="text-xs text-gray-500 mt-1">Generated 142 chunks • Model: text-embedding-004</p>
+          {stats?.recentEvents && stats.recentEvents.length > 0 ? (
+            stats.recentEvents.map((event: any, i: number) => (
+              <div key={i} className="p-4 flex justify-between items-center hover:bg-gray-800/30 transition-colors">
+                <div>
+                  <p className="text-sm font-medium text-white">{event.title || "Indexing event"}</p>
+                  <p className="text-xs text-gray-500 mt-1">{event.detail || ""}</p>
+                </div>
+                <span className={`text-xs font-mono ${event.status === "success" ? "text-success" : "text-warning"}`}>
+                  {event.status?.toUpperCase() || "PENDING"}
+                </span>
               </div>
-              <span className="text-xs text-success font-mono">SUCCESS</span>
+            ))
+          ) : (
+            <div className="p-8 text-center text-gray-500 text-sm">
+              No learning events yet. Process documents to see indexing activity here.
             </div>
-          ))}
+          )}
         </div>
       </Card>
     </div>

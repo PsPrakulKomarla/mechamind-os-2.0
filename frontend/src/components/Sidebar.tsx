@@ -22,6 +22,7 @@ import {
   Workflow,
   Activity,
   User,
+  BookOpen,
   type LucideIcon,
 } from "lucide-react";
 
@@ -60,6 +61,8 @@ const navItems: NavItem[] = [
   { name: "Maintenance", path: "/maintenance", icon: Wrench, group: "Maintenance" },
   { name: "Work Orders", path: "/maintenance/work-orders", icon: Workflow, group: "Maintenance" },
   { name: "Predictive Alerts", path: "/maintenance/predictive", icon: TrendingUp, group: "Maintenance" },
+  { name: "Compliance", path: "/compliance", icon: Shield, group: "Compliance" },
+  { name: "Lessons Learned", path: "/lessons", icon: BookOpen, group: "Intelligence" },
   { name: "Predictive AI", path: "/predictive", icon: TrendingUp, group: "Predictive" },
   { name: "Failure Prediction", path: "/predictive/failures", icon: Activity, group: "Predictive" },
   { name: "Maintenance Planner", path: "/predictive/planner", icon: Wrench, group: "Predictive" },

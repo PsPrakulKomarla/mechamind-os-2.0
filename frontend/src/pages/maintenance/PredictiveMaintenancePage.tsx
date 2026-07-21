@@ -2,17 +2,17 @@ import React from "react";
 import { DataTable } from "@/components/ui/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { usePredictiveAlerts } from "@/hooks/useMaintenanceQueries";
-import { AlertTriangle, TrendingDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useOnboardingStore } from "@/store/onboarding";
+import { AlertTriangle, TrendingDown, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const PredictiveMaintenancePage = () => {
   const { data: alerts, isLoading } = usePredictiveAlerts();
+  const { hasDocuments } = useOnboardingStore();
+  const navigate = useNavigate();
 
-  const mockAlerts = alerts || [
-    { id: "p-1", machine: "Stamping Press M-201", component: "Spindle Bearing", failureProbability: 0.88, rul: "4 Days", costRisk: "$45,000", status: "Work Order Created" },
-    { id: "p-2", machine: "Conveyor C-12", component: "Drive Motor", failureProbability: 0.65, rul: "12 Days", costRisk: "$8,000", status: "Monitoring" },
-    { id: "p-3", machine: "HVAC Unit 3", component: "Compressor", failureProbability: 0.45, rul: "45 Days", costRisk: "$12,000", status: "Monitoring" },
-  ];
+  const alertList = alerts || [];
+  const isEmpty = !hasDocuments && alertList.length === 0 && !isLoading;
 
   const columns = [
     { header: "Machine", accessorKey: "machine", cell: (row: any) => <span className="font-bold text-gray-200">{row.machine}</span> },
@@ -50,15 +50,36 @@ export const PredictiveMaintenancePage = () => {
         </div>
       </div>
 
-      <div className="bg-warning/5 border border-warning/30 rounded-lg p-4 mb-6 flex items-start gap-3">
-        <AlertTriangle className="text-warning shrink-0 mt-0.5" size={20} />
-        <div>
-          <h3 className="text-sm font-bold text-warning mb-1">Attention Required</h3>
-          <p className="text-sm text-gray-300">MechaMind AI has detected 1 asset with a critical failure probability (&gt;80%) within the next 7 days. It is highly recommended to schedule maintenance immediately to prevent unplanned downtime.</p>
+      {isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#111827] border border-gray-800 flex items-center justify-center mb-4">
+            <AlertTriangle size={28} className="text-gray-600" />
+          </div>
+          <h3 className="text-white font-semibold text-sm mb-1">No Predictive Alerts</h3>
+          <p className="text-gray-500 text-xs max-w-xs mb-4">Upload sensor data and maintenance records to enable predictive maintenance.</p>
+          <button
+            onClick={() => navigate("/onboarding")}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] text-xs font-medium hover:bg-[#3B82F6]/15 transition-colors"
+          >
+            <Upload size={12} />
+            Setup Data
+          </button>
         </div>
-      </div>
+      ) : (
+        <>
+          {alertList.some((a: any) => a.failureProbability > 0.8) && (
+            <div className="bg-warning/5 border border-warning/30 rounded-lg p-4 mb-6 flex items-start gap-3">
+              <AlertTriangle className="text-warning shrink-0 mt-0.5" size={20} />
+              <div>
+                <h3 className="text-sm font-bold text-warning mb-1">Attention Required</h3>
+                <p className="text-sm text-gray-300">MechaMind AI has detected assets with critical failure probability (&gt;80%). Schedule maintenance immediately to prevent unplanned downtime.</p>
+              </div>
+            </div>
+          )}
 
-      <DataTable columns={columns} data={mockAlerts} isLoading={isLoading} />
+          <DataTable columns={columns} data={alertList} isLoading={isLoading} />
+        </>
+      )}
     </div>
   );
 };

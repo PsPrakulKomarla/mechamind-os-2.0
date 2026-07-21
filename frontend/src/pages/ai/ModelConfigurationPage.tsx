@@ -66,7 +66,7 @@ export const ModelConfigurationPage = () => {
             
             <div className="p-4 bg-warning/10 border border-warning/30 rounded-lg mt-4">
               <h4 className="text-sm font-bold text-warning mb-1">Warning: Re-indexing Required</h4>
-              <p className="text-xs text-gray-300">Changing the embedding model requires re-processing all 4,821 documents in the knowledge base. This operation may take several hours and incur API costs.</p>
+              <p className="text-xs text-gray-300">Changing the embedding model requires re-processing all documents in the knowledge base. This operation may take several hours and incur API costs.</p>
             </div>
           </div>
         </Card>

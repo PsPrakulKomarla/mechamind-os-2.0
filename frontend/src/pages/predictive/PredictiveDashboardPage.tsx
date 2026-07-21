@@ -1,18 +1,16 @@
 import React from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { BrainCircuit, AlertTriangle, TrendingDown, Clock } from "lucide-react";
+import { useOnboardingStore } from "@/store/onboarding";
+import { BrainCircuit, AlertTriangle, TrendingDown, Clock, Upload } from "lucide-react";
 import { Card } from "@/components/ui/Card";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DataTable } from "@/components/ui/DataTable";
-import { Badge } from "@/components/ui/Badge";
 
 export const PredictiveDashboardPage = () => {
-  // Mock data for predictions
-  const predictions = [
-    { assetId: "M4", name: "Main Pump", prob: 85, predictedDate: "2026-07-15", mode: "Bearing Seizure" },
-    { assetId: "M2", name: "Beta Lathe", prob: 62, predictedDate: "2026-07-28", mode: "Thermal Overload" },
-    { assetId: "M1", name: "Alpha Spindle", prob: 12, predictedDate: "2026-11-04", mode: "Vibration Wear" },
-  ];
+  const { hasDocuments } = useOnboardingStore();
+  const navigate = useNavigate();
+
+  const isEmpty = !hasDocuments;
 
   const columns = [
     { header: "Asset", accessorKey: "name", cell: (row: any) => <span className="font-bold text-white">{row.name} ({row.assetId})</span> },
@@ -40,71 +38,68 @@ export const PredictiveDashboardPage = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">AI-driven Remaining Useful Life (RUL) and Failure Forecasting</p>
         </div>
-        <div className="flex gap-2">
-          <Link to="/predictive/planner" className="px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded text-sm transition-colors">
-            Maintenance Planner
-          </Link>
-          <Link to="/predictive/simulation" className="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-accent/90 transition-colors">
-            What-If Simulator
-          </Link>
+        {!isEmpty && (
+          <div className="flex gap-2">
+            <Link to="/predictive/planner" className="px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded text-sm transition-colors">
+              Maintenance Planner
+            </Link>
+            <Link to="/predictive/simulation" className="px-4 py-2 bg-accent text-white rounded text-sm font-bold hover:bg-accent/90 transition-colors">
+              What-If Simulator
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#111827] border border-gray-800 flex items-center justify-center mb-4">
+            <BrainCircuit size={28} className="text-gray-600" />
+          </div>
+          <h3 className="text-white font-semibold text-sm mb-1">No Predictive Data Available</h3>
+          <p className="text-gray-500 text-xs max-w-xs mb-4">Upload maintenance records and sensor data to enable AI-driven failure predictions.</p>
+          <button
+            onClick={() => navigate("/onboarding")}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] text-xs font-medium hover:bg-[#3B82F6]/15 transition-colors"
+          >
+            <Upload size={12} />
+            Setup Data
+          </button>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <StatCard title="At-Risk Assets (30 Days)" value="—" isLoading={false} />
+            <StatCard title="Avg Fleet RUL" value="—" isLoading={false} />
+            <StatCard title="Prevented Downtime" value="—" isLoading={false} />
+            <StatCard title="Spare Parts Shortage" value="—" isLoading={false} />
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="At-Risk Assets (30 Days)" value="2" trend={-1} isLoading={false} />
-        <StatCard title="Avg Fleet RUL" value="8.4 mos" trend={0.2} isLoading={false} />
-        <StatCard title="Prevented Downtime" value="42 hrs" trend={14} isLoading={false} />
-        <StatCard title="Spare Parts Shortage" value="1" trend={0} isLoading={false} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="p-0 overflow-hidden">
-            <div className="p-4 border-b border-gray-800 bg-secondary-bg/50 flex justify-between items-center">
-              <h3 className="font-bold text-white flex items-center gap-2"><AlertTriangle size={16} className="text-warning"/> Imminent Failure Predictions</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Card className="p-0 overflow-hidden">
+                <div className="p-4 border-b border-gray-800 bg-secondary-bg/50 flex justify-between items-center">
+                  <h3 className="font-bold text-white flex items-center gap-2"><AlertTriangle size={16} className="text-warning"/> Imminent Failure Predictions</h3>
+                </div>
+                <div className="p-8 text-center text-gray-500 text-sm">
+                  No failure predictions yet. Data will appear once sensor and maintenance data is processed.
+                </div>
+              </Card>
             </div>
-            <DataTable columns={columns} data={predictions} isLoading={false} />
-          </Card>
-        </div>
 
-        <div className="space-y-6">
-          <Card className="p-6">
-             <h3 className="font-bold text-white mb-4 flex items-center gap-2"><TrendingDown size={16} className="text-info" /> Fleet Health Degradation</h3>
-             <div className="space-y-4">
-               <div>
-                 <div className="flex justify-between text-xs mb-1">
-                   <span className="text-gray-400">Pumps</span>
-                   <span className="text-warning font-bold">64% Avg Health</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-gray-800 rounded"><div className="h-full bg-warning w-[64%]"></div></div>
-               </div>
-               <div>
-                 <div className="flex justify-between text-xs mb-1">
-                   <span className="text-gray-400">Spindles</span>
-                   <span className="text-success font-bold">92% Avg Health</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-gray-800 rounded"><div className="h-full bg-success w-[92%]"></div></div>
-               </div>
-               <div>
-                 <div className="flex justify-between text-xs mb-1">
-                   <span className="text-gray-400">Conveyors</span>
-                   <span className="text-success font-bold">88% Avg Health</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-gray-800 rounded"><div className="h-full bg-success w-[88%]"></div></div>
-               </div>
-             </div>
-          </Card>
+            <div className="space-y-6">
+              <Card className="p-6">
+                <h3 className="font-bold text-white mb-4 flex items-center gap-2"><TrendingDown size={16} className="text-info" /> Fleet Health</h3>
+                <p className="text-gray-500 text-sm text-center py-4">No fleet health data available</p>
+              </Card>
 
-          <Card className="p-6 bg-accent/5 border-accent/20">
-             <h3 className="font-bold text-accent mb-2 flex items-center gap-2"><Clock size={16} /> Maintenance Backlog</h3>
-             <p className="text-3xl font-black text-white mb-1">14 <span className="text-sm font-normal text-gray-400">Open WOs</span></p>
-             <p className="text-xs text-gray-300">3 critical work orders need scheduling before next week to avoid unplanned downtime.</p>
-             <button className="mt-4 w-full py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded text-xs font-bold transition-colors">
-               Go to Planner
-             </button>
-          </Card>
-        </div>
-      </div>
+              <Card className="p-6">
+                <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Clock size={16} /> Maintenance Backlog</h3>
+                <p className="text-gray-500 text-sm text-center py-4">No backlog data available</p>
+              </Card>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

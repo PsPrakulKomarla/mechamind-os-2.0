@@ -19,10 +19,10 @@ export const LiveDashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard title="Active Sensors" value={health?.activeSensors || "1,042"} trend={2.1} isLoading={isLoading} />
-        <StatCard title="Live Cameras" value={health?.activeCameras || "48"} trend={0} isLoading={isLoading} />
-        <StatCard title="Network Health" value={health?.networkHealth || "99.9%"} trend={0.1} isLoading={isLoading} />
-        <StatCard title="Critical Alarms" value={health?.criticalAlarms || "2"} trend={-50} isLoading={isLoading} />
+        <StatCard title="Active Sensors" value={health?.activeSensors ?? "—"} trend={health?.activeSensors_trend} isLoading={isLoading} />
+        <StatCard title="Live Cameras" value={health?.activeCameras ?? "—"} trend={health?.activeCameras_trend} isLoading={isLoading} />
+        <StatCard title="Network Health" value={health?.networkHealth ?? "—"} trend={health?.networkHealth_trend} isLoading={isLoading} />
+        <StatCard title="Critical Alarms" value={health?.criticalAlarms ?? "—"} trend={health?.criticalAlarms_trend} isLoading={isLoading} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">

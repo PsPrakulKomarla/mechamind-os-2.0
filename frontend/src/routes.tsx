@@ -70,6 +70,9 @@ const SystemSettingsPage = React.lazy(() => import("@/pages/admin/SystemSettings
 
 const ProfilePage = React.lazy(() => import("@/pages/profile/ProfilePage").then(m => ({ default: m.ProfilePage })));
 
+const ComplianceDashboardPage = React.lazy(() => import("@/pages/compliance/ComplianceDashboardPage").then(m => ({ default: m.ComplianceDashboardPage })));
+const LessonsLearnedPage = React.lazy(() => import("@/pages/lessons/LessonsLearnedPage").then(m => ({ default: m.LessonsLearnedPage })));
+
 const FeatureFlagsPage = React.lazy(() => import("@/pages/platform/FeatureFlagsPage").then(m => ({ default: m.FeatureFlagsPage })));
 const DeploymentsPage = React.lazy(() => import("@/pages/platform/DeploymentsPage").then(m => ({ default: m.DeploymentsPage })));
 const AiAgentWorkspacePage = React.lazy(() => import("@/pages/platform/AiAgentWorkspacePage").then(m => ({ default: m.AiAgentWorkspacePage })));
@@ -78,6 +81,7 @@ const CiCdPipelinePage = React.lazy(() => import("@/pages/platform/CiCdPipelineP
 const SystemMonitoringPage = React.lazy(() => import("@/pages/platform/SystemMonitoringPage").then(m => ({ default: m.SystemMonitoringPage })));
 const MobileWorkforceDashboardPage = React.lazy(() => import("@/pages/platform/MobileWorkforceDashboardPage").then(m => ({ default: m.MobileWorkforceDashboardPage })));
 
+const OnboardingPage = React.lazy(() => import("@/pages/onboarding/OnboardingPage"));
 const LandingPage = React.lazy(() => import("@/pages/LandingPage").then(m => ({ default: m.LandingPage })));
 const WorkforceDashboardPage = React.lazy(() => import("@/pages/mobile/WorkforceDashboardPage").then(m => ({ default: m.WorkforceDashboardPage })));
 const NotFoundPage = React.lazy(() => import("@/pages/NotFoundPage").then(m => ({ default: m.NotFoundPage })));
@@ -139,6 +143,10 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <LazyPage><LandingPage /></LazyPage>,
+  },
+  {
+    path: "/onboarding",
+    element: <ProtectedLayout><LazyPage><OnboardingPage /></LazyPage></ProtectedLayout>,
   },
   {
     path: "/dashboard",
@@ -319,6 +327,14 @@ export const router = createBrowserRouter([
   {
     path: "/admin/settings",
     element: <ProtectedLayout><LazyPage><SystemSettingsPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/compliance",
+    element: <ProtectedLayout><LazyPage><ComplianceDashboardPage /></LazyPage></ProtectedLayout>,
+  },
+  {
+    path: "/lessons",
+    element: <ProtectedLayout><LazyPage><LessonsLearnedPage /></LazyPage></ProtectedLayout>,
   },
   {
     path: "/profile",

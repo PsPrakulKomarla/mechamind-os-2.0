@@ -13,11 +13,7 @@ export const DocumentLibraryPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { data: documents, isLoading, refetch } = useDocumentList({ search: searchTerm });
 
-  const mockData = documents?.items || documents || [
-    { id: "d-1", title: "SIEMENS_M201_MANUAL_V2.pdf", document_type: "Manual", extracted_metadata: { tags: ["M-201", "Maintenance"] }, processing_status: "Indexed", created_at: "2024-02-14" },
-    { id: "d-2", title: "Safety_Protocol_Q3.docx", document_type: "Compliance", extracted_metadata: { tags: ["Safety", "Q3"] }, processing_status: "Indexed", created_at: "2024-02-10" },
-    { id: "d-3", title: "Bearing_Specs.pdf", document_type: "Specifications", extracted_metadata: { tags: ["Parts", "Mechanical"] }, processing_status: "Pending OCR", created_at: "2024-02-18" },
-  ];
+  const mockData = documents?.items || documents || [];
 
   const columns = [
     { header: "Document Title", accessorKey: "title", cell: (row: any) => (

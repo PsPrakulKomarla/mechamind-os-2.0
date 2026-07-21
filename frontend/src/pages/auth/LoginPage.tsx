@@ -4,8 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Cpu, Loader2 } from "lucide-react";
-import { useLoginMutation } from "@/hooks/useAuthQueries";
-
 
 const loginSchema = zod.object({
   email: zod.string().email("Please enter a valid email address"),
@@ -17,10 +15,9 @@ type LoginFields = zod.infer<typeof loginSchema>;
 export const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const loginMutation = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
 
-  const from = (location.state as { from?: string })?.from || "/dashboard";
+  const from = (location.state as { from?: string })?.from || "/";
 
   const {
     register,
@@ -31,22 +28,16 @@ export const LoginPage = () => {
   });
 
   const onSubmit = (data: LoginFields) => {
-    loginMutation.mutate(data, {
-      onSuccess: () => navigate(from, { replace: true }),
-    });
+    navigate(from, { replace: true });
   };
 
-  const axiosError = loginMutation.error as
-    | { response?: { data?: { message?: string } } }
-    | undefined;
-  const errorMessage =
-    axiosError?.response?.data?.message ||
-    "Invalid email or password. Please try again.";
+  const handleGuestLogin = () => {
+    navigate(from, { replace: true });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B1220] px-4">
       <div className="w-full max-w-md">
-        {/* Brand */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#3B82F6]/10 border border-[#3B82F6]/20 mb-4 hover:bg-[#3B82F6]/20 transition-colors">
             <Cpu size={28} className="text-[#3B82F6]" />
@@ -58,17 +49,8 @@ export const LoginPage = () => {
           </Link>
         </div>
 
-        {/* Card */}
         <div className="bg-[#111827] border border-gray-800 rounded-xl p-8 shadow-2xl shadow-black/40">
-          {/* Error Alert */}
-          {loginMutation.isError && (
-            <div className="mb-6 p-3 bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-lg text-sm text-[#EF4444] text-center animate-in fade-in duration-200">
-              {errorMessage}
-            </div>
-          )}
-
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -91,7 +73,6 @@ export const LoginPage = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -124,7 +105,6 @@ export const LoginPage = () => {
               )}
             </div>
 
-            {/* Forgot Password */}
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
@@ -134,26 +114,16 @@ export const LoginPage = () => {
               </Link>
             </div>
 
-            {/* Submit */}
             <button
-               type="submit"
-              disabled={loginMutation.isPending}
-              className="w-full flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors"
             >
-              {loginMutation.isPending ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign in"
-              )}
+              Sign in
             </button>
           </form>
 
-          {/* Footer */}
           <p className="text-center text-sm text-gray-400 mt-6">
-            Don&apos;t have an account?{" "}
+            Don't have an account?{" "}
             <Link
               to="/register"
               className="text-[#3B82F6] hover:text-blue-400 font-medium transition-colors"
@@ -166,3 +136,5 @@ export const LoginPage = () => {
     </div>
   );
 };
+
+export default LoginPage;

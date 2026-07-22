@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Clock, AlertTriangle, User } from "lucide-react";
@@ -38,7 +39,8 @@ export const WorkOrderBoard = ({ workOrders, isLoading }: { workOrders?: WorkOrd
             
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {columnOrders.map(wo => (
-                <Card key={wo.id} className="p-3 cursor-grab active:cursor-grabbing hover:border-gray-600 transition-colors">
+                <Link key={wo.id} to={`/maintenance/work-orders/${wo.id}`} className="block">
+                <Card className="p-3 hover:border-gray-600 transition-colors">
                   <div className="flex justify-between items-start mb-2">
                     <span className="text-xs font-mono text-gray-500">{wo.id}</span>
                     <Badge variant={
@@ -64,6 +66,7 @@ export const WorkOrderBoard = ({ workOrders, isLoading }: { workOrders?: WorkOrd
                     </span>
                   </div>
                 </Card>
+                </Link>
               ))}
               {columnOrders.length === 0 && (
                 <div className="text-center p-4 text-xs text-gray-600 border border-dashed border-gray-800 rounded">

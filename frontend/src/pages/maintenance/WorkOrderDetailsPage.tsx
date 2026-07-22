@@ -8,34 +8,55 @@ import { RcaVisualizer } from "@/components/maintenance/RcaVisualizer";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from "recharts";
 import { Wrench, Clock, User, FileText, CheckCircle, AlertTriangle } from "lucide-react";
 
+const mockVibrationData = Array.from({ length: 24 }, (_, i) => ({
+  time: `${i}:00`,
+  vibration: +(0.5 + Math.random() * 2).toFixed(2),
+}));
+mockVibrationData[14] = { time: "14:00", vibration: 2.8 };
+mockVibrationData[15] = { time: "15:00", vibration: 2.6 };
+mockVibrationData[16] = { time: "16:00", vibration: 1.9 };
+
+const mockRca = {
+  problem: "Stamping Press M-201 primary bearing failed catastrophically during production run #8421",
+  whys: [
+    { level: 1, question: "Why did the bearing fail?", answer: "Bearing cage fractured and rollers seized due to overheating." },
+    { level: 2, question: "Why did the bearing overheat?", answer: "Lubrication starvation — grease fitting was clogged." },
+    { level: 3, question: "Why was the grease fitting clogged?", answer: "Contaminated grease from bulk container — no filtration in dispensing system." },
+    { level: 4, question: "Why was unfiltered grease used?", answer: "Maintenance procedure does not specify filtration step for bulk grease refills." },
+    { level: 5, question: "Why was the procedure never updated?", answer: "No formal review cycle for lubrication schedules; last updated 2019." },
+  ],
+  recommendation: "Install inline grease filter on bulk dispensing system. Update lubrication PM procedure to include filtration step. Schedule quarterly lubrication procedure review."
+};
+
+const mockWorkOrder = {
+  id: "WO-2026-001",
+  title: "Replace primary spindle bearing",
+  description: "During routine vibration monitoring, Stamping Press M-201 showed elevated acceleration levels (2.8 mm/s²) on the Drive End bearing. Inspection revealed excessive play and discoloration on the outer race. The bearing must be replaced and the lubrication system inspected for contaminants before returning to service.",
+  machine: "Stamping Press M-201",
+  priority: "Critical",
+  status: "open",
+  assignee: "J. Smith",
+  dueDate: "2026-07-25",
+  hasAnomaly: true,
+  anomalyNote: "Bearing acceleration spike at 14:00 — 2.8 mm/s² (threshold: 1.5 mm/s²). Immediate inspection recommended.",
+  spareParts: [
+    { name: "SKF 6319 Deep Groove Ball Bearing", inStock: true, quantity: 2 },
+    { name: "High-temp lithium grease (1 kg)", inStock: true, quantity: 1 },
+    { name: "Bearing puller set (rental)", inStock: false, quantity: 1 },
+    { name: "Shaft seal (45x62x8 mm)", inStock: true, quantity: 1 },
+  ],
+  vibrationData: mockVibrationData,
+};
+
 export const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data: woData, isLoading: woLoading } = useWorkOrderDetails(id || "");
   const { data: rcaData, isLoading: rcaLoading } = useRcaDetails(id || "");
 
-  // Use real data when available
-  const wo = woData;
-  const rca = rcaData;
+  const wo = woData || mockWorkOrder;
+  const rca = rcaData || mockRca;
 
   if (woLoading) return <div className="p-8 text-gray-500">Loading Work Order Details...</div>;
-
-  if (!wo) {
-    return (
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="flex items-center justify-between border-b border-gray-800 pb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Work Order Details</h1>
-            <p className="text-sm text-gray-500 mt-1">No work order data available</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Wrench size={48} className="text-gray-600 mb-4" />
-          <h3 className="text-white font-semibold text-sm mb-1">No Work Order Found</h3>
-          <p className="text-gray-500 text-xs max-w-xs">Upload maintenance records to enable work order tracking.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 h-full flex flex-col">

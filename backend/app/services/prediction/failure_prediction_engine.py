@@ -22,7 +22,7 @@ class FailurePredictionEngine:
         risk_level = FindingSeverity.CRITICAL if rul_data["remaining_hours"] < 100 else FindingSeverity.MINOR
         
         # 3. Cost Optimization Logic (Mocked)
-        # If we fix it now, it costs $500. If it fails, downtime costs $15,000.
+        # If we fix it now, it costs ₹500. If it fails, downtime costs ₹15,000.
         estimated_savings = 15000.0 if risk_level == FindingSeverity.CRITICAL else 0.0
         
         action = ActionRecommendation.REPLACE if risk_level == FindingSeverity.CRITICAL else ActionRecommendation.MONITOR

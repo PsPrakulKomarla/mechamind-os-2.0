@@ -33,8 +33,8 @@ class TableExtractionService:
                 "page": 5,
                 "data": [
                     ["Part Name", "Failure Rate", "Cost"],
-                    ["O-Ring", "2%", "$5"],
-                    ["Hydraulic Pump", "0.5%", "$1200"]
+                    ["O-Ring", "2%", "₹5"],
+                    ["Hydraulic Pump", "0.5%", "₹1,200"]
                 ]
             }
         ]

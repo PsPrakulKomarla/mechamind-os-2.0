@@ -35,10 +35,14 @@ export const LoginPage = () => {
     try {
       setErrorMsg("");
       const response = await authService.login(data);
-      // Assuming response structure contains data: { user: {...}, access_token: "..." }
-      if (response && response.data) {
-        setAuth(response.data.user, response.data.access_token);
-        navigate(from, { replace: true });
+      // Backend returns { access_token, refresh_token, token_type } - need to fetch user profile
+      if (response && response.data && response.data.access_token) {
+        // Fetch user profile using the access token
+        const profileResponse = await authService.getProfile();
+        if (profileResponse && profileResponse.data) {
+          setAuth(profileResponse.data, response.data.access_token);
+          navigate(from, { replace: true });
+        }
       }
     } catch (err: any) {
       console.error("Login failed", err);

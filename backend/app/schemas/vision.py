@@ -12,6 +12,19 @@ class MediaFileUploadResponse(BaseModel):
     status: AnalysisStatus
     model_config = ConfigDict(from_attributes=True)
 
+class BulkMediaUploadItemResponse(BaseModel):
+    file_name: str
+    file_size: int
+    status: str
+    media_id: Optional[UUID] = None
+    error: Optional[str] = None
+
+class BulkMediaUploadResponse(BaseModel):
+    total_files: int
+    successful: int
+    failed: int
+    items: List[BulkMediaUploadItemResponse]
+
 class DetectedDefectSchema(BaseModel):
     defect_type: DefectType
     location: Optional[Dict[str, Any]] = None

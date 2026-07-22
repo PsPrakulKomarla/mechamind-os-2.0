@@ -40,6 +40,10 @@ class Settings(BaseSettings):
 
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
+    # File Upload Limits (1GB = 1,073,741,824 bytes)
+    MAX_CONTENT_LENGTH: int = 1_073_741_824  # 1GB max request size
+    MAX_FILE_SIZE: int = 1_073_741_824  # 1GB max individual file size
+
     # Encryption Settings — defaults to a random Fernet key if not set via env
     ENCRYPTION_KEY: str = ""
 

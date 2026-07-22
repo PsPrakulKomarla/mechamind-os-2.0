@@ -28,7 +28,16 @@ interface ComplianceItem {
   requiredAction?: string;
 }
 
-const COMPLIANCE_ITEMS: ComplianceItem[] = [];
+const COMPLIANCE_ITEMS: ComplianceItem[] = [
+  { id: "comp-001", title: "OSHA Machine Guarding Inspection - M-201", type: "inspection", status: "compliant", dueDate: "2026-08-15", asset: "Stamping Press M-201", description: "Annual guarding compliance check" },
+  { id: "comp-002", title: "Fire Extinguisher Certification - Zone A", type: "certificate", status: "expired", expiryDate: "2026-06-01", asset: "Factory Zone A", description: "Monthly fire safety equipment verification", requiredAction: "Schedule re-certification with vendor" },
+  { id: "comp-003", title: "ISO 45001:2018 Internal Audit", type: "audit", status: "warning", dueDate: "2026-07-30", description: "Q2 occupational health & safety audit", requiredAction: "Assign audit team" },
+  { id: "comp-004", title: "Lockout/Tagout Procedure Review", type: "regulation", status: "compliant", dueDate: "2026-09-01", asset: "All Production Lines", description: "Annual LOTO procedure effectiveness review" },
+  { id: "comp-005", title: "Confined Space Entry Permit - Tank T-402", type: "inspection", status: "missing", dueDate: "2026-07-20", asset: "Storage Tank T-402", description: "Pre-entry permit verification", requiredAction: "Issue permit before scheduled maintenance" },
+  { id: "comp-006", title: "Emissions Monitoring Report - Q2", type: "regulation", status: "compliant", dueDate: "2026-07-15", description: "Quarterly EPA emissions compliance report" },
+  { id: "comp-007", title: "Crane & Hoist Annual Inspection", type: "inspection", status: "expired", expiryDate: "2026-05-30", asset: "Overhead Crane C-101", description: "Annual load testing and mechanical inspection", requiredAction: "Contact third-party inspector" },
+  { id: "comp-008", title: "HazMat Storage Compliance - Warehouse 3", type: "certificate", status: "warning", dueDate: "2026-08-10", asset: "Warehouse 3", description: "Chemical storage and labeling audit" },
+];
 
 export const ComplianceDashboardPage = () => {
   const { hasDocuments } = useOnboardingStore();

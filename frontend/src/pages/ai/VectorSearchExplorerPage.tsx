@@ -81,11 +81,11 @@ export const VectorSearchExplorerPage = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-bold text-gray-400 mb-1">Top K</label>
-                  <input type="number" defaultValue={5} className="w-full bg-primary-bg border border-gray-700 rounded p-2 text-sm text-white outline-none" />
+                  <input type="number" defaultValue={5} placeholder="e.g. 5" className="w-full bg-primary-bg border border-gray-700 rounded p-2 text-sm text-white outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 mb-1">Min Similarity</label>
-                  <input type="number" defaultValue={0.65} step={0.01} className="w-full bg-primary-bg border border-gray-700 rounded p-2 text-sm text-white outline-none" />
+                  <input type="number" defaultValue={0.65} step={0.01} placeholder="e.g. 0.65" className="w-full bg-primary-bg border border-gray-700 rounded p-2 text-sm text-white outline-none" />
                 </div>
               </div>
               <button 

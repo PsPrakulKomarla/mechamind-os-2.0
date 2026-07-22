@@ -52,6 +52,7 @@ export const UserForm = ({ initialData, onClose }: UserFormProps) => {
             <input 
               type="text" 
               required
+              placeholder="e.g. Alice Chen"
               className="w-full bg-secondary-bg border border-gray-700 rounded p-2 text-white outline-none focus:border-accent"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -63,6 +64,7 @@ export const UserForm = ({ initialData, onClose }: UserFormProps) => {
             <input 
               type="email" 
               required
+              placeholder="e.g. alice@mechamind.io"
               className="w-full bg-secondary-bg border border-gray-700 rounded p-2 text-white outline-none focus:border-accent"
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -88,6 +90,7 @@ export const UserForm = ({ initialData, onClose }: UserFormProps) => {
               <label className="block text-xs font-bold text-gray-400 mb-1">Organization</label>
               <input 
                 type="text" 
+                placeholder="e.g. Global"
                 className="w-full bg-secondary-bg border border-gray-700 rounded p-2 text-white outline-none focus:border-accent"
                 value={formData.organization}
                 onChange={e => setFormData({ ...formData, organization: e.target.value })}
@@ -97,6 +100,7 @@ export const UserForm = ({ initialData, onClose }: UserFormProps) => {
               <label className="block text-xs font-bold text-gray-400 mb-1">Factory</label>
               <input 
                 type="text" 
+                placeholder="e.g. Factory A"
                 className="w-full bg-secondary-bg border border-gray-700 rounded p-2 text-white outline-none focus:border-accent"
                 value={formData.factory}
                 onChange={e => setFormData({ ...formData, factory: e.target.value })}

@@ -1,22 +1,27 @@
 import React from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { useDocumentDashboardStats } from "@/hooks/useDocumentQueries";
+import { DataTable } from "@/components/ui/DataTable";
+import { Badge } from "@/components/ui/Badge";
+import { useDocumentDashboardStats, useDocumentList } from "@/hooks/useDocumentQueries";
 import { useOnboardingStore } from "@/store/onboarding";
+import { Link } from "react-router-dom";
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from "recharts";
-import { FileText, Upload } from "lucide-react";
+import { FileText, Upload, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6"];
 
 export const DocumentDashboardPage = () => {
   const { data: stats, isLoading } = useDocumentDashboardStats();
+  const { data: docsData, isLoading: docsLoading } = useDocumentList({ limit: 5 });
   const { hasDocuments } = useOnboardingStore();
   const navigate = useNavigate();
 
-  const isEmpty = !hasDocuments && !stats;
+  const documents = docsData?.items || docsData || [];
+  const isEmpty = !hasDocuments && !stats && documents.length === 0;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

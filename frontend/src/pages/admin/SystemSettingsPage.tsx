@@ -51,7 +51,7 @@ export const SystemSettingsPage = () => {
             <div className="space-y-6 max-w-2xl">
               <div>
                 <label className="block text-sm font-bold text-gray-300 mb-2">Platform Name</label>
-                <input type="text" defaultValue="MechaMind OS 2.0" className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
+                <input type="text" defaultValue="MechaMind OS 2.0" placeholder="e.g. MechaMind OS 2.0" className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-300 mb-2">Default Timezone</label>
@@ -81,11 +81,11 @@ export const SystemSettingsPage = () => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-300 mb-2">Session Timeout (minutes)</label>
-                <input type="number" defaultValue={60} className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
+                <input type="number" defaultValue={60} placeholder="e.g. 60" className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-300 mb-2">Minimum Password Length</label>
-                <input type="number" defaultValue={12} className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
+                <input type="number" defaultValue={12} placeholder="e.g. 12" className="w-full bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent" />
               </div>
             </div>
           )}
@@ -167,7 +167,7 @@ export const SystemSettingsPage = () => {
                 <label className="block text-sm font-bold text-gray-300 mb-2">Primary Theme Color</label>
                 <div className="flex items-center gap-4">
                   <input type="color" defaultValue="#3B82F6" className="w-12 h-12 rounded cursor-pointer bg-secondary-bg border border-gray-700 p-1" />
-                  <input type="text" defaultValue="#3B82F6" className="flex-1 bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent font-mono" />
+                  <input type="text" defaultValue="#3B82F6" placeholder="e.g. #3B82F6" className="flex-1 bg-secondary-bg border border-gray-700 rounded p-2.5 text-white outline-none focus:border-accent font-mono" />
                 </div>
               </div>
               <div className="pt-4 border-t border-gray-800">

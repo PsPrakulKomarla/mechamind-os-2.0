@@ -36,6 +36,7 @@ export const PromptEditor = ({ value, onChange, variables }: PromptEditorProps) 
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          placeholder="e.g. System: You are a maintenance assistant analyzing fault code {{code}} for {{machine}}..."
           className="absolute inset-0 w-full h-full p-4 bg-transparent text-transparent caret-white resize-none outline-none z-10 font-mono text-sm"
           spellCheck={false}
         />

@@ -7,7 +7,7 @@ from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.models.enums import ScopeType, MediaType
-from app.schemas.vision import MediaFileUploadResponse, VisionAnalysisResponse
+from app.schemas.vision import MediaFileUploadResponse, VisionAnalysisResponse, BulkMediaUploadResponse
 from app.services.vision.media_service import media_service
 from app.services.vision.vision_analyzer import vision_analyzer
 from app.repositories.vision import vision_repository
@@ -35,13 +35,34 @@ async def upload_video(
     await AuthorizationService.authorize(db, current_user.id, ["document.create"], ScopeType.FACTORY, str(factory_id))
     return await media_service.upload_media(db, current_user.organization_id, factory_id, current_user.id, file, MediaType.VIDEO)
 
+@router.post("/upload-images-bulk", response_model=BulkMediaUploadResponse)
+async def upload_images_bulk(
+    factory_id: UUID,
+    files: List[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload multiple images at once. Returns a summary with success/failure status for each file."""
+    await AuthorizationService.authorize(db, current_user.id, ["document.create"], ScopeType.FACTORY, str(factory_id))
+    return await media_service.upload_media_bulk(db, current_user.organization_id, factory_id, current_user.id, files, MediaType.IMAGE)
+
+@router.post("/upload-videos-bulk", response_model=BulkMediaUploadResponse)
+async def upload_videos_bulk(
+    factory_id: UUID,
+    files: List[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload multiple videos at once. Returns a summary with success/failure status for each file."""
+    await AuthorizationService.authorize(db, current_user.id, ["document.create"], ScopeType.FACTORY, str(factory_id))
+    return await media_service.upload_media_bulk(db, current_user.organization_id, factory_id, current_user.id, files, MediaType.VIDEO)
+
 @router.post("/{media_id}/analyze")
 async def analyze_media(
     media_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Security: Ensure user owns this media via factory link
     media = await vision_repository.get_media_file(db, media_id)
     if not media:
         raise HTTPException(status_code=404, detail="Media not found")
@@ -55,5 +76,4 @@ async def get_asset_vision_history(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # We would authorize the asset here.
     return await vision_repository.get_vision_history_for_asset(db, asset_id)

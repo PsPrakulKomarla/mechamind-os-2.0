@@ -17,7 +17,7 @@ export const LoginPage = () => {
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
 
-  const from = (location.state as { from?: string })?.from || "/";
+  const from = (location.state as { from?: string })?.from || "/dashboard";
 
   const {
     register,

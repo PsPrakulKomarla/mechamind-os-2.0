@@ -47,6 +47,10 @@ export const LoginPage = () => {
   };
 
   const handleGuestLogin = () => {
+    setAuth(
+      { id: "guest-001", email: "guest@mechamind.io", first_name: "Demo", last_name: "User", organization_id: "00000000-0000-0000-0000-000000000000" },
+      "demo-token-abc123"
+    );
     navigate(from, { replace: true });
   };
 
@@ -144,7 +148,20 @@ export const LoginPage = () => {
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-2.5 rounded-lg transition-colors text-sm"
+            >
+              Continue as Guest (Demo)
+            </button>
+            <p className="text-center text-xs text-gray-600 mt-2">
+              No backend required. Uses demo data.
+            </p>
+          </div>
+
+          <p className="text-center text-sm text-gray-400 mt-4">
             Don't have an account?{" "}
             <Link
               to="/register"

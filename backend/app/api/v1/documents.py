@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
 from app.models.enums import DocumentType
-from app.schemas.document import DocumentResponse, DocumentPaginatedResponse
+from app.schemas.document import DocumentResponse, DocumentPaginatedResponse, BulkUploadResponse, LinkUploadRequest
 from app.services.document import document_service
 
 router = APIRouter(tags=["Document Intelligence"])
@@ -24,7 +24,7 @@ async def upload_document(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Ingests a heterogeneous document, writes to abstract storage, and triggers the AI background pipeline.
+    Ingests a single document, writes to abstract storage, and triggers the AI background pipeline.
     """
     final_title = title or file.filename or "Untitled Document"
     final_type = document_type or DocumentType.OTHER
@@ -39,6 +39,48 @@ async def upload_document(
         description=description,
         version=version,
         factory_id=factory_id
+    )
+
+@router.post("/upload-bulk", response_model=BulkUploadResponse, status_code=status.HTTP_201_CREATED)
+async def upload_documents_bulk(
+    files: List[UploadFile] = File(...),
+    document_type: Optional[DocumentType] = Form(None),
+    factory_id: Optional[UUID] = Form(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload multiple files at once. Returns a summary with success/failure for each file."""
+    return await document_service.upload_bulk(
+        db=db, files=files, document_type=document_type,
+        organization_id=current_user.organization_id, user_id=current_user.id, factory_id=factory_id
+    )
+
+@router.post("/upload-zip", response_model=BulkUploadResponse, status_code=status.HTTP_201_CREATED)
+async def upload_zip_archive(
+    file: UploadFile = File(...),
+    document_type: Optional[DocumentType] = Form(None),
+    factory_id: Optional[UUID] = Form(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a zip archive. Extracted and each file becomes an individual document."""
+    return await document_service.upload_zip(
+        db=db, file=file, document_type=document_type,
+        organization_id=current_user.organization_id, user_id=current_user.id, factory_id=factory_id
+    )
+
+@router.post("/upload-link", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
+async def upload_from_link(
+    request: LinkUploadRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Fetch a file from a URL and ingest it as a document."""
+    return await document_service.upload_from_link(
+        db=db, url=request.url, title=request.title,
+        document_type=request.document_type, organization_id=current_user.organization_id,
+        user_id=current_user.id, description=request.description,
+        version=request.version, factory_id=request.factory_id
     )
 
 @router.get("", response_model=DocumentPaginatedResponse)

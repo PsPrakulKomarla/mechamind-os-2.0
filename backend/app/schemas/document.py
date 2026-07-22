@@ -31,3 +31,24 @@ class DocumentPaginatedResponse(BaseModel):
     total: int
     page: int
     size: int
+
+class BulkUploadItemResponse(BaseModel):
+    file_name: str
+    file_size: int
+    status: str
+    document_id: Optional[UUID] = None
+    error: Optional[str] = None
+
+class BulkUploadResponse(BaseModel):
+    total_files: int
+    successful: int
+    failed: int
+    items: List[BulkUploadItemResponse]
+
+class LinkUploadRequest(BaseModel):
+    url: str
+    title: Optional[str] = None
+    document_type: Optional[DocumentType] = None
+    description: Optional[str] = None
+    factory_id: Optional[UUID] = None
+    version: str = "1.0"

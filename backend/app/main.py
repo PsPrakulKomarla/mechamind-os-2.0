@@ -38,6 +38,7 @@ def create_app() -> FastAPI:
         version=settings.VERSION,
         openapi_url=f"{settings.API_V1_STR}/openapi.json",
         lifespan=lifespan,
+        max_content_length=settings.MAX_CONTENT_LENGTH,
     )
 
     from app.middleware.auth import AuthMiddleware

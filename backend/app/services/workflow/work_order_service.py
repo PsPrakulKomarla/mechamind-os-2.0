@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
+from typing import Optional, List
 
 from app.models.workflow import WorkOrder, MaintenanceTask
 from app.schemas.workflow import WorkOrderCreate
@@ -47,6 +48,19 @@ class WorkOrderService:
             
         return saved_wo
         
+    async def list_work_orders(self, db: AsyncSession, factory_id: Optional[UUID] = None, status: Optional[str] = None) -> List[WorkOrder]:
+        return await workflow_repository.list_work_orders(db, factory_id, status)
+
+    async def get_work_order(self, db: AsyncSession, work_order_id: UUID) -> Optional[WorkOrder]:
+        return await workflow_repository.get_work_order(db, work_order_id)
+
+    async def update_status(self, db: AsyncSession, work_order_id: UUID, status: str) -> Optional[WorkOrder]:
+        wo = await workflow_repository.get_work_order(db, work_order_id)
+        if not wo:
+            return None
+        wo.status = status
+        return await workflow_repository.update_work_order_status(db, wo)
+
     async def get_ai_recommendations(self, db: AsyncSession, machine_id: UUID, issue_description: str):
         return await technician_service.recommend_technician(db, machine_id, issue_description)
 

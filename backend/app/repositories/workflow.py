@@ -17,6 +17,16 @@ class WorkflowRepository:
         await db.refresh(work_order)
         return work_order
         
+    async def list_work_orders(self, db: AsyncSession, factory_id: Optional[UUID] = None, status: Optional[str] = None) -> List[WorkOrder]:
+        query = select(WorkOrder)
+        if factory_id:
+            query = query.where(WorkOrder.factory_id == factory_id)
+        if status:
+            query = query.where(WorkOrder.status == status)
+        query = query.order_by(WorkOrder.opened_at.desc())
+        result = await db.execute(query)
+        return result.scalars().all()
+
     async def get_work_order(self, db: AsyncSession, work_order_id: UUID) -> Optional[WorkOrder]:
         return await db.get(WorkOrder, work_order_id)
         

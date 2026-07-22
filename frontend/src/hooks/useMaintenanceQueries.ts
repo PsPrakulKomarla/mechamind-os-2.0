@@ -40,6 +40,18 @@ export const useRcaDetails = (workOrderId: string) => {
   });
 };
 
+export const useCreateWorkOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: any) => maintenanceService.createWorkOrder(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["maintenanceStats"] });
+    }
+  });
+};
+
 export const useUpdateWorkOrderStatus = () => {
   const queryClient = useQueryClient();
 

@@ -8,13 +8,18 @@ export const maintenanceService = {
 
   async getWorkOrders(filters: any = {}) {
     const params = new URLSearchParams(filters);
-    const res = await api.get(`/maintenance/work-orders?${params.toString()}`);
-    return res.data.data;
+    const res = await api.get(`/workflow/work-orders?${params.toString()}`);
+    return res.data;
   },
 
   async getWorkOrderDetails(workOrderId: string) {
-    const res = await api.get(`/maintenance/work-orders/${workOrderId}`);
-    return res.data.data;
+    const res = await api.get(`/workflow/work-orders/${workOrderId}`);
+    return res.data;
+  },
+
+  async createWorkOrder(data: any) {
+    const res = await api.post("/workflow/work-orders", data);
+    return res.data;
   },
 
   async getPredictiveAlerts() {
@@ -23,12 +28,12 @@ export const maintenanceService = {
   },
 
   async getRcaDetails(workOrderId: string) {
-    const res = await api.get(`/maintenance/work-orders/${workOrderId}/rca`);
+    const res = await api.get(`/workflow/work-orders/${workOrderId}/rca`);
     return res.data.data;
   },
 
   async updateWorkOrderStatus(workOrderId: string, status: string) {
-    const res = await api.patch(`/maintenance/work-orders/${workOrderId}/status`, { status });
-    return res.data.data;
+    const res = await api.patch(`/workflow/work-orders/${workOrderId}/status?new_status=${status}`);
+    return res.data;
   }
 };

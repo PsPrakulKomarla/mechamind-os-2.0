@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOnboardingStore } from '@/store/onboarding';
@@ -468,7 +468,7 @@ function ProcessingStep({ files, onComplete }: ProcessingStepProps) {
             ? `Uploading ${uploadedCount} of ${files.length} files...`
             : currentStageIndex <= 1
               ? 'Analyzing and extracting knowledge from your files.'
-              : 'Processing (simulated — backend AI pipeline pending).'}
+              : 'Processing (simulated ΓÇö backend AI pipeline pending).'}
         </p>
       </div>
 
@@ -732,7 +732,7 @@ function DemoLoadingStep({ onComplete }: DemoLoadingStepProps) {
           Importing sample equipment, maintenance records, and relationships for demonstration purposes.
         </p>
         <p className="text-[#F59E0B] text-xs mt-2 font-medium">
-          This is demo data — not real uploaded documents.
+          This is demo data ΓÇö not real uploaded documents.
         </p>
       </div>
 

@@ -62,24 +62,6 @@ pip install -e .
 uvicorn app.main:app --reload --port 8000
 ```
 
-### For Mac/Linux:
-```bash
-# 1. Go to the backend folder
-cd backend
-
-# 2. Create a virtual environment
-python3 -m venv .venv
-
-# 3. Activate the virtual environment
-source .venv/bin/activate
-
-# 4. Install dependencies
-pip install -e .
-
-# 5. Start the backend server
-uvicorn app.main:app --reload --port 8000
-```
-
 *Leave this terminal window open! The backend is now running at `http://localhost:8000`.*
 
 ---
@@ -105,7 +87,7 @@ npm run dev
 
 Once the frontend finishes loading, open your web browser and go to:
 
-👉 **http://localhost:5173**
+👉 **http://localhost:3000**
 
 You can now log in, view the dashboards, and use the AI copilot!
 

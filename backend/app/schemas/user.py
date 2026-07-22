@@ -19,6 +19,15 @@ class UserCreate(BaseSchema):
     last_name: str
     organization_id: UUID
 
+
+# Properties for admin user creation (includes password)
+class AdminUserCreate(BaseSchema):
+    email: EmailStr
+    first_name: str
+    last_name: str
+    organization_id: UUID
+    password: str
+
 # Properties to receive via API on update
 class UserUpdate(UserBase):
     pass
@@ -38,4 +47,5 @@ class UserInDBBase(UserBase):
 
 # Properties to return to client
 class UserResponse(UserInDBBase):
-    pass
+    roles: Optional[List[str]] = None
+    organization_name: Optional[str] = None

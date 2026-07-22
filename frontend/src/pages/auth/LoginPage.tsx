@@ -4,6 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Cpu, Loader2 } from "lucide-react";
+import { authService } from "@/services/authService";
+import { useAuthStore } from "@/store/auth";
 
 const loginSchema = zod.object({
   email: zod.string().email("Please enter a valid email address"),
@@ -16,19 +18,32 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const from = (location.state as { from?: string })?.from || "/";
+  const from = (location.state as { from?: string })?.from || "/dashboard";
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFields>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFields) => {
-    navigate(from, { replace: true });
+  const onSubmit = async (data: LoginFields) => {
+    try {
+      setErrorMsg("");
+      const response = await authService.login(data);
+      // Assuming response structure contains data: { user: {...}, access_token: "..." }
+      if (response && response.data) {
+        setAuth(response.data.user, response.data.access_token);
+        navigate(from, { replace: true });
+      }
+    } catch (err: any) {
+      console.error("Login failed", err);
+      setErrorMsg(err.response?.data?.message || "Failed to log in");
+    }
   };
 
   const handleGuestLogin = () => {
@@ -51,6 +66,11 @@ export const LoginPage = () => {
 
         <div className="bg-[#111827] border border-gray-800 rounded-xl p-8 shadow-2xl shadow-black/40">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {errorMsg && (
+              <div className="bg-red-500/10 border border-red-500/50 text-red-500 text-sm p-3 rounded-lg">
+                {errorMsg}
+              </div>
+            )}
             <div>
               <label
                 htmlFor="email"
@@ -116,9 +136,11 @@ export const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors"
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-2 bg-[#3B82F6] hover:bg-blue-600 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : null}
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </button>
           </form>
 

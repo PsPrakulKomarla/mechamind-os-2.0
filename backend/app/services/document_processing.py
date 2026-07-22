@@ -52,76 +52,84 @@ class DocumentProcessingService:
             "extraction_timestamp": datetime.datetime.now(datetime.UTC).isoformat()
         }
         
-    async def run_pipeline(self, db: AsyncSession, document: Document):
-        try:
-            # 1. Validation
-            document.processing_status = ProcessingStatus.VALIDATING
-            db.add(document)
-            await db.commit()
+    async def run_pipeline(self, document_id: uuid.UUID):
+        from app.db.session import AsyncSessionLocal
+        from app.repositories.document import document_repo
+        
+        async with AsyncSessionLocal() as db:
+            try:
+                document = await document_repo.get(db, document_id)
+                if not document:
+                    return
+                # 1. Validation
+                document.processing_status = ProcessingStatus.VALIDATING
+                db.add(document)
+                await db.commit()
             
-            # 2. Extract Metadata
-            document.processing_status = ProcessingStatus.EXTRACTING
-            metadata = await self.extract_metadata(document.file_name, document.mime_type, document.file_size)
-            document.extracted_metadata = metadata
-            db.add(document)
-            await db.commit()
+                # 2. Extract Metadata
+                document.processing_status = ProcessingStatus.EXTRACTING
+                metadata = await self.extract_metadata(document.file_name, document.mime_type, document.file_size)
+                document.extracted_metadata = metadata
+                db.add(document)
+                await db.commit()
             
-            # 3. Text Extraction (OCR/PDF Parsing)
-            document.processing_status = ProcessingStatus.OCR_PROCESSING
-            db.add(document)
-            await db.commit()
+                # 3. Text Extraction (OCR/PDF Parsing)
+                document.processing_status = ProcessingStatus.OCR_PROCESSING
+                db.add(document)
+                await db.commit()
             
-            # Run blocking I/O in thread pool
-            raw_text = await asyncio.to_thread(self.extract_text, document.file_path, document.mime_type)
+                # Run blocking I/O in thread pool
+                raw_text = await asyncio.to_thread(self.extract_text, document.file_path, document.mime_type)
             
-            # 4. Chunking and Embedding
-            document.processing_status = ProcessingStatus.PROCESSING
-            db.add(document)
-            await db.commit()
-
-            chunks = self.chunk_text(raw_text)
-            
-            for chunk in chunks:
-                if not chunk.strip():
-                    continue
-                
-                # 1. Insert ExtractedContent
-                chunk_id = uuid.uuid4()
-                from app.models.extraction import ExtractedContent
-                extracted_content = ExtractedContent(
-                    id=chunk_id,
-                    document_id=document.id,
-                    content_type='paragraph',
-                    text_content=chunk,
-                    metadata_payload={"file_name": document.file_name}
-                )
-                db.add(extracted_content)
+                # 4. Chunking and Embedding
+                document.processing_status = ProcessingStatus.PROCESSING
+                db.add(document)
                 await db.commit()
 
-                # 2. Insert into pgvector
-                chunk_meta = {
-                    "document_name": document.title,
-                    "file_name": document.file_name
-                }
-                await vector_store.save_embedding(
-                    db=db,
-                    organization_id=document.organization_id,
-                    factory_id=document.factory_id,
-                    document_id=document.id,
-                    chunk_id=chunk_id,
-                    content=chunk,
-                    metadata=chunk_meta
-                )
+                chunks = self.chunk_text(raw_text)
             
-            # 5. Completed
-            document.processing_status = ProcessingStatus.COMPLETED
-            db.add(document)
-            await db.commit()
+                for chunk in chunks:
+                    if not chunk.strip():
+                        continue
+                
+                    # 1. Insert ExtractedContent
+                    chunk_id = uuid.uuid4()
+                    from app.models.extraction import ExtractedContent
+                    extracted_content = ExtractedContent(
+                        id=chunk_id,
+                        document_id=document.id,
+                        content_type='paragraph',
+                        text_content=chunk,
+                        metadata_payload={"file_name": document.file_name}
+                    )
+                    db.add(extracted_content)
+                    await db.commit()
+
+                    # 2. Insert into pgvector
+                    chunk_meta = {
+                        "document_name": document.title,
+                        "file_name": document.file_name
+                    }
+                    await vector_store.save_embedding(
+                        db=db,
+                        organization_id=document.organization_id,
+                        factory_id=document.factory_id,
+                        document_id=document.id,
+                        chunk_id=chunk_id,
+                        content=chunk,
+                        metadata=chunk_meta
+                    )
             
-        except Exception as e:
-            traceback.print_exc()
-            document.processing_status = ProcessingStatus.FAILED
-            db.add(document)
-            await db.commit()
+                # 5. Completed
+                document.processing_status = ProcessingStatus.COMPLETED
+                db.add(document)
+                await db.commit()
+            
+            except Exception as e:
+                traceback.print_exc()
+                if 'document' in locals() and document:
+                    document.processing_status = ProcessingStatus.FAILED
+                    db.add(document)
+                    await db.commit()
 
 document_processor = DocumentProcessingService()

@@ -1,5 +1,0 @@
-- C:\Users\prakul\Desktop\projects\inventory_projects.py: Bounded repository inventory helper excluding generated/dependency/binary/large-data content.- C:\Users\prakul\Desktop\projects\apply_mechamind_repairs.py: Reproducible focused patch script for backend schema import and frontend TypeScript build repairs.
-- C:\Users\prakul\Desktop\projects\mechamind-os\backend\app\schemas\base.py: Compatibility module restoring the shared BaseSchema import expected by backend schemas.
-- C:\Users\prakul\Desktop\projects\mechamind-os\backend\app\services\audit.py: Central domain audit service adapter used by machine, document, component, knowledge, copilot, relationship, and risk services.
-- C:\Users\prakul\Desktop\projects\mechamind-os\backend\app\services\redis.py: Resilient best-effort Redis cache client expected by machine services, preventing cache outages from failing database operations.
-- C:\Users\prakul\Desktop\projects\check_backend_imports.py: AST-based backend import/dependency availability checker.

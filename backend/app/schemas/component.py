@@ -65,6 +65,7 @@ class ComponentBase(BaseModel):
     operational_status: MachineStatus = MachineStatus.OPERATIONAL
 
 class ComponentCreate(ComponentBase):
+    machine_id: UUID
     subsystem_id: Optional[UUID] = None
 
 class ComponentUpdate(BaseModel):

@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 import os
 import aiofiles
+import zipfile
+import io
+import httpx
 from pathlib import Path
 from fastapi import UploadFile
+from typing import List, Tuple
 
 from app.core.config import settings
 
@@ -12,6 +16,11 @@ class StorageProvider(ABC):
     @abstractmethod
     async def upload_file(self, file: UploadFile, directory: str, filename: str) -> str:
         """Uploads a file and returns the storage path/URI"""
+        pass
+
+    @abstractmethod
+    async def upload_bytes(self, data: bytes, directory: str, filename: str) -> str:
+        """Uploads raw bytes and returns the storage path/URI"""
         pass
         
     @abstractmethod
@@ -35,6 +44,17 @@ class LocalStorageProvider(StorageProvider):
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = await file.read()
             await out_file.write(content)
+            
+        return str(file_path.absolute())
+
+    async def upload_bytes(self, data: bytes, directory: str, filename: str) -> str:
+        target_dir = self.base_dir / directory
+        target_dir.mkdir(parents=True, exist_ok=True)
+        
+        file_path = target_dir / filename
+        
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            await out_file.write(data)
             
         return str(file_path.absolute())
         

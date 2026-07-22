@@ -26,6 +26,27 @@ class DocumentResponse(DocumentBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class BulkUploadItemResponse(BaseModel):
+    file_name: str
+    file_size: int
+    status: str
+    document_id: Optional[UUID] = None
+    error: Optional[str] = None
+
+class BulkUploadResponse(BaseModel):
+    total_files: int
+    successful: int
+    failed: int
+    items: List[BulkUploadItemResponse]
+
+class LinkUploadRequest(BaseModel):
+    url: str
+    title: Optional[str] = None
+    document_type: Optional[DocumentType] = None
+    description: Optional[str] = None
+    factory_id: Optional[UUID] = None
+    version: str = "1.0"
+
 class DocumentPaginatedResponse(BaseModel):
     items: List[DocumentResponse]
     total: int

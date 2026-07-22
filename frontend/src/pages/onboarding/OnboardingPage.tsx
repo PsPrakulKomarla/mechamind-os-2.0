@@ -27,7 +27,7 @@ import {
   Building2,
   Search,
 } from 'lucide-react';
-import { useUploadDocument } from '@/hooks/useDocumentQueries';
+import { useUploadDocument, useBatchUploadDocuments } from '@/hooks/useDocumentQueries';
 
 type FlowChoice = 'upload' | 'demo' | 'connect';
 type WizardStep = 'welcome' | 'file-selection' | 'processing' | 'demo-loading' | 'summary';
@@ -375,7 +375,7 @@ function ProcessingStep({ files, onComplete }: ProcessingStepProps) {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [stageProgress, setStageProgress] = useState(0);
   const [uploadedCount, setUploadedCount] = useState(0);
-  const uploadMutation = useUploadDocument();
+  const batchMutation = useBatchUploadDocuments();
 
   const stages = [
     { label: 'Uploading Documents', icon: Upload, color: '#3B82F6' },
@@ -389,34 +389,35 @@ function ProcessingStep({ files, onComplete }: ProcessingStepProps) {
   useEffect(() => {
     let cleanup: (() => void) | undefined;
 
-    if (currentStageIndex === 0 && files.length > 0) {
-      let fileIndex = 0;
-      const uploadNext = () => {
-        if (fileIndex >= files.length) {
-          setTimeout(() => {
-            setCurrentStageIndex(1);
-            setStageProgress(0);
-          }, 500);
-          return;
+    if (currentStageIndex === 0 && files.length > 0 && !batchMutation.isPending) {
+      // Kick off batch upload for all files at once (concurrency=5)
+      batchMutation.mutate(
+        {
+          files,
+          concurrency: 5,
+          onProgress: (completed) => {
+            setUploadedCount(completed);
+            setStageProgress((completed / files.length) * 100);
+          },
+        },
+        {
+          onSuccess: () => {
+            setStageProgress(100);
+            setTimeout(() => {
+              setCurrentStageIndex(1);
+              setStageProgress(0);
+            }, 500);
+          },
+          onError: () => {
+            // Still advance — partial uploads may have succeeded
+            setStageProgress(100);
+            setTimeout(() => {
+              setCurrentStageIndex(1);
+              setStageProgress(0);
+            }, 500);
+          },
         }
-        uploadMutation.mutate(
-          { file: files[fileIndex] },
-          {
-            onSuccess: () => {
-              setUploadedCount((prev) => prev + 1);
-              fileIndex++;
-              setStageProgress((fileIndex / files.length) * 100);
-              uploadNext();
-            },
-            onError: () => {
-              fileIndex++;
-              setStageProgress((fileIndex / files.length) * 100);
-              uploadNext();
-            },
-          }
-        );
-      };
-      uploadNext();
+      );
     } else if (currentStageIndex > 0) {
       if (currentStageIndex >= stages.length) {
         onComplete({
@@ -444,7 +445,7 @@ function ProcessingStep({ files, onComplete }: ProcessingStepProps) {
     }
 
     return cleanup;
-  }, [currentStageIndex, files, stages.length, onComplete, uploadMutation]);
+  }, [currentStageIndex, files, stages.length, onComplete, batchMutation]);
 
   return (
     <motion.div

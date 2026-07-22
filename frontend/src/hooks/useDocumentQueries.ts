@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { documentService } from "@/services/documentService";
+import { documentService, BatchUploadResult } from "@/services/documentService";
 
 export const useDocumentDashboardStats = () => {
   return useQuery({
@@ -44,6 +44,28 @@ export const useUploadDocument = () => {
 
   return useMutation({
     mutationFn: ({ file, metadata }: { file: File, metadata?: any }) => documentService.uploadDocument(file, metadata),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["documentStats"] });
+    }
+  });
+};
+
+export const useBatchUploadDocuments = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      files,
+      metadata,
+      concurrency,
+      onProgress,
+    }: {
+      files: File[];
+      metadata?: any;
+      concurrency?: number;
+      onProgress?: (completed: number, total: number) => void;
+    }) => documentService.uploadDocuments(files, metadata, concurrency, onProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       queryClient.invalidateQueries({ queryKey: ["documentStats"] });

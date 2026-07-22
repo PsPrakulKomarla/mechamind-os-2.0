@@ -8,9 +8,8 @@ from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
 from app.dependencies.rbac import RequirePermissions
 from app.schemas.response import APIResponse
-from app.schemas.user import UserResponse
-from app.schemas.rbac import RoleCreate, AssignPermissionRequest, AssignRoleRequest
-from app.schemas.user import AdminUserCreate, UserUpdate
+from app.schemas.user import UserResponse, AdminUserCreate, UserUpdate
+from app.schemas.rbac import RoleCreate, RoleUpdate, AssignPermissionRequest, AssignRoleRequest, PermissionCheckRequest
 from app.schemas.admin import AdminDashboardStatsResponse
 from app.models.user import User
 from app.services.admin import admin_service

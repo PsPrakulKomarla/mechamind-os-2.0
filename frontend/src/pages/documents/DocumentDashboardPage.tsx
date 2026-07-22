@@ -1,6 +1,5 @@
 import React from "react";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { DataTable } from "@/components/ui/DataTable";
 import { Badge } from "@/components/ui/Badge";
 import { useDocumentDashboardStats, useDocumentList } from "@/hooks/useDocumentQueries";
 import { useOnboardingStore } from "@/store/onboarding";
@@ -50,7 +49,7 @@ export const DocumentDashboardPage = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            <StatCard title="Total Documents" value={stats?.total ?? "—"} trend={stats?.total_trend} isLoading={isLoading} />
+            <StatCard title="Total Documents" value={stats?.total ?? (documents.length || "—")} trend={stats?.total_trend} isLoading={isLoading} />
             <StatCard title="Pending Review" value={stats?.pending ?? "—"} trend={stats?.pending_trend} isLoading={isLoading} />
             <StatCard title="OCR Success Rate" value={stats?.ocrRate ? `${stats.ocrRate}%` : "—"} trend={stats?.ocr_trend} isLoading={isLoading} />
             <StatCard title="Knowledge Nodes" value={stats?.nodes ?? "—"} trend={stats?.nodes_trend} isLoading={isLoading} />
@@ -129,6 +128,50 @@ export const DocumentDashboardPage = () => {
           {!stats?.uploadHistory && (
             <div className="bg-secondary-bg border border-gray-800 rounded-xl p-8 text-center">
               <p className="text-gray-500 text-sm">Upload charts will appear once document data is available.</p>
+            </div>
+          )}
+
+          {documents.length > 0 && (
+            <div className="bg-secondary-bg border border-gray-800 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white">Recent Documents</h2>
+                <Link to="/documents/library" className="flex items-center gap-1 text-sm text-accent hover:underline">
+                  View All <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-xs text-gray-500 uppercase border-b border-gray-800">
+                      <th className="pb-3 font-semibold">Title</th>
+                      <th className="pb-3 font-semibold">Type</th>
+                      <th className="pb-3 font-semibold">Status</th>
+                      <th className="pb-3 font-semibold">Uploaded</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-800/50">
+                    {documents.slice(0, 5).map((doc: any) => (
+                      <tr key={doc.id} className="text-sm hover:bg-secondary-bg/50 transition-colors">
+                        <td className="py-3 pr-4">
+                          <Link to={`/documents/${doc.id}`} className="text-accent hover:underline font-medium flex items-center gap-2">
+                            <FileText size={14} className="text-gray-500" />
+                            {doc.title}
+                          </Link>
+                        </td>
+                        <td className="py-3 pr-4 text-gray-400">{doc.document_type || doc.type || "—"}</td>
+                        <td className="py-3 pr-4">
+                          <Badge variant={(doc.processing_status === "COMPLETED" || doc.processing_status === "Indexed") ? "success" : "warning"} className="text-[10px] py-0">
+                            {doc.processing_status}
+                          </Badge>
+                        </td>
+                        <td className="py-3 text-gray-500 text-xs">
+                          {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>

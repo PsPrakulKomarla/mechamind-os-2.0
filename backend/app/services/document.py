@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import asyncio
 from typing import Optional, List, Tuple
 from fastapi import UploadFile, HTTPException
@@ -78,7 +78,7 @@ class DocumentService:
         
         # 5. Trigger Background Processing Pipeline (in reality, dispatch to Celery/Redis)
         # We use asyncio.create_task to fire and forget for the prototype
-        asyncio.create_task(document_processor.run_pipeline(db, doc))
+        asyncio.create_task(document_processor.run_pipeline(doc.id))
         
         # 6. Audit
         await audit_service.log_action(db, user_id, AuditAction.CREATE, EntityType.DOCUMENT, doc.id, {"file_name": doc.file_name})

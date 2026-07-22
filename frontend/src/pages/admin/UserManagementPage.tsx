@@ -4,10 +4,14 @@ import { Badge } from "@/components/ui/Badge";
 import { UserForm } from "@/components/admin/UserForm";
 import { useUsers, useDeleteUser } from "@/hooks/useAdminQueries";
 import { Users, Plus, Edit2, Trash2 } from "lucide-react";
+import { useCan } from "@/hooks/useCan";
 
 export const UserManagementPage = () => {
   const { data: users, isLoading } = useUsers({});
   const deleteMutation = useDeleteUser();
+  const canCreate = useCan("create", "admin.users");
+  const canEdit = useCan("edit", "admin.users");
+  const canDelete = useCan("delete", "admin.users");
   
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -48,12 +52,16 @@ export const UserManagementPage = () => {
     )},
     { header: "Actions", accessorKey: "id", cell: (row: any) => (
       <div className="flex gap-2">
-        <button onClick={() => handleEdit(row)} className="p-1.5 text-gray-400 hover:text-white bg-gray-800 rounded transition-colors">
-          <Edit2 size={14} />
-        </button>
-        <button onClick={() => handleDelete(row.id)} className="p-1.5 text-danger hover:text-white hover:bg-danger bg-danger/10 rounded transition-colors">
-          <Trash2 size={14} />
-        </button>
+        {canEdit && (
+          <button onClick={() => handleEdit(row)} className="p-1.5 text-gray-400 hover:text-white bg-gray-800 rounded transition-colors">
+            <Edit2 size={14} />
+          </button>
+        )}
+        {canDelete && (
+          <button onClick={() => handleDelete(row.id)} className="p-1.5 text-danger hover:text-white hover:bg-danger bg-danger/10 rounded transition-colors">
+            <Trash2 size={14} />
+          </button>
+        )}
       </div>
     )}
   ];
@@ -67,7 +75,7 @@ export const UserManagementPage = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Manage platform access and directory</p>
         </div>
-        <button onClick={handleCreate} className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded font-medium transition-colors">
+        <button onClick={handleCreate} disabled={!canCreate} className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded font-medium transition-colors disabled:opacity-40">
           <Plus size={16} /> Add User
         </button>
       </div>

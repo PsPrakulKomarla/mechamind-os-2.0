@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { RoleMatrix } from "@/components/admin/RoleMatrix";
 import { Shield, Plus } from "lucide-react";
 import { Card } from "@/components/ui/Card";
+import { useCan } from "@/hooks/useCan";
 
 export const RoleManagementPage = () => {
+  const canCreate = useCan("create", "admin.roles");
+  const canEdit = useCan("edit", "admin.roles");
   const [selectedRole, setSelectedRole] = useState("Factory Manager");
 
   const roles = ["Super Admin", "Factory Manager", "Maintenance Supervisor", "Technician", "Viewer"];
@@ -77,7 +80,8 @@ export const RoleManagementPage = () => {
         </div>
         <button 
           onClick={() => setIsFormOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded font-medium transition-colors"
+          disabled={!canCreate}
+          className="flex items-center gap-2 px-4 py-2 bg-secondary-bg hover:bg-gray-800 border border-gray-700 text-white rounded font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus size={16} /> Create Custom Role
         </button>
@@ -108,7 +112,7 @@ export const RoleManagementPage = () => {
                 <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors">
+                <button type="submit" disabled={!canCreate} className="px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors disabled:opacity-40">
                   Create Role
                 </button>
               </div>
@@ -139,7 +143,7 @@ export const RoleManagementPage = () => {
               <h2 className="text-xl font-bold text-white">{selectedRole}</h2>
               <p className="text-sm text-gray-400 mt-1">Configure module-level access for this role.</p>
             </div>
-            <button className="px-4 py-2 bg-accent text-white rounded hover:bg-accent/90 transition-colors text-sm font-medium">
+            <button disabled={!canEdit} className="px-4 py-2 bg-accent text-white rounded hover:bg-accent/90 transition-colors text-sm font-medium disabled:opacity-40">
               Save Permissions
             </button>
           </div>

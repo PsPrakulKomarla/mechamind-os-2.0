@@ -48,7 +48,15 @@ export const LoginPage = () => {
 
   const handleGuestLogin = () => {
     setAuth(
-      { id: "guest-001", email: "guest@mechamind.io", first_name: "Demo", last_name: "User", organization_id: "00000000-0000-0000-0000-000000000000" },
+      {
+        id: "guest-001",
+        email: "guest@mechamind.io",
+        first_name: "Demo",
+        last_name: "User",
+        organization_id: "00000000-0000-0000-0000-000000000000",
+        role: "demo",
+        permissions: ["*.view", "documents.upload", "chat.send"],
+      },
       "demo-token-abc123"
     );
     navigate(from, { replace: true });

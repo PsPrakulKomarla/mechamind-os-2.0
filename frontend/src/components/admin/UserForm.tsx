@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Save } from "lucide-react";
 import { useCreateUser, useUpdateUser } from "@/hooks/useAdminQueries";
+import { useCan } from "@/hooks/useCan";
 
 interface UserFormProps {
   initialData?: any;
@@ -8,6 +9,9 @@ interface UserFormProps {
 }
 
 export const UserForm = ({ initialData, onClose }: UserFormProps) => {
+  const canCreate = useCan("create", "admin.users");
+  const canEdit = useCan("edit", "admin.users");
+  const isDemoDisabled = !canCreate && !canEdit;
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -112,8 +116,8 @@ export const UserForm = ({ initialData, onClose }: UserFormProps) => {
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={isPending} className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors disabled:opacity-50">
-              <Save size={16} /> {isPending ? "Saving..." : "Save User"}
+            <button type="submit" disabled={isPending || isDemoDisabled} className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent/90 text-white rounded text-sm font-medium transition-colors disabled:opacity-50">
+              <Save size={16} /> {isDemoDisabled ? "View Only" : isPending ? "Saving..." : "Save User"}
             </button>
           </div>
         </form>

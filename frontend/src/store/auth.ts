@@ -6,6 +6,8 @@ interface UserProfile {
   first_name: string;
   last_name: string;
   organization_id: string;
+  role?: string;
+  permissions?: string[];
 }
 
 interface AuthState {

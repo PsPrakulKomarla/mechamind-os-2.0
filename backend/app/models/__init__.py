@@ -42,6 +42,10 @@ from app.models.integration import IntegrationConnector, SynchronizationJob, Syn
 from app.models.mlops import AiModel, ModelVersion
 from app.models.security import SecurityEventLog
 from app.models.brain import AgentConversation, AgentMessage, OrchestrationAudit
+from app.models.building import Building
+from app.models.supplier import Supplier
+from app.models.inventory import InventoryItem
+from app.models.purchase_order import PurchaseOrder, PurchaseOrderItem
 
 __all__ = [
     "UserStatus",
@@ -132,5 +136,10 @@ __all__ = [
     "SecurityEventLog",
     "AgentConversation",
     "AgentMessage",
-    "OrchestrationAudit"
+    "OrchestrationAudit",
+    "Building",
+    "Supplier",
+    "InventoryItem",
+    "PurchaseOrder",
+    "PurchaseOrderItem"
 ]

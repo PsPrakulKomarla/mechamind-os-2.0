@@ -11,7 +11,7 @@ export const WorkOrdersPage = () => {
   const { data: workOrders, isLoading } = useWorkOrdersList({ search: searchTerm });
   const createMutation = useCreateWorkOrder();
 
-  const mockWorkOrders = workOrders || [
+  const mockWorkOrders = (workOrders?.length ? workOrders : [
     { id: "WO-2026-001", title: "Replace primary spindle bearing", machine: "Stamping Press M-201", priority: "critical", status: "open", assignee: "J. Smith", dueDate: "2026-07-25T10:00:00Z" },
     { id: "WO-2026-002", title: "Hydraulic fluid flush & filter replacement", machine: "Injection Molder M-103", priority: "high", status: "open", assignee: "A. Patel", dueDate: "2026-07-28T10:00:00Z" },
     { id: "WO-2026-003", title: "Calibrate torque sensors on robotic arm", machine: "Assembly Line A-5", priority: "medium", status: "open", assignee: "M. Lee", dueDate: "2026-08-01T10:00:00Z" },
@@ -24,7 +24,8 @@ export const WorkOrdersPage = () => {
     { id: "WO-2026-010", title: "Emergency stop button test - South Wing", machine: "Factory South Wing", priority: "critical", status: "review", assignee: "K. Tanaka", dueDate: "2026-07-15T10:00:00Z" },
     { id: "WO-2026-011", title: "Annual motor insulation resistance test", machine: "Motor M-305", priority: "medium", status: "closed", assignee: "J. Smith", dueDate: "2026-06-30T10:00:00Z" },
     { id: "WO-2026-012", title: "Replace cooling tower fan belt", machine: "Cooling Tower CT-101", priority: "high", status: "closed", assignee: "A. Patel", dueDate: "2026-06-28T10:00:00Z" },
-  ];
+  ]);
+
 
   const handleCreate = (data: any) => {
     createMutation.mutate(data, {
